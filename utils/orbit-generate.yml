@@ -1,0 +1,33 @@
+# |--------------------------------------------------------------------------
+# | Orbit commands
+# |--------------------------------------------------------------------------
+# |
+# | This file describes the Orbit commands of the project. It requires values
+# | from images.yml.
+# |
+# | https://github.com/gulien/orbit/
+# |
+
+commands:
+
+  # |--------------------------------------------------------------------------
+  # | orbit run generate-apache
+  # |--------------------------------------------------------------------------
+  # |
+  # | Generates the Apache Dockerfile.
+  # |
+
+  - use: generate-apache
+    run:
+      - orbit generate -t=apache/Dockerfile.blueprint -o=apache/Dockerfile -v=Images,images.yml
+
+  # |--------------------------------------------------------------------------
+  # | orbit run generate-readme
+  # |--------------------------------------------------------------------------
+  # |
+  # | Generates the README.md file.
+  # |
+
+  - use: generate-readme
+    run:
+      - orbit generate -t=utils/README.blueprint.md -o=README.md -v=Images,images.yml

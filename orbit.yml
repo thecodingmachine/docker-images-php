@@ -1,0 +1,23 @@
+# |--------------------------------------------------------------------------
+# | Orbit commands
+# |--------------------------------------------------------------------------
+# |
+# | This file describes the Orbit commands of the project.
+# |
+# | https://github.com/gulien/orbit/
+# |
+
+commands:
+
+  # |--------------------------------------------------------------------------
+  # | orbit run generate
+  # |--------------------------------------------------------------------------
+  # |
+  # | Generates all Dockerfiles and the README.md file.
+  # |
+
+  - use: generate
+    short: Generates all Dockerfiles and the README.md file
+    run:
+      - orbit run generate-apache -c=utils/orbit-generate.yml -v=Images,images.yml
+      - orbit run generate-readme -c=utils/orbit-generate.yml -v=Images,images.yml
