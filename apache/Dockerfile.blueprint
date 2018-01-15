@@ -11,80 +11,65 @@ MAINTAINER Julien Neuhart <j.neuhart@thecodingmachine.com>
 # | Installs the main PHP extensions
 # |
 
-RUN apt-get update &&\
-    apt-get install -y --no-install-recommends \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libmcrypt-dev \
-    libpng12-dev \
-    zlib1g-dev \
-    libicu-dev \
-    libxml2-dev \
-    libyaml-dev \
-    g++
-
-RUN set -xe &&\
-    docker-php-ext-configure bcmath --enable-bcmath &&\
-    docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ &&\
-    docker-php-ext-configure intl --enable-intl &&\
-    docker-php-ext-configure mbstring --enable-mbstring &&\
-    docker-php-ext-configure mcrypt --enable-mcrypt &&\
-    docker-php-ext-configure pdo_mysql --with-pdo-mysql &&\
-    docker-php-ext-configure opcache --enable-opcache &&\
-    docker-php-ext-configure soap --enable-soap &&\
-    docker-php-ext-configure zip --enable-zip &&\
-    docker-php-ext-install \
-        bcmath \
-        gd \
-        intl \
-        mbstring \
-        mcrypt \
-        pdo_mysql \
-        opcache \
-        soap \
-        zip
-
-# |--------------------------------------------------------------------------
-# | APCu extension
-# |--------------------------------------------------------------------------
-# |
-# | Installs the APCu extension for PHP.
-# |
-
-ENV APCU_VERSION {{ $stack.apcu_version }}
-
-RUN mkdir -p /usr/src/php/ext/apcu &&\
-    curl -L https://github.com/krakjoe/apcu/archive/v$APCU_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/apcu --strip 1 &&\
-    echo 'apcu' >> /usr/src/php-available-exts &&\
-    docker-php-ext-install apcu
-
-# |--------------------------------------------------------------------------
-# | PHP extension for Redis
-# |--------------------------------------------------------------------------
-# |
-# | Installs the Redis extension for PHP.
-# |
-
-ENV PHPREDIS_VERSION {{ $stack.phpredis_version }}
-
-RUN mkdir -p /usr/src/php/ext/redis &&\
-    curl -L https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 &&\
-    echo 'redis' >> /usr/src/php-available-exts &&\
-    docker-php-ext-install redis
-
-# |--------------------------------------------------------------------------
-# | YAML extension
-# |--------------------------------------------------------------------------
-# |
-# | Installs the YAML extension for PHP.
-# |
-
-ENV YAML_VERSION {{ $stack.yaml_version }}
-
-RUN mkdir -p /usr/src/php/ext/yaml &&\
-    curl -L https://github.com/php/pecl-file_formats-yaml/archive/$YAML_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/yaml --strip 1 &&\
-    echo 'yaml' >> /usr/src/php-available-exts &&\
-    docker-php-ext-install yaml
+# Install php extensions
+# Shamelessly borrowed from https://github.com/TetraWeb/docker/
+RUN buildDeps=" \
+        freetds-dev \
+        libbz2-dev \
+        libc-client-dev \
+        libenchant-dev \
+        libfreetype6-dev \
+        libgmp3-dev \
+        libicu-dev \
+        libjpeg62-turbo-dev \
+        libkrb5-dev \
+        libldap2-dev \
+        libmcrypt-dev \
+        libpng12-dev \
+        libpq-dev \
+        libpspell-dev \
+        librabbitmq-dev \
+        libsasl2-dev \
+        libsnmp-dev \
+        libssl-dev \
+        libtidy-dev \
+        libxml2-dev \
+        libxpm-dev \
+        libxslt1-dev \
+        zlib1g-dev \
+    " \
+    && phpModules=" \
+        bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mcrypt mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
+    " \
+    && echo "deb http://httpredir.debian.org/debian jessie contrib non-free" > /etc/apt/sources.list.d/additional.list \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host --no-install-recommends \
+    && apt-get install -y $buildDeps --no-install-recommends \
+    && docker-php-source extract \
+    && cd /usr/src/php/ext/ \
+    && curl -L http://xdebug.org/files/xdebug-{{ $stack.xdebug_version }}.tgz | tar -zxf - \
+    && mv xdebug-{{ $stack.xdebug_version }} xdebug \
+    && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
+    && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.so /usr/lib/libldap.so \
+    && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.a /usr/lib/libldap_r.a \
+    && ln -s /usr/lib/x86_64-linux-gnu/libsybdb.a /usr/lib/libsybdb.a \
+    && ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so \
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-xpm-dir=/usr/include/ \
+    && docker-php-ext-configure imap --with-imap --with-kerberos --with-imap-ssl \
+    && docker-php-ext-configure ldap --with-ldap-sasl \
+    && docker-php-ext-install $phpModules \
+    && printf "\n" | pecl install amqp \
+    && pecl install igbinary \
+    && printf "\n" | pecl install memcached \
+    && pecl install mongodb \
+    && pecl install redis \
+    && pecl install apcu \
+    && pecl install yaml \
+    && pecl install weakref \
+    && for ext in $phpModules; do \
+           rm -f /usr/local/etc/php/conf.d/docker-php-ext-$ext.ini; \
+       done \
+    && docker-php-source delete \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps
 
 # |--------------------------------------------------------------------------
 # | Xdebug
@@ -93,19 +78,19 @@ RUN mkdir -p /usr/src/php/ext/yaml &&\
 # | Installs Xdebug, a tool for easily debugging your PHP code.
 # |
 
-ENV XDEBUG_VERSION {{ $stack.xdebug_version }}
+#ENV XDEBUG_VERSION {{ $stack.xdebug_version }}
 
-RUN mkdir -p /usr/src/php/ext/xdebug &&\
-    curl -L https://github.com/xdebug/xdebug/archive/$XDEBUG_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/xdebug --strip 1 &&\
-    echo 'xdebug' >> /usr/src/php-available-exts &&\
-    docker-php-ext-install xdebug &&\
-    { \
-        echo 'xdebug.remote_enable=on'; \
-        echo 'xdebug.remote_autostart=off'; \
-        echo 'xdebug.remote_port=9000'; \
-        echo 'xdebug.remote_handler=dbgp'; \
-        echo 'xdebug.remote_connect_back=0'; \
-    } >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+#RUN mkdir -p /usr/src/php/ext/xdebug &&\
+#    curl -L https://github.com/xdebug/xdebug/archive/$XDEBUG_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/xdebug --strip 1 &&\
+#    echo 'xdebug' >> /usr/src/php-available-exts &&\
+#    docker-php-ext-install xdebug &&\
+#    { \
+#        echo 'xdebug.remote_enable=on'; \
+#        echo 'xdebug.remote_autostart=off'; \
+#        echo 'xdebug.remote_port=9000'; \
+#        echo 'xdebug.remote_handler=dbgp'; \
+#        echo 'xdebug.remote_connect_back=0'; \
+#    } >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # |--------------------------------------------------------------------------
 # | Git
@@ -122,39 +107,19 @@ RUN apt-get install -y --no-install-recommends git
 # |
 # | Installs Composer to easily manage your PHP dependencies.
 # |
-ENV COMPOSER_VERSION {{ $stack.composer_version }}
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION &&\
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
     chmod +x /usr/local/bin/composer
 
 # |--------------------------------------------------------------------------
 # | prestissimo
 # |--------------------------------------------------------------------------
 # |
-# | Installs prestissimo to fix Composer performance issues.
+# | Installs Prestissimo to improve Composer download performance.
 # |
 
-ENV PRESTISSIMO_VERSION {{ $stack.prestissimo_version }}
-
-RUN composer global require hirak/prestissimo:$PRESTISSIMO_VERSION --verbose
-
-# |--------------------------------------------------------------------------
-# | PHP Coding Standards Fixer
-# |--------------------------------------------------------------------------
-# |
-# | The PHP Coding Standards Fixer tool fixes most issues in your code when
-# | you want to follow the PHP coding standards as defined in the PSR-1 and
-# | PSR-2 documents and many more.
-# |
-
-ENV PHP_CS_FIXER_VERSION {{ $stack.php_cs_fixer_version }}
-
-RUN apt-get update &&\
-    apt-get install -y --no-install-recommends wget &&\
-    wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v$PHP_CS_FIXER_VERSION/php-cs-fixer.phar -O php-cs-fixer &&\
-    chmod a+x php-cs-fixer &&\
-    mv php-cs-fixer /usr/local/bin/php-cs-fixer
+RUN composer global require hirak/prestissimo
 
 # |--------------------------------------------------------------------------
 # | NodeJS
@@ -164,9 +129,7 @@ RUN apt-get update &&\
 # | your frontend dependencies.
 # |
 
-ENV NODE_VERSION {{ $stack.node_version }}
-
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - &&\
+RUN curl -sL https://deb.nodesource.com/setup_{{ $stack.node_version }} | bash - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends nodejs
 
@@ -176,8 +139,6 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - &&\
 # |
 # | Installs yarn. It provides some nice improvements over npm.
 # |
-
-ENV YARN_VERSION {{ $stack.yarn_version }}
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
@@ -192,6 +153,31 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
 # |
 
 RUN a2enmod rewrite
+
+# |--------------------------------------------------------------------------
+# | Install Orbit
+# |--------------------------------------------------------------------------
+# |
+# | Download Orbit
+# |
+
+#RUN curl -L https://github.com/gulien/orbit/releases/download/v2.0.0/orbit_Linux_x86_64.tar.gz --output orbit.tgz && \
+#    tar -zxf orbit.tgz orbit && \
+#    mv orbit /usr/local/bin/orbit && \
+#    rm orbit.tgz
+
+# |--------------------------------------------------------------------------
+# | PATH updating
+# |--------------------------------------------------------------------------
+# |
+# | Let's add ./vendor/bin and ./node_modules/.bin to the PATH (utility function to use Composer bin and NPM bin easily)
+# |
+ENV PATH="$PATH:./vendor/bin:./node_modules/.bin:$HOME/.composer/vendor/bin"
+
+# TODO: cron + log
+# alias pour voir les logs?
+
+# TODO: enable default extensions
 
 # |--------------------------------------------------------------------------
 # | Entrypoint
