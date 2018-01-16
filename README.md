@@ -18,14 +18,14 @@ Fat? It means the images come with the most common PHP extensions.
 | Name                                      | PHP version                | NodeJS version  |
 |-------------------------------------------|----------------------------|-----------------|
 | php:7.1-apache       | `7.1` | *N/A*           |
-| php:7.1-apache-node6 | `7.1` | 6.x             |
-| php:7.1-apache-node8 | `7.1` | 8.x             |
+| php:7.1-apache-node6 | `7.1` | `6.x`           |
+| php:7.1-apache-node8 | `7.1` | `8.x`           |
 | php:7.1-fpm          | `7.1` | *N/A*           |
-| php:7.1-fpm-node6    | `7.1` | 6.x             |
-| php:7.1-fpm-node8    | `7.1` | 8.x             |
+| php:7.1-fpm-node6    | `7.1` | `6.x`           |
+| php:7.1-fpm-node8    | `7.1` | `8.x`           |
 | php:7.1-cli          | `7.1` | *N/A*           |
-| php:7.1-cli-node6    | `7.1` | 6.x             |
-| php:7.1-cli-node8    | `7.1` | 8.x             |
+| php:7.1-cli-node6    | `7.1` | `6.x`           |
+| php:7.1-cli-node8    | `7.1` | `8.x`           |
 
 ## Extensions available
 

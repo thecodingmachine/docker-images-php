@@ -18,14 +18,14 @@ Fat? It means the images come with the most common PHP extensions.
 | Name                                      | PHP version                | NodeJS version  |
 |-------------------------------------------|----------------------------|-----------------|
 | php:{{ $image.php_version }}-apache       | `{{ $image.php_version }}` | *N/A*           |
-| php:{{ $image.php_version }}-apache-node6 | `{{ $image.php_version }}` | 6.x             |
-| php:{{ $image.php_version }}-apache-node8 | `{{ $image.php_version }}` | 8.x             |
+| php:{{ $image.php_version }}-apache-node6 | `{{ $image.php_version }}` | `6.x`           |
+| php:{{ $image.php_version }}-apache-node8 | `{{ $image.php_version }}` | `8.x`           |
 | php:{{ $image.php_version }}-fpm          | `{{ $image.php_version }}` | *N/A*           |
-| php:{{ $image.php_version }}-fpm-node6    | `{{ $image.php_version }}` | 6.x             |
-| php:{{ $image.php_version }}-fpm-node8    | `{{ $image.php_version }}` | 8.x             |
+| php:{{ $image.php_version }}-fpm-node6    | `{{ $image.php_version }}` | `6.x`           |
+| php:{{ $image.php_version }}-fpm-node8    | `{{ $image.php_version }}` | `8.x`           |
 | php:{{ $image.php_version }}-cli          | `{{ $image.php_version }}` | *N/A*           |
-| php:{{ $image.php_version }}-cli-node6    | `{{ $image.php_version }}` | 6.x             |
-| php:{{ $image.php_version }}-cli-node8    | `{{ $image.php_version }}` | 8.x             |
+| php:{{ $image.php_version }}-cli-node6    | `{{ $image.php_version }}` | `6.x`           |
+| php:{{ $image.php_version }}-cli-node8    | `{{ $image.php_version }}` | `8.x`           |
 
 ## Extensions available
 
