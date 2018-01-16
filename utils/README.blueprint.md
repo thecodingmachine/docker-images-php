@@ -1,6 +1,6 @@
 # Fat Docker PHP images
 
-This repository contains a set of **fat** PHP images for Docker.
+This repository contains a set of **fat** general purpose PHP images for Docker.
 
 Fat? It means the images come with the most common PHP extensions.
      
