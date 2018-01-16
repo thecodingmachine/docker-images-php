@@ -111,17 +111,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN composer global require hirak/prestissimo
 
-# |--------------------------------------------------------------------------
-# | NodeJS
-# |--------------------------------------------------------------------------
-# |
-# | Installs NodeJS and npm. The later will allow you to easily manage
-# | your frontend dependencies.
-# |
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - &&\
-    apt-get update &&\
-    apt-get install -y --no-install-recommends nodejs
 
 # |--------------------------------------------------------------------------
 # | yarn
@@ -135,6 +125,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends yarn
 
+
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite
 # |--------------------------------------------------------------------------
@@ -144,28 +135,14 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
 
 RUN a2enmod rewrite
 
-# |--------------------------------------------------------------------------
-# | Install Orbit
-# |--------------------------------------------------------------------------
-# |
-# | Download Orbit
-# |
-
-#RUN curl -L https://github.com/gulien/orbit/releases/download/v2.0.0/orbit_Linux_x86_64.tar.gz --output orbit.tgz && \
-#    tar -zxf orbit.tgz orbit && \
-#    mv orbit /usr/local/bin/orbit && \
-#    rm orbit.tgz
 
 # |--------------------------------------------------------------------------
 # | PATH updating
 # |--------------------------------------------------------------------------
 # |
-# | Let's add ./vendor/bin and ./node_modules/.bin to the PATH (utility function to use Composer bin and NPM bin easily)
+# | Let's add ./vendor/bin to the PATH (utility function to use Composer bin easily)
 # |
-ENV PATH="$PATH:./vendor/bin:./node_modules/.bin:$HOME/.composer/vendor/bin"
-
-# TODO: cron + log
-# alias pour voir les logs?
+ENV PATH="$PATH:./vendor/bin:$HOME/.composer/vendor/bin"
 
 # |--------------------------------------------------------------------------
 # | Default PHP extensions to be enabled
@@ -189,10 +166,14 @@ ENV ENABLE_APCU_EXTENSION=1 \
 # | Defines the entrypoint.
 # |
 
+
 COPY apache/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
+
 CMD ["/usr/sbin/apachectl", "-DFOREGROUND"]
+

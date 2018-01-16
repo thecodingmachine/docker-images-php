@@ -19,5 +19,13 @@ commands:
   - use: generate
     short: Generates all Dockerfiles and the README.md file
     run:
-      - orbit run generate-apache -c=utils/orbit-generate.yml -v=Images,images.yml
-      - orbit run generate-readme -c=utils/orbit-generate.yml -v=Images,images.yml
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.apache -v=Images,images.yml -r variant=apache
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.apache.node6 -v=Images,images.yml -r variant=apache;node_version=6.x
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.apache.node8 -v=Images,images.yml -r variant=apache;node_version=8.x
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.cli -v=Images,images.yml -r variant=cli
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.cli.node6 -v=Images,images.yml -r variant=cli;node_version=6.x
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.cli.node8 -v=Images,images.yml -r variant=cli;node_version=8.x
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.fpm -v=Images,images.yml -r variant=fpm
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.fpm.node6 -v=Images,images.yml -r variant=fpm;node_version=6.x
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.fpm.node8 -v=Images,images.yml -r variant=fpm;node_version=8.x
+      - orbit generate -t=utils/README.blueprint.md -o=README.md -v=Images,images.yml

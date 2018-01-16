@@ -2,30 +2,38 @@
 
 This repository contains a set of **fat** PHP images for Docker.
 
-Fat? It means the images come with the most common PHP extensions. You can enable or disable the extensions using 
-environment variables. You can also modify the `php.ini` settings using environment variables.
-
-Finally, the images come with NodeJS installed (if you need to build your static assets).
-
-
-
+Fat? It means the images come with the most common PHP extensions.
+     
+ - You can enable or disable the extensions using environment variables.
+ - You can also modify the `php.ini` settings using environment variables.
+ - 3 variants available: `CLI`, `apache` and `fpm`
+ - Images are bundled with cron. Cron jobs can be configured using environment variables
+ - Images come with Composer and Prestissimo installed
+ - All variants can be installed with or without NodeJS (if you need to build your static assets).
 
 ## Apache
-{{ $image := .Values.Images.apache }}
+{{ $image := .Values.Images }}
 ### php:{{ $image.php_version }}-apache
 
-| Name                       | Version                                         |
-|----------------------------|-------------------------------------------------|
-| Xdebug                     | `{{ $image.xdebug_version }}`             |
-| NodeJS                     | `{{ $image.node_version }}`               |
+| Name                                      | PHP version                | NodeJS version  |
+|-------------------------------------------|----------------------------|-----------------|
+| php:{{ $image.php_version }}-apache       | `{{ $image.php_version }}` | *N/A*           |
+| php:{{ $image.php_version }}-apache-node6 | `{{ $image.php_version }}` | 6.x             |
+| php:{{ $image.php_version }}-apache-node8 | `{{ $image.php_version }}` | 8.x             |
+| php:{{ $image.php_version }}-fpm          | `{{ $image.php_version }}` | *N/A*           |
+| php:{{ $image.php_version }}-fpm-node6    | `{{ $image.php_version }}` | 6.x             |
+| php:{{ $image.php_version }}-fpm-node8    | `{{ $image.php_version }}` | 8.x             |
+| php:{{ $image.php_version }}-cli          | `{{ $image.php_version }}` | *N/A*           |
+| php:{{ $image.php_version }}-cli-node6    | `{{ $image.php_version }}` | 6.x             |
+| php:{{ $image.php_version }}-cli-node8    | `{{ $image.php_version }}` | 8.x             |
 
 ## Extensions available
 
 Below is a list of extensions available in this image:
 
-**Enabled by default:**
+**Enabled by default:** {{ $image.enabled_php_extensions }}
 
-**Disabled by default:**
+**Disabled by default:** {{ $image.disabled_php_extensions }}
 
 ## Enabling/disabling extensions
 

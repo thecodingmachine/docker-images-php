@@ -1,8 +1,4 @@
-{{- $stack := .Values.Images -}}
-{{- $variant := .RawData.variant -}}
-{{- $node_version := .RawData.node_version -}}
-
-FROM php:{{ $stack.php_version }}-{{ $variant }}
+FROM php:7.1-apache
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -49,8 +45,8 @@ RUN buildDeps=" \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
-    && curl -L http://xdebug.org/files/xdebug-{{ $stack.xdebug_version }}.tgz | tar -zxf - \
-    && mv xdebug-{{ $stack.xdebug_version }} xdebug \
+    && curl -L http://xdebug.org/files/xdebug-2.5.5.tgz | tar -zxf - \
+    && mv xdebug-2.5.5 xdebug \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.so /usr/lib/libldap.so \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.a /usr/lib/libldap_r.a \
@@ -81,7 +77,7 @@ RUN buildDeps=" \
 # | Installs Xdebug, a tool for easily debugging your PHP code.
 # |
 
-#ENV XDEBUG_VERSION {{ $stack.xdebug_version }}
+#ENV XDEBUG_VERSION 2.5.5
 
 #RUN mkdir -p /usr/src/php/ext/xdebug &&\
 #    curl -L https://github.com/xdebug/xdebug/archive/$XDEBUG_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/xdebug --strip 1 &&\
@@ -115,7 +111,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN composer global require hirak/prestissimo
 
-{{if .RawData.node_version }}
+
 # |--------------------------------------------------------------------------
 # | NodeJS
 # |--------------------------------------------------------------------------
@@ -124,7 +120,7 @@ RUN composer global require hirak/prestissimo
 # | your frontend dependencies.
 # |
 
-RUN curl -sL https://deb.nodesource.com/setup_{{ $node_version }} | bash - &&\
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends nodejs
 
@@ -135,7 +131,7 @@ RUN curl -sL https://deb.nodesource.com/setup_{{ $node_version }} | bash - &&\
 # | Let's add ./node_modules/.bin to the PATH (utility function to use NPM bin easily)
 # |
 ENV PATH="$PATH:./node_modules/.bin"
-{{end}}
+
 
 # |--------------------------------------------------------------------------
 # | yarn
@@ -149,7 +145,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends yarn
 
-{{if eq $variant "apache" }}
+
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite
 # |--------------------------------------------------------------------------
@@ -158,7 +154,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
 # |
 
 RUN a2enmod rewrite
-{{end}}
+
 
 # |--------------------------------------------------------------------------
 # | PATH updating
@@ -190,14 +186,14 @@ ENV ENABLE_APCU_EXTENSION=1 \
 # | Defines the entrypoint.
 # |
 
-{{if eq $variant "apache" }}
+
 COPY apache/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-{{end}}
+
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-{{if eq $variant "apache" }}
+
 CMD ["/usr/sbin/apachectl", "-DFOREGROUND"]
-{{end}}
+
