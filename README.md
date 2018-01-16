@@ -11,9 +11,8 @@ Fat? It means the images come with the most common PHP extensions.
  - Images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
 
-## Apache
 
-### php:7.1-apache
+## Images
 
 | Name                                      | PHP version                | NodeJS version  |
 |-------------------------------------------|----------------------------|-----------------|
@@ -26,6 +25,34 @@ Fat? It means the images come with the most common PHP extensions.
 | php:7.1-cli          | `7.1` | *N/A*           |
 | php:7.1-cli-node6    | `7.1` | `6.x`           |
 | php:7.1-cli-node8    | `7.1` | `8.x`           |
+
+## Usage
+
+These images are based on the [official PHP image](https://hub.docker.com/_/php/).
+
+Example with CLI:
+
+```bash
+$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp thecodingmachine/php:7.1-cli php your-script.php
+```
+
+Example with Apache:
+
+```bash
+$ docker run -p 80:80 --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:7.1-apache
+```
+
+Example with Apache + Node 8.x in a Dockerfile:
+
+**Dockerfile**
+```Dockerfile
+FROM thecodingmachine/php:7.1-apache-node8
+
+COPY src/ /var/www/html/
+RUN composer install
+RUN npm install
+RUN npm run build
+```
 
 ## Extensions available
 
@@ -133,3 +160,7 @@ your container. If at some point you want to scale and add more containers, it w
 At that point, if you only want to run a Cron task once for your application (and not once per container), you might
 want to have a look at alternative solutions like [Tasker](https://github.com/opsxcq/tasker) or one of the many
 other alternatives.
+
+## Special thanks
+
+These images have been strongly inspired by [tetraweb/php](https://hub.docker.com/r/tetraweb/php/).
