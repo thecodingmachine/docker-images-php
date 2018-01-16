@@ -1,6 +1,6 @@
 # Fat Docker PHP images
 
-This repository contains a set of **fat** PHP images for Docker.
+This repository contains a set of **fat** general purpose PHP images for Docker.
 
 Fat? It means the images come with the most common PHP extensions.
      
@@ -8,7 +8,7 @@ Fat? It means the images come with the most common PHP extensions.
  - You can also modify the `php.ini` settings using environment variables.
  - 3 variants available: `CLI`, `apache` and `fpm`
  - Images are bundled with cron. Cron jobs can be configured using environment variables
- - Images come with Composer and Prestissimo installed
+ - Images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
 
 ## Apache
