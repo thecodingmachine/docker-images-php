@@ -1,6 +1,10 @@
 #!/bin/sh
 
-usermod -u $UID www-data;
+set -e
+
+if [ "$UID" -ne "" ]; then
+    usermod -u $UID www-data;
+fi
 #chown -R www-data:www-data /var/www/html;
 
 if [ -z "$XDEBUG_REMOTE_HOST" ]; then
@@ -19,6 +23,9 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
     fi
 fi
 
-php /generate_conf.php > /usr/local/etc/php/conf.d/generated_conf.ini
+php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/generated_conf.ini
+php /usr/local/bin/generate_cron.php > /etc/cron.d/generated_crontab
+chmod 0644 /etc/cron.d/generated_crontab
 
+cron
 exec "$@";

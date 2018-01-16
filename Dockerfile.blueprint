@@ -1,6 +1,9 @@
-FROM php:7.1-apache
+{{- $stack := .Values.Images.apache -}}
 
-MAINTAINER Julien Neuhart <j.neuhart@thecodingmachine.com>
+FROM php:{{ $stack.php_version }}-apache
+
+LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
+
 
 # |--------------------------------------------------------------------------
 # | Main PHP extensions
@@ -40,12 +43,12 @@ RUN buildDeps=" \
         bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mcrypt mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
     " \
     && echo "deb http://httpredir.debian.org/debian jessie contrib non-free" > /etc/apt/sources.list.d/additional.list \
-    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp --no-install-recommends \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git --no-install-recommends \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
-    && curl -L http://xdebug.org/files/xdebug-2.5.5.tgz | tar -zxf - \
-    && mv xdebug-2.5.5 xdebug \
+    && curl -L http://xdebug.org/files/xdebug-{{ $stack.xdebug_version }}.tgz | tar -zxf - \
+    && mv xdebug-{{ $stack.xdebug_version }} xdebug \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.so /usr/lib/libldap.so \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.a /usr/lib/libldap_r.a \
@@ -62,6 +65,7 @@ RUN buildDeps=" \
     && pecl install redis \
     && pecl install apcu \
     && pecl install yaml \
+    && pecl install weakref-beta \
     && for ext in $phpModules; do \
            rm -f /usr/local/etc/php/conf.d/docker-php-ext-$ext.ini; \
        done \
@@ -75,7 +79,7 @@ RUN buildDeps=" \
 # | Installs Xdebug, a tool for easily debugging your PHP code.
 # |
 
-#ENV XDEBUG_VERSION 2.5.5
+#ENV XDEBUG_VERSION {{ $stack.xdebug_version }}
 
 #RUN mkdir -p /usr/src/php/ext/xdebug &&\
 #    curl -L https://github.com/xdebug/xdebug/archive/$XDEBUG_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/xdebug --strip 1 &&\
@@ -88,15 +92,6 @@ RUN buildDeps=" \
 #        echo 'xdebug.remote_handler=dbgp'; \
 #        echo 'xdebug.remote_connect_back=0'; \
 #    } >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
-# |--------------------------------------------------------------------------
-# | Git
-# |--------------------------------------------------------------------------
-# |
-# | Installs Git command (useful for Composer).
-# |
-
-RUN apt-get install -y --no-install-recommends git
 
 # |--------------------------------------------------------------------------
 # | Composer
@@ -126,7 +121,7 @@ RUN composer global require hirak/prestissimo
 # | your frontend dependencies.
 # |
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - &&\
+RUN curl -sL https://deb.nodesource.com/setup_{{ $stack.node_version }} | bash - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends nodejs
 
@@ -167,10 +162,27 @@ RUN a2enmod rewrite
 # | PATH updating
 # |--------------------------------------------------------------------------
 # |
-# | Let's add ./vendor/bin to the PATH (utility function to use Composer bin easily)
+# | Let's add ./vendor/bin and ./node_modules/.bin to the PATH (utility function to use Composer bin and NPM bin easily)
 # |
-ENV PATH="$PATH:./vendor/bin:$HOME/.composer/vendor/bin"
+ENV PATH="$PATH:./vendor/bin:./node_modules/.bin:$HOME/.composer/vendor/bin"
 
+# TODO: cron + log
+# alias pour voir les logs?
+
+# |--------------------------------------------------------------------------
+# | Default PHP extensions to be enabled
+# |--------------------------------------------------------------------------
+ENV ENABLE_APCU_EXTENSION=1 \
+    ENABLE_MBSTRING_EXTENSION=1 \
+    ENABLE_MYSQLI_EXTENSION=1 \
+    ENABLE_OPCACHE_EXTENSION=1 \
+    ENABLE_PDO_EXTENSION=1 \
+    ENABLE_PDO_MYSQL_EXTENSION=1 \
+    ENABLE_REDIS_EXTENSION=1 \
+    ENABLE_ZIP_EXTENSION=1 \
+    ENABLE_SOAP_EXTENSION=1
+
+# TODO: set public directory
 
 # |--------------------------------------------------------------------------
 # | Entrypoint
@@ -179,7 +191,9 @@ ENV PATH="$PATH:./vendor/bin:$HOME/.composer/vendor/bin"
 # | Defines the entrypoint.
 # |
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY apache/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
+COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 

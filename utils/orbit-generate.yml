@@ -19,7 +19,7 @@ commands:
 
   - use: generate-apache
     run:
-      - orbit generate -t=apache/Dockerfile.blueprint -o=apache/Dockerfile -v=Images,images.yml
+      - orbit generate -t=Dockerfile.blueprint -o=Dockerfile.apache -v=Images,images.yml
 
   # |--------------------------------------------------------------------------
   # | orbit run generate-readme

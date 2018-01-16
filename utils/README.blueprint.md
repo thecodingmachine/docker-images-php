@@ -91,3 +91,37 @@ Behind the scenes, the image will:
 - if you are using a Linux or Windows machine, the `xdebug.remote_host` IP will point to your Docker gateway
 - if you are using a MaxOS machine, the `xdebug.remote_host` IP will point to [`docker.for.mac.localhost`](https://docs.docker.com/docker-for-mac/networking/#use-cases-and-workarounds)
 
+## Setting up CRON jobs
+
+You can set up CRON jobs using environment variables too.
+
+To do this, you need to configure 3 variables:
+
+```bash
+# configure the user that will run cron (defaults to root)
+CRON_USER=root
+# configure the schedule for the cron job (here: run every minute)
+CRON_SCHEDULE=* * * * *
+# last but not least, configure the command
+CRON_COMMAND=vendir/bin/console do:stuff
+```
+
+By default, CRON output will be redirected to Docker output.
+
+If you have more than one job to run, you can suffix your environment variable with the same string. For instance:
+
+```bash
+CRON_USER_1=root
+CRON_SCHEDULE_1=* * * * *
+CRON_COMMAND_1=vendir/bin/console do:stuff
+
+CRON_USER_2=www-data
+CRON_SCHEDULE_2=0 3 * * *
+CRON_COMMAND_2=vendir/bin/console other:stuff
+```
+
+**Important**: Cron was never designed with Docker in mind (it is way older than Docker). It will run correctly on
+your container. If at some point you want to scale and add more containers, it will run on all your containers.
+At that point, if you only want to run a Cron task once for your application (and not once per container), you might
+want to have a look at alternative solutions like [Tasker](https://github.com/opsxcq/tasker) or one of the many
+other alternatives.
