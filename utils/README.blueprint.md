@@ -60,7 +60,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default:** {{ $image.enabled_php_extensions }}
 
-**Disabled by default:** {{ $image.disabled_php_extensions }}
+**Available (can be enabled using environment variables):** {{ $image.disabled_php_extensions }}
 
 ## Enabling/disabling extensions
 
