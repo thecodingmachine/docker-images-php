@@ -36,6 +36,7 @@ RUN buildDeps=" \
         libxml2-dev \
         libxpm-dev \
         libxslt1-dev \
+        libyaml-dev \
         zlib1g-dev \
     " \
     && phpModules=" \
