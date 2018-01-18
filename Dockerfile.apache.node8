@@ -75,27 +75,6 @@ RUN buildDeps=" \
     && echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
 
 # |--------------------------------------------------------------------------
-# | Xdebug
-# |--------------------------------------------------------------------------
-# |
-# | Installs Xdebug, a tool for easily debugging your PHP code.
-# |
-
-#ENV XDEBUG_VERSION 2.5.5
-
-#RUN mkdir -p /usr/src/php/ext/xdebug &&\
-#    curl -L https://github.com/xdebug/xdebug/archive/$XDEBUG_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/xdebug --strip 1 &&\
-#    echo 'xdebug' >> /usr/src/php-available-exts &&\
-#    docker-php-ext-install xdebug &&\
-#    { \
-#        echo 'xdebug.remote_enable=on'; \
-#        echo 'xdebug.remote_autostart=off'; \
-#        echo 'xdebug.remote_port=9000'; \
-#        echo 'xdebug.remote_handler=dbgp'; \
-#        echo 'xdebug.remote_connect_back=0'; \
-#    } >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
-# |--------------------------------------------------------------------------
 # | Composer
 # |--------------------------------------------------------------------------
 # |
