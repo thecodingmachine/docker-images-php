@@ -5,8 +5,8 @@
  */
 
 $availableExtensions = [
-    'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'exif', 'ftp', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
-    'mbstring', 'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
+    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'exif', 'ftp', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
+    'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
     'shmop', 'snmp', 'soap', 'sockets', 'sysvmsg', 'sysvsem', 'sysvshm', 'tidy', 'wddx', 'xmlrpc', 'xsl', 'zip',
     'xdebug', 'amqp', 'igbinary', 'memcached', 'mongodb', 'redis', 'apcu', 'yaml', 'weakref'
 ];
@@ -64,6 +64,8 @@ foreach ($availableExtensions as $extension) {
             //echo "xdebug.remote_autostart=off\n";
             //echo "xdebug.remote_port=9000\n";
             //echo "xdebug.remote_connect_back=0\n";
+        } elseif ($extension === 'opcache') {
+            echo "zend_extension=opcache.so\n";
         } else {
             echo "extension=$extension.so\n";
         }

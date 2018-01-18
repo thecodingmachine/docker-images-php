@@ -43,7 +43,7 @@ RUN buildDeps=" \
         bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mcrypt mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
     " \
     && sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list \
-    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git --no-install-recommends \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git nano --no-install-recommends \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
@@ -66,13 +66,13 @@ RUN buildDeps=" \
     && pecl install apcu \
     && pecl install yaml \
     && pecl install ast \
-    && pecl install imagick \
     && pecl install weakref-beta \
     && for ext in $phpModules; do \
            rm -f /usr/local/etc/php/conf.d/docker-php-ext-$ext.ini; \
        done \
     && docker-php-source delete \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps
+    && echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
 
 # |--------------------------------------------------------------------------
 # | Xdebug
@@ -125,7 +125,7 @@ RUN composer global require hirak/prestissimo
 # |
 # | Let's add ./vendor/bin to the PATH (utility function to use Composer bin easily)
 # |
-ENV PATH="$PATH:./vendor/bin:$HOME/.composer/vendor/bin"
+ENV PATH="$PATH:./vendor/bin:~/.composer/vendor/bin"
 
 # |--------------------------------------------------------------------------
 # | Default PHP extensions to be enabled
@@ -140,7 +140,25 @@ ENV ENABLE_APCU_EXTENSION=1 \
     ENABLE_ZIP_EXTENSION=1 \
     ENABLE_SOAP_EXTENSION=1
 
-# TODO: set public directory
+
+# |--------------------------------------------------------------------------
+# | .bashrc updating
+# |--------------------------------------------------------------------------
+# |
+# | Let's update the .bashrc to add nice aliases
+# |
+
+RUN composer global require bamarni/symfony-console-autocomplete
+
+RUN echo 'eval "$(symfony-autocomplete)"' > ~/.bash_profile
+
+RUN { \
+        echo "alias ls='ls --color=auto'"; \
+        echo "alias ll='ls --color=auto -alF'"; \
+        echo "alias la='ls --color=auto -A'"; \
+        echo "alias l='ls --color=auto -CF'"; \
+    } >> ~/.bashrc
+
 
 # |--------------------------------------------------------------------------
 # | Entrypoint
@@ -149,7 +167,9 @@ ENV ENABLE_APCU_EXTENSION=1 \
 # | Defines the entrypoint.
 # |
 
+ENV IMAGE_VARIANT=fpm
 
+COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 
