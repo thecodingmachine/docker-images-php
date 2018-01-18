@@ -198,6 +198,7 @@ RUN { \
 
 ENV IMAGE_VARIANT={{$variant}}
 
+
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
