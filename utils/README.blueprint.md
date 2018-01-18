@@ -14,17 +14,17 @@ Fat? It means the images come with the most common PHP extensions.
 {{ $image := .Values.Images }}
 ## Images
 
-| Name                                      | PHP version                | NodeJS version  |
-|-------------------------------------------|----------------------------|-----------------|
-| php:{{ $image.php_version }}-apache       | `{{ $image.php_version }}` | *N/A*           |
-| php:{{ $image.php_version }}-apache-node6 | `{{ $image.php_version }}` | `6.x`           |
-| php:{{ $image.php_version }}-apache-node8 | `{{ $image.php_version }}` | `8.x`           |
-| php:{{ $image.php_version }}-fpm          | `{{ $image.php_version }}` | *N/A*           |
-| php:{{ $image.php_version }}-fpm-node6    | `{{ $image.php_version }}` | `6.x`           |
-| php:{{ $image.php_version }}-fpm-node8    | `{{ $image.php_version }}` | `8.x`           |
-| php:{{ $image.php_version }}-cli          | `{{ $image.php_version }}` | *N/A*           |
-| php:{{ $image.php_version }}-cli-node6    | `{{ $image.php_version }}` | `6.x`           |
-| php:{{ $image.php_version }}-cli-node8    | `{{ $image.php_version }}` | `8.x`           |
+| Name                                                                    | PHP version                | NodeJS version  |
+|-------------------------------------------------------------------------|----------------------------|-----------------|
+| [php:{{ $image.php_version }}-v1-apache](Dockerfile.apache)             | `{{ $image.php_version }}` | *N/A*           |
+| [php:{{ $image.php_version }}-v1-apache-node6](Dockerfile.apache.node6) | `{{ $image.php_version }}` | `6.x`           |
+| [php:{{ $image.php_version }}-v1-apache-node8](Dockerfile.apache.node8) | `{{ $image.php_version }}` | `8.x`           |
+| [php:{{ $image.php_version }}-v1-fpm](Dockerfile.fpm)                   | `{{ $image.php_version }}` | *N/A*           |
+| [php:{{ $image.php_version }}-v1-fpm-node6](Dockerfile.fpm.node6)       | `{{ $image.php_version }}` | `6.x`           |
+| [php:{{ $image.php_version }}-v1-fpm-node8](Dockerfile.fpm.node8)       | `{{ $image.php_version }}` | `8.x`           |
+| [php:{{ $image.php_version }}-v1-cli](Dockerfile.cli)                   | `{{ $image.php_version }}` | *N/A*           |
+| [php:{{ $image.php_version }}-v1-cli-node6](Dockerfile.cli.node6)       | `{{ $image.php_version }}` | `6.x`           |
+| [php:{{ $image.php_version }}-v1-cli-node8](Dockerfile.cli.node8)       | `{{ $image.php_version }}` | `8.x`           |
 
 ## Usage
 
@@ -72,7 +72,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php-apache:{{ $image.php_version }}-node{{ $image.node_version }}
+    image: thecodingmachine/php-apache:{{ $image.php_version }}-node8
     environment:
       # Enable the PostgreSQL extension
       ENABLE_PGSQL_EXTENSION=1
@@ -89,7 +89,7 @@ You can override parameters in `php.ini` using the PHP_INI_XXX environment varia
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php-apache:{{ $image.php_version }}-node{{ $image.node_version }}
+    image: thecodingmachine/php-apache:{{ $image.php_version }}-node8
     environment:
       # set the parameter memory_limit=1g
       PHP_INI_MEMORY_LIMIT: 1g
@@ -110,6 +110,16 @@ For instance:
 PHP_INI_XDEBUG__REMOTE_AUTOSTART=1
 ```
 
+## Changing Apache document root
+
+For the *apache* variant, you can change the document root of Apache (i.e. your "public" directory) by using the 
+`APACHE_DOCUMENT_ROOT` variable:
+
+```
+# The root of your website is in the "public" directory:
+APACHE_DOCUMENT_ROOT=public/
+```
+ 
 ## Debugging
 
 To enable XDebug, you simply have to set the environment variable:

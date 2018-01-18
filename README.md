@@ -14,17 +14,17 @@ Fat? It means the images come with the most common PHP extensions.
 
 ## Images
 
-| Name                                      | PHP version                | NodeJS version  |
-|-------------------------------------------|----------------------------|-----------------|
-| php:7.1-apache       | `7.1` | *N/A*           |
-| php:7.1-apache-node6 | `7.1` | `6.x`           |
-| php:7.1-apache-node8 | `7.1` | `8.x`           |
-| php:7.1-fpm          | `7.1` | *N/A*           |
-| php:7.1-fpm-node6    | `7.1` | `6.x`           |
-| php:7.1-fpm-node8    | `7.1` | `8.x`           |
-| php:7.1-cli          | `7.1` | *N/A*           |
-| php:7.1-cli-node6    | `7.1` | `6.x`           |
-| php:7.1-cli-node8    | `7.1` | `8.x`           |
+| Name                                                                    | PHP version                | NodeJS version  |
+|-------------------------------------------------------------------------|----------------------------|-----------------|
+| [php:7.1-v1-apache](Dockerfile.apache)             | `7.1` | *N/A*           |
+| [php:7.1-v1-apache-node6](Dockerfile.apache.node6) | `7.1` | `6.x`           |
+| [php:7.1-v1-apache-node8](Dockerfile.apache.node8) | `7.1` | `8.x`           |
+| [php:7.1-v1-fpm](Dockerfile.fpm)                   | `7.1` | *N/A*           |
+| [php:7.1-v1-fpm-node6](Dockerfile.fpm.node6)       | `7.1` | `6.x`           |
+| [php:7.1-v1-fpm-node8](Dockerfile.fpm.node8)       | `7.1` | `8.x`           |
+| [php:7.1-v1-cli](Dockerfile.cli)                   | `7.1` | *N/A*           |
+| [php:7.1-v1-cli-node6](Dockerfile.cli.node6)       | `7.1` | `6.x`           |
+| [php:7.1-v1-cli-node8](Dockerfile.cli.node8)       | `7.1` | `8.x`           |
 
 ## Usage
 
@@ -72,7 +72,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php-apache:7.1-node<no value>
+    image: thecodingmachine/php-apache:7.1-node8
     environment:
       # Enable the PostgreSQL extension
       ENABLE_PGSQL_EXTENSION=1
@@ -89,7 +89,7 @@ You can override parameters in `php.ini` using the PHP_INI_XXX environment varia
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php-apache:7.1-node<no value>
+    image: thecodingmachine/php-apache:7.1-node8
     environment:
       # set the parameter memory_limit=1g
       PHP_INI_MEMORY_LIMIT: 1g
@@ -110,6 +110,16 @@ For instance:
 PHP_INI_XDEBUG__REMOTE_AUTOSTART=1
 ```
 
+## Changing Apache document root
+
+For the *apache* variant, you can change the document root of Apache (i.e. your "public" directory) by using the 
+`APACHE_DOCUMENT_ROOT` variable:
+
+```
+# The root of your website is in the "public" directory:
+APACHE_DOCUMENT_ROOT=public/
+```
+ 
 ## Debugging
 
 To enable XDebug, you simply have to set the environment variable:

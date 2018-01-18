@@ -65,6 +65,8 @@ RUN buildDeps=" \
     && pecl install redis \
     && pecl install apcu \
     && pecl install yaml \
+    && pecl install ast \
+    && pecl install imagick \
     && pecl install weakref-beta \
     && for ext in $phpModules; do \
            rm -f /usr/local/etc/php/conf.d/docker-php-ext-$ext.ini; \
@@ -115,18 +117,11 @@ RUN composer global require hirak/prestissimo
 
 
 
-# |--------------------------------------------------------------------------
-# | yarn
-# |--------------------------------------------------------------------------
-# |
-# | Installs yarn. It provides some nice improvements over npm.
-# |
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
-    apt-get update &&\
-    apt-get install -y --no-install-recommends yarn
+ENV APACHE_DOCUMENT_ROOT /var/www/html
 
+RUN sed -ri -e 's!/var/www/html!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite

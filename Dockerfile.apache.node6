@@ -65,6 +65,8 @@ RUN buildDeps=" \
     && pecl install redis \
     && pecl install apcu \
     && pecl install yaml \
+    && pecl install ast \
+    && pecl install imagick \
     && pecl install weakref-beta \
     && for ext in $phpModules; do \
            rm -f /usr/local/etc/php/conf.d/docker-php-ext-$ext.ini; \
@@ -127,15 +129,6 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - &&\
     apt-get install -y --no-install-recommends nodejs
 
 # |--------------------------------------------------------------------------
-# | PATH updating
-# |--------------------------------------------------------------------------
-# |
-# | Let's add ./node_modules/.bin to the PATH (utility function to use NPM bin easily)
-# |
-ENV PATH="$PATH:./node_modules/.bin"
-
-
-# |--------------------------------------------------------------------------
 # | yarn
 # |--------------------------------------------------------------------------
 # |
@@ -147,6 +140,20 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends yarn
 
+# |--------------------------------------------------------------------------
+# | PATH updating
+# |--------------------------------------------------------------------------
+# |
+# | Let's add ./node_modules/.bin to the PATH (utility function to use NPM bin easily)
+# |
+ENV PATH="$PATH:./node_modules/.bin"
+
+
+
+ENV APACHE_DOCUMENT_ROOT /var/www/html
+
+RUN sed -ri -e 's!/var/www/html!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite
