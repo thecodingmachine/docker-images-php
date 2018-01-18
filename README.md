@@ -14,17 +14,17 @@ Fat? It means the images come with the most common PHP extensions.
 
 ## Images
 
-| Name                                                                    | PHP version                | NodeJS version  |
-|-------------------------------------------------------------------------|----------------------------|-----------------|
-| [php:7.1-v1-apache](Dockerfile.apache)             | `7.1` | *N/A*           |
-| [php:7.1-v1-apache-node6](Dockerfile.apache.node6) | `7.1` | `6.x`           |
-| [php:7.1-v1-apache-node8](Dockerfile.apache.node8) | `7.1` | `8.x`           |
-| [php:7.1-v1-fpm](Dockerfile.fpm)                   | `7.1` | *N/A*           |
-| [php:7.1-v1-fpm-node6](Dockerfile.fpm.node6)       | `7.1` | `6.x`           |
-| [php:7.1-v1-fpm-node8](Dockerfile.fpm.node8)       | `7.1` | `8.x`           |
-| [php:7.1-v1-cli](Dockerfile.cli)                   | `7.1` | *N/A*           |
-| [php:7.1-v1-cli-node6](Dockerfile.cli.node6)       | `7.1` | `6.x`           |
-| [php:7.1-v1-cli-node8](Dockerfile.cli.node8)       | `7.1` | `8.x`           |
+| Name                                                                    | PHP version                  | variant | NodeJS version  |
+|-------------------------------------------------------------------------|------------------------------|---------|-----------------|
+| [php:7.1-v1-apache](Dockerfile.apache)             | `7.1`.x | apache  | *N/A*           |
+| [php:7.1-v1-apache-node6](Dockerfile.apache.node6) | `7.1`.x | apache  | `6.x`           |
+| [php:7.1-v1-apache-node8](Dockerfile.apache.node8) | `7.1`.x | apache  | `8.x`           |
+| [php:7.1-v1-fpm](Dockerfile.fpm)                   | `7.1`.x | fpm     | *N/A*           |
+| [php:7.1-v1-fpm-node6](Dockerfile.fpm.node6)       | `7.1`.x | fpm     | `6.x`           |
+| [php:7.1-v1-fpm-node8](Dockerfile.fpm.node8)       | `7.1`.x | fpm     | `8.x`           |
+| [php:7.1-v1-cli](Dockerfile.cli)                   | `7.1`.x | cli     | *N/A*           |
+| [php:7.1-v1-cli-node6](Dockerfile.cli.node6)       | `7.1`.x | cli     | `6.x`           |
+| [php:7.1-v1-cli-node8](Dockerfile.cli.node8)       | `7.1`.x | cli     | `8.x`           |
 
 ## Usage
 
