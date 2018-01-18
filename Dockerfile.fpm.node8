@@ -71,7 +71,7 @@ RUN buildDeps=" \
            rm -f /usr/local/etc/php/conf.d/docker-php-ext-$ext.ini; \
        done \
     && docker-php-source delete \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps \
     && echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
 
 # |--------------------------------------------------------------------------
@@ -179,6 +179,7 @@ RUN { \
 # |
 
 ENV IMAGE_VARIANT=fpm
+
 
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
