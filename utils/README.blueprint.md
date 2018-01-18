@@ -14,17 +14,17 @@ Fat? It means the images come with the most common PHP extensions.
 {{ $image := .Values.Images }}
 ## Images
 
-| Name                                                                    | PHP version                | NodeJS version  |
-|-------------------------------------------------------------------------|----------------------------|-----------------|
-| [php:{{ $image.php_version }}-v1-apache](Dockerfile.apache)             | `{{ $image.php_version }}` | *N/A*           |
-| [php:{{ $image.php_version }}-v1-apache-node6](Dockerfile.apache.node6) | `{{ $image.php_version }}` | `6.x`           |
-| [php:{{ $image.php_version }}-v1-apache-node8](Dockerfile.apache.node8) | `{{ $image.php_version }}` | `8.x`           |
-| [php:{{ $image.php_version }}-v1-fpm](Dockerfile.fpm)                   | `{{ $image.php_version }}` | *N/A*           |
-| [php:{{ $image.php_version }}-v1-fpm-node6](Dockerfile.fpm.node6)       | `{{ $image.php_version }}` | `6.x`           |
-| [php:{{ $image.php_version }}-v1-fpm-node8](Dockerfile.fpm.node8)       | `{{ $image.php_version }}` | `8.x`           |
-| [php:{{ $image.php_version }}-v1-cli](Dockerfile.cli)                   | `{{ $image.php_version }}` | *N/A*           |
-| [php:{{ $image.php_version }}-v1-cli-node6](Dockerfile.cli.node6)       | `{{ $image.php_version }}` | `6.x`           |
-| [php:{{ $image.php_version }}-v1-cli-node8](Dockerfile.cli.node8)       | `{{ $image.php_version }}` | `8.x`           |
+| Name                                                                    | PHP version                  | NodeJS version  |
+|-------------------------------------------------------------------------|------------------------------|-----------------|
+| [php:{{ $image.php_version }}-v1-apache](Dockerfile.apache)             | `{{ $image.php_version }}`.x | *N/A*           |
+| [php:{{ $image.php_version }}-v1-apache-node6](Dockerfile.apache.node6) | `{{ $image.php_version }}`.x | `6.x`           |
+| [php:{{ $image.php_version }}-v1-apache-node8](Dockerfile.apache.node8) | `{{ $image.php_version }}`.x | `8.x`           |
+| [php:{{ $image.php_version }}-v1-fpm](Dockerfile.fpm)                   | `{{ $image.php_version }}`.x | *N/A*           |
+| [php:{{ $image.php_version }}-v1-fpm-node6](Dockerfile.fpm.node6)       | `{{ $image.php_version }}`.x | `6.x`           |
+| [php:{{ $image.php_version }}-v1-fpm-node8](Dockerfile.fpm.node8)       | `{{ $image.php_version }}`.x | `8.x`           |
+| [php:{{ $image.php_version }}-v1-cli](Dockerfile.cli)                   | `{{ $image.php_version }}`.x | *N/A*           |
+| [php:{{ $image.php_version }}-v1-cli-node6](Dockerfile.cli.node6)       | `{{ $image.php_version }}`.x | `6.x`           |
+| [php:{{ $image.php_version }}-v1-cli-node8](Dockerfile.cli.node8)       | `{{ $image.php_version }}`.x | `8.x`           |
 
 ## Usage
 
