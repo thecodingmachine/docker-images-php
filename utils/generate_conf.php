@@ -5,7 +5,7 @@
  */
 
 $availableExtensions = [
-    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'exif', 'ftp', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
+    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'ev', 'event', 'exif', 'ftp', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
     'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
     'shmop', 'snmp', 'soap', 'sockets', 'sysvmsg', 'sysvsem', 'sysvshm', 'tidy', 'wddx', 'xmlrpc', 'xsl', 'zip',
     'xdebug', 'amqp', 'igbinary', 'memcached', 'mongodb', 'redis', 'apcu', 'yaml', 'weakref'
@@ -23,7 +23,7 @@ function enableExtension(string $extensionName): bool {
 
     // If an extension name is set explicitly to "0" or "false" or "no", then it is not enabled.
     // This has priority
-    $envName = 'ENABLE_'.strtoupper($extensionName).'_EXTENSION';
+    $envName = 'PHP_EXTENSION_'.strtoupper($extensionName);
 
     $env = strtolower(trim(getenv($envName)));
 

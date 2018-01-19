@@ -64,7 +64,7 @@ Below is a list of extensions available in this image:
 
 ## Enabling/disabling extensions
 
-You can enable/disable extensions using the `ENABLE_[extension_name]_EXTENSION` environment variable.
+You can enable/disable extensions using the `PHP_EXTENSION_[extension_name]` environment variable.
 
 For instance:
 
@@ -75,9 +75,15 @@ services:
     image: thecodingmachine/php-apache:{{ $image.php_version }}-node8
     environment:
       # Enable the PostgreSQL extension
-      ENABLE_PGSQL_EXTENSION=1
+      PHP_EXTENSION_PGSQL: 1
       # Disable the Mysqli extension (otherwise it is enabled by default)
-      ENABLE_MYSQLI_EXTENSION=0
+      PHP_EXTENSION_MYSQLI: 0
+```
+
+As an alternative, you can use the `PHP_EXTENSIONS` global variable:
+
+```
+PHP_EXTENSIONS=pgsql gettext imap sockets
 ```
 
 
@@ -119,13 +125,42 @@ For the *apache* variant, you can change the document root of Apache (i.e. your 
 # The root of your website is in the "public" directory:
 APACHE_DOCUMENT_ROOT=public/
 ```
+
+## Enabling/disabling Apache extensions
+
+You can enable/disable Apache extensions using the `APACHE_EXTENSION_[extension_name]` environment variable.
+
+For instance:
+
+```yml
+version: '3'
+services:
+  my_app:
+    image: thecodingmachine/php-apache:{{ $image.php_version }}-node8
+    environment:
+      # Enable the DAV extension for Apache
+      APACHE_EXTENSION_DAV: 1
+      # Enable the SSL extension for Apache
+      APACHE_EXTENSION_SSL: 1
+```
+
+As an alternative, you can use the `APACHE_EXTENSIONS` global variable:
+
+```
+PHP_EXTENSIONS="dav ssl"
+```
+
+**Apache modules enabled by default:** access_compat, alias, auth_basic, authn_core, authn_file, authz_core, authz_host, authz_user, autoindex, deflate, dir, env, expires, filter, mime, mpm_prefork, negotiation, php7, reqtimeout, rewrite, setenvif, status
+
+**Apache modules available:** access_compat, actions, alias, allowmethods, asis, auth_basic, auth_digest, auth_form, authn_anon, authn_core, authn_dbd, authn_dbm, authn_file, authn_socache, authnz_fcgi, authnz_ldap, authz_core, authz_dbd, authz_dbm, authz_groupfile, authz_host, authz_owner, authz_user, autoindex, buffer, cache, cache_disk, cache_socache, cgi, cgid, charset_lite, data, dav, dav_fs, dav_lock, dbd, deflate, dialup, dir, dump_io, echo, env, ext_filter, file_cache, filter, headers, heartbeat, heartmonitor, ident, include, info, lbmethod_bybusyness, lbmethod_byrequests, lbmethod_bytraffic, lbmethod_heartbeat, ldap, log_debug, log_forensic, lua, macro, mime, mime_magic, mpm_event, mpm_prefork, mpm_worker, negotiation, php7, proxy, proxy_ajp, proxy_balancer, proxy_connect, proxy_express, proxy_fcgi, proxy_fdpass, proxy_ftp, proxy_html, proxy_http, proxy_scgi, proxy_wstunnel, ratelimit, reflector, remoteip, reqtimeout, request, rewrite, sed, session, session_cookie, session_crypto, session_dbd, setenvif, slotmem_plain, slotmem_shm, socache_dbm, socache_memcache, socache_shmcb, speling, ssl, status, substitute, suexec, unique_id, userdir, usertrack, vhost_alias, xml2enc
+
  
 ## Debugging
 
 To enable XDebug, you simply have to set the environment variable:
 
 ```bash
-ENABLE_XDEBUG_EXTENSION=1
+PHP_EXTENSION_XDEBUG=1
 ```
  
 If you enable XDebug, the image will do its best to configure the `xdebug.remote_host` to point back to your Docker host.

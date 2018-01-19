@@ -32,5 +32,9 @@ php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/generated_conf.
 php /usr/local/bin/generate_cron.php > /etc/cron.d/generated_crontab
 chmod 0644 /etc/cron.d/generated_crontab
 
+if [[ "$IMAGE_VARIANT" == "apache" ]]; then
+    eval $( php /usr/local/bin/enable_apache_mods.php )
+fi
+
 cron
 exec "$@";
