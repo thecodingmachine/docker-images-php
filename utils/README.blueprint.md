@@ -206,6 +206,25 @@ At that point, if you only want to run a Cron task once for your application (an
 want to have a look at alternative solutions like [Tasker](https://github.com/opsxcq/tasker) or one of the many
 other alternatives.
 
+## Launching commands on container startup
+
+You can launch commands on container startup using the `STARTUP_COMMAND_XXX` environment variables.
+This can be very helpful to install dependencies or apply database patches for instance:
+
+```bash
+STARTUP_COMMAND_1=composer install
+STARTUP_COMMAND_2=vendor/bin/doctrine orm:schema-tool:update 
+```
+
+As an alternative, the images will look into the container for an executable file named `/etc/container/startup.sh`.
+
+If such a file is mounted in the image, it will be executed on container startup.
+
+```bash
+docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp \ 
+       -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:7.1-cli php your-script.php 
+```
+
 ## Special thanks
 
 These images have been strongly inspired by [tetraweb/php](https://hub.docker.com/r/tetraweb/php/).

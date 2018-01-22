@@ -37,4 +37,10 @@ if [[ "$IMAGE_VARIANT" == "apache" ]]; then
 fi
 
 cron
+
+if [ -e /etc/container/startup.sh ]; then
+    source /etc/container/startup.sh
+fi
+eval $( php /usr/local/bin/startup_commands.php )
+
 exec "$@";

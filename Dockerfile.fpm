@@ -155,6 +155,7 @@ ENV IMAGE_VARIANT=fpm
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
+COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
