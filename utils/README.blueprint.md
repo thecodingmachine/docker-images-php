@@ -33,20 +33,20 @@ These images are based on the [official PHP image](https://hub.docker.com/_/php/
 Example with CLI:
 
 ```bash
-$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp thecodingmachine/php:7.1-cli php your-script.php
+$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp thecodingmachine/php:7.1-v1-cli php your-script.php
 ```
 
 Example with Apache:
 
 ```bash
-$ docker run -p 80:80 --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:7.1-apache
+$ docker run -p 80:80 --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:7.1-v1-apache
 ```
 
 Example with Apache + Node 8.x in a Dockerfile:
 
 **Dockerfile**
 ```Dockerfile
-FROM thecodingmachine/php:7.1-apache-node8
+FROM thecodingmachine/php:7.1-v1-apache-node8
 
 COPY src/ /var/www/html/
 RUN composer install
@@ -222,7 +222,7 @@ If such a file is mounted in the image, it will be executed on container startup
 
 ```bash
 docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp \ 
-       -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:7.1-cli php your-script.php 
+       -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:7.1-v1-cli php your-script.php 
 ```
 
 ## Special thanks
