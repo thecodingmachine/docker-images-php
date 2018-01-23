@@ -2,8 +2,8 @@
 
 set -e
 
-if [[ "$UID" -ne "" ]]; then
-    if [[ "$IMAGE_VARIANT" -ne "cli" ]]; then
+if [[ "$UID" != "" ]]; then
+    if [[ "$IMAGE_VARIANT" != "cli" ]]; then
         usermod -u $UID www-data;
     fi
 fi
