@@ -183,7 +183,7 @@ CRON_USER=root
 # configure the schedule for the cron job (here: run every minute)
 CRON_SCHEDULE=* * * * *
 # last but not least, configure the command
-CRON_COMMAND=vendir/bin/console do:stuff
+CRON_COMMAND=vendor/bin/console do:stuff
 ```
 
 By default, CRON output will be redirected to Docker output.
@@ -193,11 +193,11 @@ If you have more than one job to run, you can suffix your environment variable w
 ```bash
 CRON_USER_1=root
 CRON_SCHEDULE_1=* * * * *
-CRON_COMMAND_1=vendir/bin/console do:stuff
+CRON_COMMAND_1=vendor/bin/console do:stuff
 
 CRON_USER_2=www-data
 CRON_SCHEDULE_2=0 3 * * *
-CRON_COMMAND_2=vendir/bin/console other:stuff
+CRON_COMMAND_2=vendor/bin/console other:stuff
 ```
 
 **Important**: Cron was never designed with Docker in mind (it is way older than Docker). It will run correctly on
