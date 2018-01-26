@@ -33,7 +33,7 @@ php /usr/local/bin/generate_cron.php > /etc/cron.d/generated_crontab
 chmod 0644 /etc/cron.d/generated_crontab
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
-    eval $( php /usr/local/bin/enable_apache_mods.php )
+    php /usr/local/bin/enable_apache_mods.php | bash
 fi
 
 cron
@@ -41,6 +41,6 @@ cron
 if [ -e /etc/container/startup.sh ]; then
     source /etc/container/startup.sh
 fi
-eval $( php /usr/local/bin/startup_commands.php )
+php /usr/local/bin/startup_commands.php | bash
 
 exec "$@";

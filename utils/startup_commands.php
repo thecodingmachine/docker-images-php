@@ -10,6 +10,8 @@ $commands = array_filter($_SERVER, function(string $key) {
 
 ksort($commands);
 
+echo "set -e\n";
+
 foreach ($commands as $command) {
     echo $command."\n";
 }
