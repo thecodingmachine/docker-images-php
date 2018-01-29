@@ -1,6 +1,6 @@
-# Fat Docker PHP images
+# General purpose PHP images for Docker
 
-This repository contains a set of **fat** general purpose PHP images for Docker.
+This repository contains a set of **fat**, developer-friendly, general purpose PHP images for Docker.
 
 Fat? It means the images come with the most common PHP extensions.
      
@@ -10,6 +10,7 @@ Fat? It means the images come with the most common PHP extensions.
  - Images are bundled with cron. Cron jobs can be configured using environment variables
  - Images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
+ - Everything is done to limit file permission issues that often arise when using Docker
 
 
 ## Images
@@ -33,7 +34,7 @@ These images are based on the [official PHP image](https://hub.docker.com/_/php/
 Example with CLI:
 
 ```bash
-$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp thecodingmachine/php:7.1-v1-cli php your-script.php
+$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:7.1-v1-cli php your-script.php
 ```
 
 Example with Apache:
@@ -116,6 +117,18 @@ For instance:
 PHP_INI_XDEBUG__REMOTE_AUTOSTART=1
 ```
 
+## Default working directory
+
+The working directory (the directory in which you should mount/copy your application) depends on the image variant
+you are using:
+
+| Variant | Working directory |
+|---------|-------------------|
+| cli     | `/usr/src/app`    |
+| apache  | `/var/www/html`   |
+| fpm     | `/var/www/html`   |
+
+
 ## Changing Apache document root
 
 For the *apache* variant, you can change the document root of Apache (i.e. your "public" directory) by using the 
@@ -170,6 +183,60 @@ Behind the scenes, the image will:
 - set the parameter `xdebug.remote_enable=1`
 - if you are using a Linux or Windows machine, the `xdebug.remote_host` IP will point to your Docker gateway
 - if you are using a MaxOS machine, the `xdebug.remote_host` IP will point to [`docker.for.mac.localhost`](https://docs.docker.com/docker-for-mac/networking/#use-cases-and-workarounds)
+
+## Permissions
+
+Ever faced file permission issues with Docker? Good news, this is a thing of the past!
+
+If you are used to running Docker containers with the base PHP image, you probably noticed that when running commands
+(like `composer install`) within the container, files are associated to the `root` user. This is because the base user
+of the image is "root".
+
+When you mount your project directory into `/var/www/html`, it would be great if the default user used by Docker could
+be your current host user.
+
+The problem with Docker is that the container and the host do not share the same list of users. For instance, you might
+be logged in on your host computer as `superdev` (ID: 1000), and the container has no user whose ID is 1000.
+
+The *thecodingmachine/php* images solve this issue with a bit of black magic:
+
+The image contains a user named `docker`. On container startup, the startup script will look at the owner of the 
+working directory (`/var/www/html` for Apache/PHP-FPM, or `/usr/src/app` for CLI). The script will then assume that
+you want to run commands as this user. So it will **dynamically change the ID of the docker user** to match the ID of
+the current working directory user.
+
+Furthermore, the image is changing the Apache default user/group to be `docker/docker` (instead if `www-data/www-data`).
+So Apache will run with the same rights as the user on your host.
+
+The direct result is that, in development:
+
+ - Your PHP application can edit any file
+ - Your container can edit any file
+ - You can still edit any file created by Apache or by the container in CLI
+
+### Using this image in production
+
+By changing the Apache user to be `docker:docker`, we are lowering the security.
+This is OK for a development environment, but this should be avoided in production.
+Indeed, in production, Apache should not be allowed to edit PHP files of your application. If for some reason, an 
+attacker manages to change PHP files using a security hole, he could then run any PHP script by editing the PHP files
+of your application.
+
+In production, you want to change back the Apache user to www-data.
+
+This can be done easily:
+
+**Dockerfile**
+```
+FROM thecodingmachine/php:7.1-v1-apache
+
+# ...
+
+# Change back Apache user and group to www-data
+ENV APACHE_RUN_USER=www-data \
+    APACHE_RUN_GROUP=www-data
+```
+
 
 ## Setting up CRON jobs
 

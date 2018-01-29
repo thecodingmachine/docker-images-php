@@ -44,7 +44,7 @@ RUN buildDeps=" \
         bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mcrypt mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
     " \
     && sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list \
-    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git nano --no-install-recommends \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git nano sudo --no-install-recommends \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
@@ -78,12 +78,24 @@ RUN buildDeps=" \
     && echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
 
 # |--------------------------------------------------------------------------
+# | User
+# |--------------------------------------------------------------------------
+# |
+# | Define a default user with sudo rights.
+# |
+
+RUN useradd -ms /bin/bash docker && adduser docker sudo
+# Users in the sudoers group can sudo as root without password.
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# |--------------------------------------------------------------------------
 # | Composer
 # |--------------------------------------------------------------------------
 # |
 # | Installs Composer to easily manage your PHP dependencies.
 # |
-ENV COMPOSER_ALLOW_SUPERUSER 1
+
+#ENV COMPOSER_ALLOW_SUPERUSER 1
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
     chmod +x /usr/local/bin/composer
@@ -95,7 +107,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # | Installs Prestissimo to improve Composer download performance.
 # |
 
+USER docker
 RUN composer global require hirak/prestissimo
+USER root
+
 
 
 
@@ -113,6 +128,8 @@ RUN sed -ri -e 's!/var/www/!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache
 # |
 
 RUN a2enmod rewrite
+
+
 
 
 # |--------------------------------------------------------------------------
@@ -143,7 +160,7 @@ ENV PHP_EXTENSION_APCU=1 \
 # |
 # | Let's update the .bashrc to add nice aliases
 # |
-
+USER docker
 RUN composer global require bamarni/symfony-console-autocomplete
 
 RUN echo 'eval "$(symfony-autocomplete)"' > ~/.bash_profile
@@ -155,6 +172,7 @@ RUN { \
         echo "alias l='ls --color=auto -CF'"; \
     } >> ~/.bashrc
 
+USER root
 
 # |--------------------------------------------------------------------------
 # | Entrypoint
@@ -165,17 +183,37 @@ RUN { \
 
 ENV IMAGE_VARIANT=apache
 
+# Add Tini (to be able to stop the container with ctrl-c.
+# See: https://github.com/krallin/tini
+ENV TINI_VERSION v0.16.1
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
 
-COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
 COPY utils/enable_apache_mods.php /usr/local/bin/enable_apache_mods.php
 
+COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 
 CMD ["/usr/sbin/apachectl", "-DFOREGROUND"]
 
+# |--------------------------------------------------------------------------
+# | Entrypoint
+# |--------------------------------------------------------------------------
+# |
+# | Defines Apache user. Bu default, we switch this to "docker" user.
+# | This way, no problem to write from Apache in the current working directory.
+# | Important! This should be changed back to www-data in production.
+# |
+
+ENV APACHE_RUN_USER=docker \
+    APACHE_RUN_GROUP=docker
+
+
+USER docker

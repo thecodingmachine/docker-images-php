@@ -12,6 +12,13 @@ ksort($commands);
 
 echo "set -e\n";
 
+
+// Let's run the commands as user $UID if env variable UID is set.
+$prepend = '';
+if (isset($_SERVER['UID'])) {
+    $prepend = 'sudo -u \\#'.$_SERVER['UID'].' ';
+}
+
 foreach ($commands as $command) {
-    echo $command."\n";
+    echo $prepend.$command."\n";
 }
