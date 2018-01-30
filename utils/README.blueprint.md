@@ -15,17 +15,17 @@ Fat? It means the images come with the most common PHP extensions.
 {{ $image := .Values.Images }}
 ## Images
 
-| Name                                                                    | PHP version                  | variant | NodeJS version  |
-|-------------------------------------------------------------------------|------------------------------|---------|-----------------|
-| [php:{{ $image.php_version }}-v1-apache](Dockerfile.apache)             | `{{ $image.php_version }}`.x | apache  | *N/A*           |
-| [php:{{ $image.php_version }}-v1-apache-node6](Dockerfile.apache.node6) | `{{ $image.php_version }}`.x | apache  | `6.x`           |
-| [php:{{ $image.php_version }}-v1-apache-node8](Dockerfile.apache.node8) | `{{ $image.php_version }}`.x | apache  | `8.x`           |
-| [php:{{ $image.php_version }}-v1-fpm](Dockerfile.fpm)                   | `{{ $image.php_version }}`.x | fpm     | *N/A*           |
-| [php:{{ $image.php_version }}-v1-fpm-node6](Dockerfile.fpm.node6)       | `{{ $image.php_version }}`.x | fpm     | `6.x`           |
-| [php:{{ $image.php_version }}-v1-fpm-node8](Dockerfile.fpm.node8)       | `{{ $image.php_version }}`.x | fpm     | `8.x`           |
-| [php:{{ $image.php_version }}-v1-cli](Dockerfile.cli)                   | `{{ $image.php_version }}`.x | cli     | *N/A*           |
-| [php:{{ $image.php_version }}-v1-cli-node6](Dockerfile.cli.node6)       | `{{ $image.php_version }}`.x | cli     | `6.x`           |
-| [php:{{ $image.php_version }}-v1-cli-node8](Dockerfile.cli.node8)       | `{{ $image.php_version }}`.x | cli     | `8.x`           |
+| Name                                                                    | PHP version                  | variant | NodeJS version  | Size 
+|-------------------------------------------------------------------------|------------------------------|---------|-----------------|------
+| [php:{{ $image.php_version }}-v1-apache](Dockerfile.apache)             | `{{ $image.php_version }}`.x | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-apache)
+| [php:{{ $image.php_version }}-v1-apache-node6](Dockerfile.apache.node6) | `{{ $image.php_version }}`.x | apache  | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-apache-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-apache-node6)
+| [php:{{ $image.php_version }}-v1-apache-node8](Dockerfile.apache.node8) | `{{ $image.php_version }}`.x | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-apache-node8)
+| [php:{{ $image.php_version }}-v1-fpm](Dockerfile.fpm)                   | `{{ $image.php_version }}`.x | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-fpm)
+| [php:{{ $image.php_version }}-v1-fpm-node6](Dockerfile.fpm.node6)       | `{{ $image.php_version }}`.x | fpm     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-fpm-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-fpm-node6)
+| [php:{{ $image.php_version }}-v1-fpm-node8](Dockerfile.fpm.node8)       | `{{ $image.php_version }}`.x | fpm     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-fpm-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-fpm-node8)
+| [php:{{ $image.php_version }}-v1-cli](Dockerfile.cli)                   | `{{ $image.php_version }}`.x | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-cli)
+| [php:{{ $image.php_version }}-v1-cli-node6](Dockerfile.cli.node6)       | `{{ $image.php_version }}`.x | cli     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node6)
+| [php:{{ $image.php_version }}-v1-cli-node8](Dockerfile.cli.node8)       | `{{ $image.php_version }}`.x | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node8)
 
 ## Usage
 

@@ -44,7 +44,7 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
     if [[ $? == 0 ]]; then
         # The host exists.
         DOCKER_FOR_MAC_REMOTE_HOST=`host docker.for.mac.localhost | awk '/has address/ { print $4 }'`
-        if [ "$DOCKER_FOR_MAC_REMOTE_HOST" -ne "127.0.0.1" ]; then
+        if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
             XDEBUG_REMOTE_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
         fi
         unset DOCKER_FOR_MAC_REMOTE_HOST
