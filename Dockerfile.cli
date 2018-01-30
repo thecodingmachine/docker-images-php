@@ -117,8 +117,9 @@ USER root
 
 
 
-RUN mkdir -p /usr/src/app
+RUN mkdir -p /usr/src/app && chown docker:docker /usr/src/app
 WORKDIR /usr/src/app
+
 
 
 # |--------------------------------------------------------------------------

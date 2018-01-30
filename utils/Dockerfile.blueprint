@@ -167,8 +167,11 @@ RUN a2enmod rewrite
 {{end}}
 
 {{if eq $variant "cli" }}
-RUN mkdir -p /usr/src/app
+RUN mkdir -p /usr/src/app && chown docker:docker /usr/src/app
 WORKDIR /usr/src/app
+{{end}}
+{{if or (eq $variant "apache") (eq $variant "fpm") }}
+RUN chown docker:docker /var/www/html
 {{end}}
 
 # |--------------------------------------------------------------------------
