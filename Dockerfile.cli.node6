@@ -123,7 +123,9 @@ USER root
 # | your frontend dependencies.
 # |
 
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - &&\
+RUN apt-get update &&\
+    apt-get install -y --no-install-recommends gnupg &&\
+    curl -sL https://deb.nodesource.com/setup_6.x | bash - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends nodejs
 
