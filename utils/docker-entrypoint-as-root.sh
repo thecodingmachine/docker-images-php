@@ -2,12 +2,8 @@
 
 set -e
 
-# TODO: check if UID is part of the existing users. If no, let's create a user with that name.
-# Then, if Apache, let's change the conf to use that user.
-# Then, run commands with that user.
-
-
-
+# Let's apply the requested php.ini file
+cp /usr/local/etc/php/php.ini-${TEMPLATE_PHP_INI} /usr/local/etc/php/php.ini
 
 # Let's find the user to use for commands.
 # If $DOCKER_USER, let's use this. Otherwise, let's find it.

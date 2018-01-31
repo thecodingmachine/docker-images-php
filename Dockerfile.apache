@@ -156,6 +156,16 @@ ENV PHP_EXTENSION_APCU=1 \
     PHP_EXTENSION_ZIP=1 \
     PHP_EXTENSION_SOAP=1
 
+# |--------------------------------------------------------------------------
+# | Default php.ini file
+# |--------------------------------------------------------------------------
+# |
+# | Let's download php.ini for prod and development
+# |
+
+ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-production /usr/local/etc/php/php.ini-production
+ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
+ENV TEMPLATE_PHP_INI=development
 
 # |--------------------------------------------------------------------------
 # | .bashrc updating
