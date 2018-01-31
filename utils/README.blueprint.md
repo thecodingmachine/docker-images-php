@@ -90,6 +90,15 @@ PHP_EXTENSIONS=pgsql gettext imap sockets
 
 ## Setting parameters in php.ini
 
+By default, the base `php.ini` file used is the [*development* php.ini](https://github.com/php/php-src/blob/PHP-{{ $image.php_version }}/php.ini-development) file that comes with PHP. 
+
+You can use the production `php.ini` file using the `TEMPLATE_PHP_INI` environment variable:
+
+```
+# Use the production php.ini file as a base
+TEMPLATE_PHP_INI=production
+```
+
 You can override parameters in `php.ini` using the PHP_INI_XXX environment variables:
 
 ```yml
