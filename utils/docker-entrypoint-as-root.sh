@@ -7,8 +7,6 @@ set -e
 # Then, run commands with that user.
 
 
-
-
 # Let's find the user to use for commands.
 # If $DOCKER_USER, let's use this. Otherwise, let's find it.
 if [[ "$DOCKER_USER" == "" ]]; then
