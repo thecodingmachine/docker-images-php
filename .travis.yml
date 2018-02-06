@@ -26,4 +26,4 @@ script:
 - docker build -t thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT} -f Dockerfile.${VARIANT} .
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
 # Let's push only if not in a pull request and the branch matches the 7.1-v1 format
-- [[ $TRAVIS_PULL_REQUEST = false ]] && [[ $TRAVIS_BRANCH =~ /^[0-9.]+-v[0-9.]+$/ ]] && docker push thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT}
+- "[[ $TRAVIS_PULL_REQUEST = false ]] && [[ $TRAVIS_BRANCH =~ /^[0-9.]+-v[0-9.]+$/ ]] && docker push thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT}"
