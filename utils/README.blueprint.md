@@ -1,3 +1,6 @@
+7.2 [![Build Status](https://travis-ci.org/thecodingmachine/docker-images-php.svg?branch=7.2-v1)](https://travis-ci.org/thecodingmachine/docker-images-php)
+7.1 [![Build Status](https://travis-ci.org/thecodingmachine/docker-images-php.svg?branch=7.1-v1)](https://travis-ci.org/thecodingmachine/docker-images-php)
+
 # General purpose PHP images for Docker
 
 This repository contains a set of **fat**, developer-friendly, general purpose PHP images for Docker.
