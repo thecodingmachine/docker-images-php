@@ -19,15 +19,15 @@ Fat? It means the images come with the most common PHP extensions.
 
 | Name                                                                    | PHP version                  | variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|---------|-----------------|------
-{{range $versions}}| [php:{{ . }}-v1-apache](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.apache)             | `{{ . }}.x` | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-apache)
-| [php:{{ . }}-v1-apache-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.apache.node6) | `{{ . }}.x` | apache  | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-apache-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-apache-node6)
-| [php:{{ . }}-v1-apache-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.apache.node8) | `{{ . }}.x` | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-apache-node8)
-| [php:{{ . }}-v1-fpm](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.fpm)                   | `{{ . }}.x` | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-fpm)
-| [php:{{ . }}-v1-fpm-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.fpm.node6)       | `{{ . }}.x` | fpm     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-fpm-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-fpm-node6)
-| [php:{{ . }}-v1-fpm-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.fpm.node8)       | `{{ . }}.x` | fpm     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-fpm-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-fpm-node8)
-| [php:{{ . }}-v1-cli](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.cli)                   | `{{ . }}.x` | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-cli)
-| [php:{{ . }}-v1-cli-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.cli.node6)       | `{{ . }}.x` | cli     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-cli-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-cli-node6)
-| [php:{{ . }}-v1-cli-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.cli.node8)       | `{{ . }}.x` | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-cli-node8)
+{{range $versions}}| [thecodingmachine/php:{{ . }}-v1-apache](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.apache)             | `{{ . }}.x` | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-apache)
+| [thecodingmachine/php:{{ . }}-v1-apache-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.apache.node6) | `{{ . }}.x` | apache  | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-apache-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-apache-node6)
+| [thecodingmachine/php:{{ . }}-v1-apache-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.apache.node8) | `{{ . }}.x` | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-apache-node8)
+| [thecodingmachine/php:{{ . }}-v1-fpm](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.fpm)                   | `{{ . }}.x` | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-fpm)
+| [thecodingmachine/php:{{ . }}-v1-fpm-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.fpm.node6)       | `{{ . }}.x` | fpm     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-fpm-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-fpm-node6)
+| [thecodingmachine/php:{{ . }}-v1-fpm-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.fpm.node8)       | `{{ . }}.x` | fpm     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-fpm-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-fpm-node8)
+| [thecodingmachine/php:{{ . }}-v1-cli](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.cli)                   | `{{ . }}.x` | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-cli)
+| [thecodingmachine/php:{{ . }}-v1-cli-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.cli.node6)       | `{{ . }}.x` | cli     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-cli-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-cli-node6)
+| [thecodingmachine/php:{{ . }}-v1-cli-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v1/Dockerfile.cli.node8)       | `{{ . }}.x` | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v1-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v1-cli-node8)
 {{end}}
 
 ## Usage
@@ -303,6 +303,61 @@ If such a file is mounted in the image, it will be executed on container startup
 docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp \ 
        -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:{{ $image.php_version }}-v1-cli php your-script.php 
 ```
+
+## Registering SSH private keys
+
+If your PHP project as a dependency on [a package stored in a private GIT repository](https://getcomposer.org/doc/05-repositories.md#using-private-repositories), 
+your `composer install` commands will not work unless you register your private key in the container.
+
+You have several options to do this.
+
+### Option 1: mount your keys in the container directly
+
+This option is the easiest way to go if you are using the image on a development environment.
+
+**docker-compose.yml**
+```yml
+version: '3'
+services:
+  my_app:
+    image: thecodingmachine/php:{{ $image.php_version }}-v1-apache-node8
+    volumes:
+      - ~/.ssh:/home/docker/.ssh
+```
+
+### Option 2: store the keys from environment variables or build arguments
+
+Look at this option if you are building a Dockerfile from this image.
+
+The first thing to do is to get the signature of the server you want to connect to.
+
+``` bash
+$ ssh-keyscan myserver.com
+```
+
+Copy the output and put it in an environment variable. We assume the content is stored in `$SSH_KNOWN_HOSTS`.
+
+Now, let's write a Dockerfile.
+
+**Dockerfile**
+```yml
+FROM thecodingmachine/php:{{ $image.php_version }}-v1-apache
+
+ARG SSH_PRIVATE_KEY
+ARG SSH_KNOWN_HOSTS
+
+# Let's register the private key
+RUN ssh-add <(echo "$SSH_PRIVATE_KEY")
+# Let's add the server to the list of known hosts.
+RUN echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+```
+
+Finally, when triggering the build, you must pass the 2 variables as [build arguments](https://docs.docker.com/engine/reference/commandline/build/#set-build-time-variables-build-arg):
+
+```bash
+$ docker build -t my_image --build-arg SSH_PRIVATE_KEY=$SSH_PRIVATE_KEY --build-arg SSH_KNOWN_HOSTS=$SSH_KNOWN_HOSTS .
+```
+
 
 ## Special thanks
 
