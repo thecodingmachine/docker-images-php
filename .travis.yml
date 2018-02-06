@@ -22,9 +22,11 @@ env:
 
 script:
 # Let's replace the "." by a "-" with some bash magic
-- if [[ $TRAVIS_PULL_REQUEST = false ]] ; then echo foo; fi
-- if [[ $TRAVIS_BRANCH =~ /^[0-9.]+-v[0-9.]+$/ ]] ; then echo foo; fi
-- if [[ $TRAVIS_PULL_REQUEST = false && $TRAVIS_BRANCH =~ /^[0-9.]+-v[0-9.]+$/ ]] ; then echo foo; fi
+- echo $TRAVIS_PULL_REQUEST
+- echo $TRAVIS_BRANCH
+- if [[ "$TRAVIS_PULL_REQUEST" = "false" ]] ; then echo foo; fi
+- if [[ "$TRAVIS_BRANCH" =~ /^[0-9.]+-v[0-9.]+$/ ]] ; then echo foo; fi
+- if [[ "$TRAVIS_PULL_REQUEST" = false && "$TRAVIS_BRANCH" =~ /^[0-9.]+-v[0-9.]+$/ ]] ; then echo foo; fi
 
 #- export BRANCH_VARIANT=`echo "$VARIANT" | sed 's/\./-/g'`
 #- docker build -t thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT} -f Dockerfile.${VARIANT} .
