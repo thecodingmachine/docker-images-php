@@ -48,7 +48,7 @@ RUN buildDeps=" \
         bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mcrypt mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
     " \
     && sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list \
-    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git nano sudo --no-install-recommends \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git nano sudo openssh-client --no-install-recommends \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
@@ -206,13 +206,25 @@ ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-pro
 ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
 ENV TEMPLATE_PHP_INI=development
 
+USER docker
+# |--------------------------------------------------------------------------
+# | SSH client
+# |--------------------------------------------------------------------------
+# |
+# | Let's set-up the SSH client (for connections to private git repositories)
+# | We create an empty known_host file and we launch the ssh-agent
+# |
+
+RUN mkdir ~/.ssh && touch ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts && eval $(ssh-agent -s)
+
+
 # |--------------------------------------------------------------------------
 # | .bashrc updating
 # |--------------------------------------------------------------------------
 # |
 # | Let's update the .bashrc to add nice aliases
 # |
-USER docker
+
 RUN composer global require bamarni/symfony-console-autocomplete
 
 RUN echo 'eval "$(symfony-autocomplete)"' > ~/.bash_profile
