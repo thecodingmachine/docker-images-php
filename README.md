@@ -349,7 +349,7 @@ RUN ssh-add <(echo "$SSH_PRIVATE_KEY")
 RUN echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
 ```
 
-Finally, when triggering the build, you must pass the 2 variables as build arguments:
+Finally, when triggering the build, you must pass the 2 variables as [build arguments](https://docs.docker.com/engine/reference/commandline/build/#set-build-time-variables-build-arg):
 
 ```bash
 $ docker build -t my_image --build-arg SSH_PRIVATE_KEY=$SSH_PRIVATE_KEY --build-arg SSH_KNOWN_HOSTS=$SSH_KNOWN_HOSTS .
