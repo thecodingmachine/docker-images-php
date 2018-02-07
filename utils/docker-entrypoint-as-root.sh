@@ -5,11 +5,21 @@ set -e
 # Let's apply the requested php.ini file
 cp /usr/local/etc/php/php.ini-${TEMPLATE_PHP_INI} /usr/local/etc/php/php.ini
 
+DOCKER_FOR_MAC_REMOTE_HOST=`host docker.for.mac.localhost | awk '/has address/ { print $4 }'`
+
 # Let's find the user to use for commands.
 # If $DOCKER_USER, let's use this. Otherwise, let's find it.
 if [[ "$DOCKER_USER" == "" ]]; then
-    # If not specified, the DOCKER_USER is the ID of the owner of the current working directory (heuristic!)
-    DOCKER_USER=`ls -dl $(pwd) | cut -d " " -f 3`
+    # On MacOSX, the owner of the current directory can be completely random (it can be root or docker depending on what happened previously)
+    # But MacOSX does not enforce any rights (the docker user can edit any file owned by root).
+    # So for MacOSX, we should force the user used to be Docker.
+    if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
+        # we are on a Mac
+        DOCKER_USER=docker
+    else
+        # If not specified, the DOCKER_USER is the ID of the owner of the current working directory (heuristic!)
+        DOCKER_USER=`ls -dl $(pwd) | cut -d " " -f 3`
+    fi
 fi
 
 # DOCKER_USER is a user name if the user exists in the container, otherwise, it is a user ID (from a user on the host).
@@ -28,7 +38,6 @@ fi
 DOCKER_USER_ID=`id -ur $DOCKER_USER`
 #echo "Docker user id: $DOCKER_USER_ID"
 
-
 if [ -z "$XDEBUG_REMOTE_HOST" ]; then
     XDEBUG_REMOTE_HOST=`/sbin/ip route|awk '/default/ { print $3 }'`
 
@@ -39,14 +48,15 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
 
     if [[ $? == 0 ]]; then
         # The host exists.
-        DOCKER_FOR_MAC_REMOTE_HOST=`host docker.for.mac.localhost | awk '/has address/ { print $4 }'`
         if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
             XDEBUG_REMOTE_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
         fi
-        unset DOCKER_FOR_MAC_REMOTE_HOST
+
     fi
     set -e
 fi
+
+unset DOCKER_FOR_MAC_REMOTE_HOST
 
 php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/generated_conf.ini
 php /usr/local/bin/generate_cron.php > /etc/cron.d/generated_crontab
