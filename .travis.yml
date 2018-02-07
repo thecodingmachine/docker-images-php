@@ -28,11 +28,11 @@ script:
 # Post build unit tests
 # Default user is 1000
 - RESULT=`docker run thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT} id -ur`
-- [[ "$RESULT" = "1000" ]]
+- "[[ \"$RESULT\" = \"1000\" ]]"
 # If mounted, default user has the id of the mount directory
 - mkdir user1999 && sudo chown 1999:1999 user1999
 - RESULT=`docker run -v $(pwd)/user1999:/var/www/html thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT} id -ur`
-- [[ "$RESULT" = "1999" ]]
+- "[[ \"$RESULT\" = \"1999\" ]]"
 
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
 # Let's push only if not in a pull request and the branch matches the 7.1-v1 format
