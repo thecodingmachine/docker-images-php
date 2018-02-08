@@ -74,7 +74,7 @@ fi
 sudo -E -u "#$DOCKER_USER_ID" sh -c "php /usr/local/bin/startup_commands.php | bash"
 
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
-if [[ "$@" == "/usr/sbin/apachectl -DFOREGROUND" ]]; then
+if [[ "$@" == "apache2-foreground" ]]; then
     exec "$@";
 else
     exec "sudo" "-E" "-u" "#$DOCKER_USER_ID" "$@";
