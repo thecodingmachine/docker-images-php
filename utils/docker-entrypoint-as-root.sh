@@ -5,21 +5,33 @@ set -e
 # Let's apply the requested php.ini file
 cp /usr/local/etc/php/php.ini-${TEMPLATE_PHP_INI} /usr/local/etc/php/php.ini
 
-DOCKER_FOR_MAC_REMOTE_HOST=`host docker.for.mac.localhost | awk '/has address/ { print $4 }'`
-
 # Let's find the user to use for commands.
 # If $DOCKER_USER, let's use this. Otherwise, let's find it.
 if [[ "$DOCKER_USER" == "" ]]; then
     # On MacOSX, the owner of the current directory can be completely random (it can be root or docker depending on what happened previously)
     # But MacOSX does not enforce any rights (the docker user can edit any file owned by root).
-    # So for MacOSX, we should force the user used to be Docker.
-    if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
-        # we are on a Mac
-        DOCKER_USER=docker
-    else
-        # If not specified, the DOCKER_USER is the ID of the owner of the current working directory (heuristic!)
+    # On Windows, the owner of the current directory is root if mounted
+    # But Windows does not enforce any rights either
+
+    # Let's make a test to see if we have those funky rights.
+    set +e
+    mkdir testing_file_system_rights.foo
+    chmod 700 testing_file_system_rights.foo
+    su docker -c "touch testing_file_system_rights.foo/somefile > /dev/null 2>&1"
+    HAS_CONSISTENT_RIGHTS=$?
+    rm -rf testing_file_system_rights.foo
+    set -e
+
+    if [[ "$HAS_CONSISTENT_RIGHTS" != "0" ]]; then
+        # If not specified, the DOCKER_USER is the owner of the current working directory (heuristic!)
         DOCKER_USER=`ls -dl $(pwd) | cut -d " " -f 3`
+    else
+        # we are on a Mac or Windows... who cares about permissions?
+        # So for Windows and MacOSX, we should force the user used to be Docker.
+        DOCKER_USER=docker
     fi
+
+    unset HAS_CONSISTENT_RIGHTS
 fi
 
 # DOCKER_USER is a user name if the user exists in the container, otherwise, it is a user ID (from a user on the host).
@@ -48,6 +60,7 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
 
     if [[ $? == 0 ]]; then
         # The host exists.
+        DOCKER_FOR_MAC_REMOTE_HOST=`host docker.for.mac.localhost | awk '/has address/ { print $4 }'`
         if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
             XDEBUG_REMOTE_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
         fi
@@ -74,7 +87,7 @@ fi
 sudo -E -u "#$DOCKER_USER_ID" sh -c "php /usr/local/bin/startup_commands.php | bash"
 
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
-if [[ "$@" == "/usr/sbin/apachectl -DFOREGROUND" ]]; then
+if [[ "$@" == "apache2-foreground" ]]; then
     exec "$@";
 else
     exec "sudo" "-E" "-u" "#$DOCKER_USER_ID" "$@";

@@ -269,7 +269,11 @@ COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 {{if eq $variant "apache" }}
-CMD ["/usr/sbin/apachectl", "-DFOREGROUND"]
+# Let's register a servername to remove the message "apache2: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message"
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
+RUN a2enconf servername
+
+CMD ["apache2-foreground"]
 
 # |--------------------------------------------------------------------------
 # | Entrypoint
