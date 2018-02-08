@@ -13,7 +13,7 @@ if [[ "$DOCKER_USER" == "" ]]; then
     # On MacOSX, the owner of the current directory can be completely random (it can be root or docker depending on what happened previously)
     # But MacOSX does not enforce any rights (the docker user can edit any file owned by root).
     # So for MacOSX, we should force the user used to be Docker.
-    if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
+    if [[ "$DOCKER_FOR_MAC_REMOTE_HOST" != "" && "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]]; then
         # we are on a Mac
         DOCKER_USER=docker
     else
