@@ -35,7 +35,6 @@ script:
 - ls -al user1999
 - RESULT=`docker run -v $(pwd)/user1999:$CONTAINER_CWD thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT} id -ur`
 - "[[ \"$RESULT\" = \"1999\" ]]"
-- echo $RESULT
 
 # Let's push only if not in a pull request and the branch matches the 7.1-v1 format
 - if [[ "$TRAVIS_PULL_REQUEST" = false && "$TRAVIS_BRANCH" =~ ^[0-9.]+-v[0-9.]+$ ]] ; then docker login -u $DOCKER_USER -p $DOCKER_PASS && docker push thecodingmachine/php:${TRAVIS_BRANCH}-${BRANCH_VARIANT}; fi
