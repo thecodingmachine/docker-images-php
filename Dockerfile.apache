@@ -144,6 +144,7 @@ RUN chown docker:docker /var/www/html
 # | Let's add ./vendor/bin to the PATH (utility function to use Composer bin easily)
 # |
 ENV PATH="$PATH:./vendor/bin:~/.composer/vendor/bin"
+RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./vendor/bin:~/.composer/vendor/bin#g' /etc/sudoers
 
 # |--------------------------------------------------------------------------
 # | Default PHP extensions to be enabled
