@@ -1,0 +1,26 @@
+version: 1.0.{build}
+
+image: Visual Studio 2017
+
+environment:
+  matrix:
+  - VARIANT: cli
+
+build:
+  verbosity: minimal
+
+build_script:
+  - docker build -t test_image -f Dockerfile.%VARIANT% .
+
+test_script:
+  # Post build unit tests
+  - IF %VARIANT%==cli (SET CONTAINER_CWD=/usr/src/app) ELSE (SET CONTAINER_CWD=/var/www/html)
+  # Default user is 1000
+  - docker run test_image id -ur > temp.txt
+  - set /p RESULT=<temp.txt
+  - IF NOT %RESULT%==1000 (exit 1)
+  # If mounted, default user is still docker
+  - mkdir somedir
+  - docker run -v $(pwd)/somedir:%CONTAINER_CWD% test_image id -ur > temp.txt
+  - set /p RESULT=<temp.txt
+  - IF NOT %RESULT%==1000 (exit 1)
