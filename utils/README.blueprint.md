@@ -27,6 +27,15 @@ Fat? It means the images come with the most common PHP extensions.
 | [thecodingmachine/php:{{ $image.php_version }}-v1-cli-node6](Dockerfile.cli.node6)       | `{{ $image.php_version }}.x` | cli     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node6)
 | [thecodingmachine/php:{{ $image.php_version }}-v1-cli-node8](Dockerfile.cli.node8)       | `{{ $image.php_version }}.x` | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $image.php_version }}-v1-cli-node8)
 
+Note: we do not tag patch releases of PHP, only minor versions. You will find one image for PHP 7.1, one for PHP 7.2, 
+but no tagged image for PHP 7.1.12. This is because we believe you have no valid reason to ask explicitly for 7.1.12.
+When 7.1.13 is out, you certainly want to upgrade automatically to this patch release since patch releases contain only bugfixes.
+
+Images are automatically updated when a new patch version of PHP is released, so the PHP 7.1 image will always contain 
+the most up-to-date version of the PHP 7.1.x branch. If you want to automatically update your images on your production
+environment, you can use tools like [watchtower](https://github.com/v2tec/watchtower) that will monitor new versions of
+the images and update your environment on the fly.
+
 ## Usage
 
 These images are based on the [official PHP image](https://hub.docker.com/_/php/).
@@ -355,6 +364,22 @@ Finally, when triggering the build, you must pass the 2 variables as [build argu
 $ docker build -t my_image --build-arg SSH_PRIVATE_KEY=$SSH_PRIVATE_KEY --build-arg SSH_KNOWN_HOSTS=$SSH_KNOWN_HOSTS .
 ```
 
+## Contributing
+
+There is one branch per minor PHP version and version of the image.
+
+Please submit your pull requests to the lowest branch where is applies.
+
+The Dockerfiles and the README are generated from a template using [Orbit](https://github.com/gulien/orbit).
+
+If you want to modify a Dockerfile or the README, you should instead edit the `utils/Dockerfile.blueprint`
+or `utils/README.blueprint.md` and then run the command:
+
+```bash
+$ orbit run generate
+```
+
+This command will generate all the files from the "blueprint" templates.
 
 ## Special thanks
 
