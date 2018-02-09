@@ -144,6 +144,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
 # | Let's add ./node_modules/.bin to the PATH (utility function to use NPM bin easily)
 # |
 ENV PATH="$PATH:./node_modules/.bin"
+RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin#g' /etc/sudoers
 
 
 
@@ -160,6 +161,7 @@ RUN chown docker:docker /var/www/html
 # | Let's add ./vendor/bin to the PATH (utility function to use Composer bin easily)
 # |
 ENV PATH="$PATH:./vendor/bin:~/.composer/vendor/bin"
+RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./vendor/bin:~/.composer/vendor/bin#g' /etc/sudoers
 
 # |--------------------------------------------------------------------------
 # | Default PHP extensions to be enabled

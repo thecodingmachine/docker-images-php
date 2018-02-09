@@ -10,7 +10,7 @@ Fat? It means the images come with the most common PHP extensions.
  - Images are bundled with cron. Cron jobs can be configured using environment variables
  - Images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
- - Everything is done to limit file permission issues that often arise when using Docker
+ - Everything is done to limit file permission issues that often arise when using Docker. The image is actively tested on Linux, Windows and MacOS
 
 
 ## Images
