@@ -1,6 +1,6 @@
-{{- $stack := .Values.Images -}}
-{{- $variant := .RawData.variant -}}
-{{- $node_version := .RawData.node_version -}}
+{{- $stack := .Orbit.Images -}}
+{{- $variant := .Orbit.variant -}}
+{{- $node_version := .Orbit.node_version -}}
 
 FROM php:{{ $stack.php_version }}-{{ $variant }}
 
@@ -118,7 +118,7 @@ RUN composer global require hirak/prestissimo
 USER root
 
 
-{{if .RawData.node_version }}
+{{if .Orbit.node_version }}
 # |--------------------------------------------------------------------------
 # | NodeJS
 # |--------------------------------------------------------------------------
