@@ -18,3 +18,8 @@ ls -al user1999
 RESULT=`docker run -v $(pwd)/user1999:$CONTAINER_CWD thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} id -ur`
 [[ "$RESULT" = "1999" ]]
 sudo rm -rf user1999
+
+# Let's check that the "xdebug.remote_host" contains a value different from "no value"
+docker run -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
+
+echo "Tests passed with success"
