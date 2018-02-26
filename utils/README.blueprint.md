@@ -12,7 +12,7 @@ Fat? It means the images come with the most common PHP extensions.
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
  - Everything is done to limit file permission issues that often arise when using Docker. The image is actively tested on Linux, Windows and MacOS
 
-{{ $image := .Values.Images }}
+{{ $image := .Orbit.Images }}
 ## Images
 
 | Name                                                                    | PHP version                  | variant | NodeJS version  | Size 
