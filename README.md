@@ -396,6 +396,12 @@ $ orbit run generate
 
 This command will generate all the files from the "blueprint" templates.
 
+You can then test your changes using the `build-and-test.sh` command:
+
+```bash
+BRANCH=7.2-v1 VARIANT=apache.node8 ./build-and-test.sh
+```
+
 ## Special thanks
 
 These images have been strongly inspired by [tetraweb/php](https://hub.docker.com/r/tetraweb/php/).
