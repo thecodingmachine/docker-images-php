@@ -4,4 +4,3 @@ if (!isset($_SERVER['MYVAR'])) {
 } else {
     echo $_SERVER['MYVAR'];
 }
-echo getenv('MYVAR');
