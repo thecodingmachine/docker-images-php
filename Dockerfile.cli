@@ -209,7 +209,6 @@ COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-COPY utils/apache-expose-envvars.sh /usr/local/bin/apache-expose-envvars.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

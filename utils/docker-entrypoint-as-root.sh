@@ -88,6 +88,7 @@ sudo -E -u "#$DOCKER_USER_ID" sh -c "php /usr/local/bin/startup_commands.php | b
 
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
 if [[ "$@" == "apache2-foreground" ]]; then
+    /usr/local/bin/apache-expose-envvars.sh;
     exec "$@";
 else
     exec "sudo" "-E" "-u" "#$DOCKER_USER_ID" "$@";
