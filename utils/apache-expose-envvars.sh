@@ -7,7 +7,7 @@ rm -f /etc/apache2/conf-enabled/expose-env.conf;
 
 # alright, now parses all environment variables
 while IFS='=' read -r -d '' key value; do
-    # the entries $HOME and $_ are not required and they throw a warning when exposed to Apache:
+    # the entries HOME and _ are not required and they throw a warning when exposed to Apache:
     # just ignore them...
     if [[ "$key" != "HOME" ]] && [[ "$key" != "_" ]]; then
         # exposes our environment variable ($key) to Apache
