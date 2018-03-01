@@ -22,4 +22,16 @@ sudo rm -rf user1999
 # Let's check that the "xdebug.remote_host" contains a value different from "no value"
 docker run -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
 
+if [[ $VARIANT == apache* ]]; then
+    # Test if environment variables are passed to PHP
+    DOCKER_CID=`docker run -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT}`
+
+    # Let's wait for Apache to start
+    sleep 5
+
+    RESULT=`curl http://localhost:81/tests/test.php`
+    [[ "$RESULT" = "foo" ]]
+    docker stop $DOCKER_CID
+fi
+
 echo "Tests passed with success"
