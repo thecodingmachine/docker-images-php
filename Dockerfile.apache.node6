@@ -91,6 +91,30 @@ RUN useradd -ms /bin/bash docker && adduser docker sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # |--------------------------------------------------------------------------
+# | Default PHP extensions to be enabled
+# |--------------------------------------------------------------------------
+ENV PHP_EXTENSION_APCU=1 \
+    PHP_EXTENSION_MBSTRING=1 \
+    PHP_EXTENSION_MYSQLI=1 \
+    PHP_EXTENSION_OPCACHE=1 \
+    PHP_EXTENSION_PDO=1 \
+    PHP_EXTENSION_PDO_MYSQL=1 \
+    PHP_EXTENSION_REDIS=1 \
+    PHP_EXTENSION_ZIP=1 \
+    PHP_EXTENSION_SOAP=1
+
+# |--------------------------------------------------------------------------
+# | Default php.ini file
+# |--------------------------------------------------------------------------
+# |
+# | Let's download php.ini for prod and development
+# |
+
+ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-production /usr/local/etc/php/php.ini-production
+ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
+ENV TEMPLATE_PHP_INI=development
+
+# |--------------------------------------------------------------------------
 # | Composer
 # |--------------------------------------------------------------------------
 # |
@@ -99,8 +123,12 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 #ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
-    chmod +x /usr/local/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=real_composer &&\
+    chmod +x /usr/local/bin/real_composer
+
+COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
+COPY utils/composer_proxy.sh /usr/local/bin/composer
+
 
 # |--------------------------------------------------------------------------
 # | prestissimo
@@ -112,7 +140,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 USER docker
 RUN composer global require hirak/prestissimo
 USER root
-
 
 
 # |--------------------------------------------------------------------------
@@ -181,30 +208,6 @@ RUN chown docker:docker /var/www/html
 ENV PATH="$PATH:./vendor/bin:~/.composer/vendor/bin"
 RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./vendor/bin:~/.composer/vendor/bin#g' /etc/sudoers
 
-# |--------------------------------------------------------------------------
-# | Default PHP extensions to be enabled
-# |--------------------------------------------------------------------------
-ENV PHP_EXTENSION_APCU=1 \
-    PHP_EXTENSION_MBSTRING=1 \
-    PHP_EXTENSION_MYSQLI=1 \
-    PHP_EXTENSION_OPCACHE=1 \
-    PHP_EXTENSION_PDO=1 \
-    PHP_EXTENSION_PDO_MYSQL=1 \
-    PHP_EXTENSION_REDIS=1 \
-    PHP_EXTENSION_ZIP=1 \
-    PHP_EXTENSION_SOAP=1
-
-# |--------------------------------------------------------------------------
-# | Default php.ini file
-# |--------------------------------------------------------------------------
-# |
-# | Let's download php.ini for prod and development
-# |
-
-ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-production /usr/local/etc/php/php.ini-production
-ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
-ENV TEMPLATE_PHP_INI=development
-
 USER docker
 # |--------------------------------------------------------------------------
 # | SSH client
@@ -252,7 +255,6 @@ ENV TINI_VERSION v0.16.1
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
-COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
