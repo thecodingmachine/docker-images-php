@@ -34,4 +34,8 @@ if [[ $VARIANT == apache* ]]; then
     docker stop $DOCKER_CID
 fi
 
+# Let's check that the extensions are enabled when composer is run
+docker build --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
+
+
 echo "Tests passed with success"
