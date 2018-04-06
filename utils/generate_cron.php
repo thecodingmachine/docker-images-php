@@ -4,6 +4,8 @@
  * The script is run on each start of the container.
  */
 
+$tiniPid = $argv[1];
+
 foreach ($_SERVER as $key => $command) {
     if (strpos($key, 'CRON_COMMAND') === 0) {
         $suffix = substr($key, 12);
@@ -16,6 +18,6 @@ foreach ($_SERVER as $key => $command) {
 
         $user = getenv('CRON_USER'.$suffix) ?: 'root';
 
-        echo $schedule.' '.$user.' ('.$command.") | sed -e 's/^/[Cron] /' > /proc/1/fd/1 2>/proc/1/fd/2\n";
+        echo $schedule.' '.$user.' ('.$command.") | sed -e 's/^/[Cron] /' > /proc/$tiniPid/fd/1 2>/proc/$tiniPid/fd/2\n";
     }
 }
