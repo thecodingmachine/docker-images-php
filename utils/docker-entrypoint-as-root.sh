@@ -72,7 +72,9 @@ fi
 unset DOCKER_FOR_MAC_REMOTE_HOST
 
 php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/generated_conf.ini
-php /usr/local/bin/generate_cron.php > /etc/cron.d/generated_crontab
+# output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
+TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
+php /usr/local/bin/generate_cron.php $TINI_PID > /etc/cron.d/generated_crontab
 chmod 0644 /etc/cron.d/generated_crontab
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
