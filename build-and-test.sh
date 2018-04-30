@@ -38,7 +38,10 @@ fi
 docker build --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
 
 # Let's check that the crons are actually sending logs in the right place
-RESULT=`docker run -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="echo 'foobar'" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
+RESULT=`docker run -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
 [[ "$RESULT" = "[Cron] foobar" ]]
+
+RESULT=`docker run -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="(>&2 echo "error")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
+[[ "$RESULT" = "[Cron] error" ]]
 
 echo "Tests passed with success"
