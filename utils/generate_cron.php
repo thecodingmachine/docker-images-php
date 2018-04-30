@@ -18,6 +18,13 @@ foreach ($_SERVER as $key => $command) {
 
         $user = getenv('CRON_USER'.$suffix) ?: 'root';
 
-        echo $schedule.' '.$user.' ('.$command.") | sed -e 's/^/[Cron] /' > /proc/$tiniPid/fd/1 2>/proc/$tiniPid/fd/2\n";
+        // Note: this is a bit cryptic so here is what is going on:
+        // First the command is piped into "sed" and we add [Cron]
+        // In case there is an error message (on stderr), this will not be handled by sed.
+        // So we switch output and error streams using "3>&2 2>&1 1>&3"
+        // And we apply again sed on stdout (which is the past stderr)
+        // Finally we switch back to stderr and stdout: 4>&2 2>&1 1>&4
+        // and we put the output in /proc/xxx/fd1|2 which are the processes output for the Docker container.
+        echo $schedule.' '.$user.' (((('.$command.") | sed -e 's/^/[Cron] /' ) 3>&2 2>&1 1>&3 | sed -e 's/^/[Cron error] /') 4>&2 2>&1 1>&4) > /proc/$tiniPid/fd/1 2> /proc/$tiniPid/fd/2\n";
     }
 }
