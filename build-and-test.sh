@@ -9,7 +9,7 @@ docker build -t thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} -f Dockerfile.$
 # Post build unit tests
 if [[ $VARIANT == cli* ]]; then CONTAINER_CWD=/usr/src/app; else CONTAINER_CWD=/var/www/html; fi
 # Default user is 1000
-RESULT=`docker run thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} id -ur`
+RESULT=`docker run --rm thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} id -ur`
 [[ "$RESULT" = "1000" ]]
 
 # If mounted, default user has the id of the mount directory
@@ -20,11 +20,11 @@ RESULT=`docker run -v $(pwd)/user1999:$CONTAINER_CWD thecodingmachine/php:${BRAN
 sudo rm -rf user1999
 
 # Let's check that the "xdebug.remote_host" contains a value different from "no value"
-docker run -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
+docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
 
 if [[ $VARIANT == apache* ]]; then
     # Test if environment variables are passed to PHP
-    DOCKER_CID=`docker run -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT}`
+    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT}`
 
     # Let's wait for Apache to start
     sleep 5
@@ -38,7 +38,12 @@ fi
 docker build --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
 
 # Let's check that the crons are actually sending logs in the right place
-RESULT=`docker run -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="echo 'foobar'" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
 [[ "$RESULT" = "[Cron] foobar" ]]
+
+docker run --rm -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="(>&2 echo "error")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1 2>tmp.err
+RESULT=`cat tmp.err`
+[[ "$RESULT" = "[Cron error] error" ]]
+rm tmp.err
 
 echo "Tests passed with success"
