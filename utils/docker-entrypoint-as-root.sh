@@ -3,7 +3,9 @@
 set -e
 
 # Let's apply the requested php.ini file
-cp /usr/local/etc/php/php.ini-${TEMPLATE_PHP_INI} /usr/local/etc/php/php.ini
+if [ ! -f /usr/local/etc/php/php.ini ] || [ -L /usr/local/etc/php/php.ini ]; then
+    ln -sf /usr/local/etc/php/php.ini-${TEMPLATE_PHP_INI} /usr/local/etc/php/php.ini
+fi
 
 # Let's find the user to use for commands.
 # If $DOCKER_USER, let's use this. Otherwise, let's find it.

@@ -110,6 +110,7 @@ ENV PHP_EXTENSION_APCU=1 \
 
 ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-production /usr/local/etc/php/php.ini-production
 ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
+RUN chmod 644 /usr/local/etc/php/php.ini-*
 ENV TEMPLATE_PHP_INI=development
 
 # |--------------------------------------------------------------------------
