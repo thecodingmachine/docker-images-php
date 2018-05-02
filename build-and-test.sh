@@ -46,4 +46,14 @@ RESULT=`cat tmp.err`
 [[ "$RESULT" = "[Cron error] error" ]]
 rm tmp.err
 
+# Let's check that the configuration is loaded from the correct php.ini (development, production or imported in the image)
+RESULT=`docker run thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep error_reporting`
+[[ "$RESULT" = "error_reporting => 32767 => 32767" ]]
+
+RESULT=`docker run -e TEMPLATE_PHP_INI=production thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep error_reporting`
+[[ "$RESULT" = "error_reporting => 22527 => 22527" ]]
+
+RESULT=`docker run -v $(pwd)/tests/php.ini:/usr/local/etc/php/php.ini thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep error_reporting`
+[[ "$RESULT" = "error_reporting => 24575 => 24575" ]]
+
 echo "Tests passed with success"
