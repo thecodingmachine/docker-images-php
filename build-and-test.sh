@@ -19,17 +19,6 @@ RESULT=`docker run -v $(pwd)/user1999:$CONTAINER_CWD thecodingmachine/php:${BRAN
 [[ "$RESULT" = "1999" ]]
 sudo rm -rf user1999
 
-# Let's check that mbstring, mysqlnd and ftp are enabled by default (they are compiled in PHP)
-docker run --rm thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep mbstring
-docker run --rm thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep mysqlnd
-docker run --rm thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep ftp
-
-# Let's check that mbstring cannot extension cannot be disabled
-set +e
-docker run --rm -e PHP_EXTENSION_MBSTRING=0 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i
-[[ "$?" = "1" ]]
-set -e
-
 # Let's check that the "xdebug.remote_host" contains a value different from "no value"
 docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
 
