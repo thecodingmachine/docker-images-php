@@ -4,8 +4,12 @@
  * The script is run on each start of the container.
  */
 
+$compiledExtensions = [
+    'ftp', 'mysqlnd', 'mbstring'
+];
+
 $availableExtensions = [
-    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'ev', 'event', 'exif', 'ftp', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
+    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'ev', 'event', 'exif', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
     'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
     'shmop', 'snmp', 'soap', 'sockets', 'sysvmsg', 'sysvsem', 'sysvshm', 'tidy', 'wddx', 'xmlrpc', 'xsl', 'zip',
     'xdebug', 'amqp', 'igbinary', 'memcached', 'mongodb', 'redis', 'apcu', 'yaml', 'weakref'
@@ -45,6 +49,17 @@ function enableExtension(string $extensionName): bool {
 
     file_put_contents('php://stderr', 'Invalid environment variable value found for '.$envName.'. Value: "'.$env.'". Valid values are "0", "1", "yes", "no", "true", "false", "on", "off".'."\n");
     exit(1);
+}
+
+foreach ($compiledExtensions as $phpExtension) {
+    $envName = 'PHP_EXTENSION_'.strtoupper($phpExtension);
+
+    $env = strtolower(trim(getenv($envName)));
+
+    if ($env === '0' || $env === 'false' || $env === 'no' || $env === 'off') {
+        file_put_contents('php://stderr', "You cannot disable extension '$phpExtension'. It is compiled in the PHP binary.\n");
+        exit(1);
+    }
 }
 
 // Validate the content of PHP_EXTENSIONS

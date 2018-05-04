@@ -94,7 +94,6 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # | Default PHP extensions to be enabled
 # |--------------------------------------------------------------------------
 ENV PHP_EXTENSION_APCU=1 \
-    PHP_EXTENSION_MBSTRING=1 \
     PHP_EXTENSION_MYSQLI=1 \
     PHP_EXTENSION_OPCACHE=1 \
     PHP_EXTENSION_PDO=1 \
