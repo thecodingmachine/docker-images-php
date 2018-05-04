@@ -68,6 +68,8 @@ RUN npm run build
 
 Below is a list of extensions available in this image:
 
+**Compiled in PHP** (cannot be disabled): {{ $image.compiled_php_extensions }}
+
 **Enabled by default:** {{ $image.enabled_php_extensions }}
 
 **Available (can be enabled using environment variables):** {{ $image.disabled_php_extensions }}
