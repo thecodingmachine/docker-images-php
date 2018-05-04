@@ -30,7 +30,7 @@ RUN buildDeps=" \
         libldap2-dev \
         libmcrypt-dev \
         libmemcached-dev \
-        libpng12-dev \
+        libpng-dev \
         libpq-dev \
         libpspell-dev \
         librabbitmq-dev \
@@ -45,10 +45,10 @@ RUN buildDeps=" \
         zlib1g-dev \
     " \
     && phpModules=" \
-        bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mcrypt mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
+        bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
     " \
     && sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list \
-    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git nano sudo openssh-client procps --no-install-recommends \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libjpeg62-turbo libmcrypt4 libpq5 libsybdb5 libx11-6 libxpm4 libxslt1.1 snmp bind9-host cron git nano sudo iproute2 openssh-client procps --no-install-recommends \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
@@ -63,9 +63,10 @@ RUN buildDeps=" \
     && docker-php-ext-configure imap --with-imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-configure ldap --with-ldap-sasl \
     && docker-php-ext-install $phpModules \
-    && printf "\n" | pecl install amqp \
+    && pecl install amqp \
+    && pecl install mcrypt-1.0.1 \
     && pecl install igbinary \
-    && printf "\n" | pecl install memcached \
+    && pecl install memcached \
     && pecl install mongodb \
     && pecl install redis \
     && pecl install apcu \
@@ -80,6 +81,7 @@ RUN buildDeps=" \
     && docker-php-source delete \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps \
     && echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
+# Comments: MCrypt is deprecated and usage is generally discouraged. Provided here for legacy apps only.
 
 # |--------------------------------------------------------------------------
 # | User
@@ -152,7 +154,9 @@ USER root
 # | your frontend dependencies.
 # |
 
-RUN curl -sL https://deb.nodesource.com/setup_{{ $node_version }} | bash - &&\
+RUN apt-get update &&\
+    apt-get install -y --no-install-recommends gnupg &&\
+    curl -sL https://deb.nodesource.com/setup_{{ $node_version }} | bash - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends nodejs
 
