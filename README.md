@@ -68,11 +68,9 @@ RUN npm run build
 
 Below is a list of extensions available in this image:
 
-**Compiled in PHP** (cannot be disabled): mbstring ftp mysqlnd
+**Enabled by default:** apcu mbstring mysqli opcache pdo pdo_mysql redis zip soap
 
-**Enabled by default:** apcu mysqli opcache pdo pdo_mysql redis zip soap
-
-**Available (can be enabled using environment variables):** amqp ast bcmath bz2 calendar dba enchant ev event exif gd gettext gmp igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath bz2 calendar dba enchant ev event exif ftp gd gettext gmp igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
 
 ## Enabling/disabling extensions
 
