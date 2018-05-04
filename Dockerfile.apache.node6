@@ -1,4 +1,4 @@
-FROM php:7.1-apache
+FROM php:7.2-apache
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -48,8 +48,8 @@ RUN buildDeps=" \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
-    && curl -L http://xdebug.org/files/xdebug-2.5.5.tgz | tar -zxf - \
-    && mv xdebug-2.5.5 xdebug \
+    && curl -L http://xdebug.org/files/xdebug-2.6.0.tgz | tar -zxf - \
+    && mv xdebug-2.6.0 xdebug \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.so /usr/lib/libldap.so \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.a /usr/lib/libldap_r.a \
@@ -280,6 +280,7 @@ CMD ["apache2-foreground"]
 
 ENV APACHE_RUN_USER=docker \
     APACHE_RUN_GROUP=docker
+
 
 
 USER docker
