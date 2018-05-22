@@ -366,6 +366,32 @@ Finally, when triggering the build, you must pass the 2 variables as [build argu
 $ docker build -t my_image --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" --build-arg SSH_KNOWN_HOSTS="$SSH_KNOWN_HOSTS" .
 ```
 
+## Usage in Kubernetes
+
+If you plan to use this image in Kubernetes, please be aware that the image internally uses `sudo`. This is because the
+default user (`docker`) needs to be able to edit php config files as `root`.
+
+Kubernetes has a security setting (`allowPrivilegeEscalation`) that can disallow the use of `sudo`. The use of this flag
+breaks the image and in the logs, you will find the message:
+
+```
+sudo: effective uid is not 0, is /usr/bin/sudo on a file system with the 'nosuid' option set or an NFS file system without root privileges?
+```
+
+Please be sure that this option is never set to false:
+
+```yml
+apiVersion: v1
+kind: Pod
+# ...
+spec:
+  containers:
+  - name: foobar
+    image: thecodingmachine/php:{{ $image.php_version }}-v1-apache
+    securityContext:
+      allowPrivilegeEscalation: true # never use "false" here.
+```
+
 ## Contributing
 
 There is one branch per minor PHP version and version of the image.
