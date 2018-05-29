@@ -93,7 +93,10 @@ foreach ($_SERVER as $key => $value) {
     if (strpos($key, 'PHP_INI_') === 0) {
         $iniParam = strtolower(substr($key, 8));
         $iniParam = str_replace('__', '.', $iniParam);
+        // Let's protect the value if this is a string.
+        if (!is_numeric($value)) {
+            $value = '"'.str_replace('"', '\\"', $value).'"';
+        }
         echo "$iniParam=$value\n";
     }
 }
-
