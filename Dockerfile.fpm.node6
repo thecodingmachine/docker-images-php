@@ -1,4 +1,4 @@
-FROM php:7.2-fpm
+FROM php:7.2-fpm-stretch
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
