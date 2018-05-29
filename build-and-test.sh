@@ -67,4 +67,8 @@ RESULT=`docker run -e TEMPLATE_PHP_INI=production thecodingmachine/php:${BRANCH}
 RESULT=`docker run -v $(pwd)/tests/php.ini:/usr/local/etc/php/php.ini thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep error_reporting`
 [[ "$RESULT" = "error_reporting => 24575 => 24575" ]]
 
+# Tests that environment variables with an equal sign are correctly handled
+RESULT=`docker run -e PHP_INI_SESSION__SAVE_PATH="tcp://localhost?auth=yourverycomplexpasswordhere" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep "session.save_path"`
+[[ "$RESULT" = "error_reporting => tcp://localhost?auth=yourverycomplexpasswordhere => tcp://localhost?auth=yourverycomplexpasswordhere" ]]
+
 echo "Tests passed with success"
