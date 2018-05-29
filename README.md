@@ -387,7 +387,7 @@ kind: Pod
 spec:
   containers:
   - name: foobar
-    image: thecodingmachine/php:7.2-v1-apache
+    image: thecodingmachine/php:7.1-v1-apache
     securityContext:
       allowPrivilegeEscalation: true # never use "false" here.
 ```
