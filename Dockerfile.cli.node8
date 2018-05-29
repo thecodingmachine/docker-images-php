@@ -1,4 +1,4 @@
-FROM php:7.2-cli
+FROM php:7.2-cli-stretch
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 

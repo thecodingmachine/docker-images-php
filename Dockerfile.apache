@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:7.2-apache-stretch
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
