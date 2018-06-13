@@ -13,12 +13,15 @@ env:
     - VARIANT="cli"
     - VARIANT="cli.node6"
     - VARIANT="cli.node8"
+    - VARIANT="cli.node10"
     - VARIANT="apache"
     - VARIANT="apache.node6"
     - VARIANT="apache.node8"
+    - VARIANT="apache.node10"
     - VARIANT="fpm"
     - VARIANT="fpm.node6"
     - VARIANT="fpm.node8"
+    - VARIANT="fpm.node10"
 
 script:
 - BRANCH=${TRAVIS_BRANCH} VARIANT=${VARIANT} ./build-and-test.sh
