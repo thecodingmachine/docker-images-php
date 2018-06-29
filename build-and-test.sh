@@ -57,6 +57,10 @@ RESULT=`cat tmp.err`
 [[ "$RESULT" = "[Cron error] error" ]]
 rm tmp.err
 
+# Let's check that the cron with a user different from root is actually run.
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="echo foobar" -e CRON_USER_1="docker" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
+[[ "$RESULT" = "[Cron] foobar" ]]
+
 # Let's check that the configuration is loaded from the correct php.ini (development, production or imported in the image)
 RESULT=`docker run thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep error_reporting`
 [[ "$RESULT" = "error_reporting => 32767 => 32767" ]]
