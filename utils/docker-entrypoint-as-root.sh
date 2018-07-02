@@ -76,14 +76,17 @@ unset DOCKER_FOR_MAC_REMOTE_HOST
 php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/generated_conf.ini
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
-php /usr/local/bin/generate_cron.php $TINI_PID > /etc/cron.d/generated_crontab
-chmod 0644 /etc/cron.d/generated_crontab
+php /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
+chmod 0644 /tmp/generated_crontab
+
+# If generated_crontab is not empty, start supercronic
+if [[ -s /tmp/generated_crontab ]]; then
+    supercronic /tmp/generated_crontab &
+fi
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
     php /usr/local/bin/enable_apache_mods.php | bash
 fi
-
-cron
 
 if [ -e /etc/container/startup.sh ]; then
     sudo -E -u "#$DOCKER_USER_ID" source /etc/container/startup.sh
