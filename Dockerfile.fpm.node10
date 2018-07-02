@@ -1,4 +1,4 @@
-FROM php:7.1-fpm-jessie
+FROM php:7.2-fpm-stretch
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -26,7 +26,7 @@ RUN buildDeps=" \
         libldap2-dev \
         libmcrypt-dev \
         libmemcached-dev \
-        libpng12-dev \
+        libpng-dev \
         libpq-dev \
         libpspell-dev \
         librabbitmq-dev \
@@ -41,15 +41,15 @@ RUN buildDeps=" \
         zlib1g-dev \
     " \
     && phpModules=" \
-        bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mcrypt mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
+        bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
     " \
     && sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list \
-    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libicu52 libjpeg62-turbo libmcrypt4 libpng12-0 libpq5 libsybdb5 libtidy-0.99-0 libx11-6 libxpm4 libxslt1.1 snmp bind9-host git nano sudo openssh-client procps --no-install-recommends \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libjpeg62-turbo libmcrypt4 libpq5 libsybdb5 libx11-6 libxpm4 libxslt1.1 snmp bind9-host git nano sudo iproute2 openssh-client procps --no-install-recommends \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
-    && curl -L http://xdebug.org/files/xdebug-2.5.5.tgz | tar -zxf - \
-    && mv xdebug-2.5.5 xdebug \
+    && curl -L http://xdebug.org/files/xdebug-2.6.0.tgz | tar -zxf - \
+    && mv xdebug-2.6.0 xdebug \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.so /usr/lib/libldap.so \
     && ln -s /usr/lib/x86_64-linux-gnu/libldap_r.a /usr/lib/libldap_r.a \
@@ -59,9 +59,10 @@ RUN buildDeps=" \
     && docker-php-ext-configure imap --with-imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-configure ldap --with-ldap-sasl \
     && docker-php-ext-install $phpModules \
-    && printf "\n" | pecl install amqp \
+    && pecl install amqp \
+    && pecl install mcrypt-1.0.1 \
     && pecl install igbinary \
-    && printf "\n" | pecl install memcached \
+    && pecl install memcached \
     && pecl install mongodb \
     && pecl install redis \
     && pecl install apcu \
@@ -76,6 +77,7 @@ RUN buildDeps=" \
     && docker-php-source delete \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps \
     && echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
+# Comments: MCrypt is deprecated and usage is generally discouraged. Provided here for legacy apps only.
 
 # |--------------------------------------------------------------------------
 # | Supercronic
@@ -164,7 +166,9 @@ USER root
 # | your frontend dependencies.
 # |
 
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - &&\
+RUN apt-get update &&\
+    apt-get install -y --no-install-recommends gnupg &&\
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends nodejs
 
@@ -260,6 +264,7 @@ COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
 
 
 

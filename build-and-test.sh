@@ -49,17 +49,16 @@ fi
 docker build --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
 
 # Let's check that the crons are actually sending logs in the right place
-RESULT=`docker run --rm -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
-[[ "$RESULT" = "[Cron] foobar" ]]
 
-docker run --rm -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="(>&2 echo "error")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1 2>tmp.err
-RESULT=`cat tmp.err`
-[[ "$RESULT" = "[Cron error] error" ]]
-rm tmp.err
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1`
+[[ "$RESULT" = "msg=foobar" ]]
+
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&2 echo "error")" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=error' | head -n1`
+[[ "$RESULT" = "msg=error" ]]
 
 # Let's check that the cron with a user different from root is actually run.
-RESULT=`docker run --rm -e CRON_SCHEDULE_1="@reboot" -e CRON_COMMAND_1="echo foobar" -e CRON_USER_1="docker" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1`
-[[ "$RESULT" = "[Cron] foobar" ]]
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="whoami" -e CRON_USER_1="docker" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=docker' | head -n1`
+[[ "$RESULT" = "msg=docker" ]]
 
 # Let's check that the configuration is loaded from the correct php.ini (development, production or imported in the image)
 RESULT=`docker run thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep error_reporting`
