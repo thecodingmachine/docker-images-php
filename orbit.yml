@@ -22,10 +22,13 @@ tasks:
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.apache -p "variant,apache;node_version,"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.apache.node6 -p "variant,apache;node_version,6.x"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.apache.node8 -p "variant,apache;node_version,8.x"
+      - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.apache.node10 -p "variant,apache;node_version,10.x"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.cli -p "variant,cli;node_version,"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.cli.node6 -p "variant,cli;node_version,6.x"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.cli.node8 -p "variant,cli;node_version,8.x"
+      - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.cli.node10 -p "variant,cli;node_version,10.x"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.fpm -p "variant,fpm;node_version,"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.fpm.node6 -p "variant,fpm;node_version,6.x"
       - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.fpm.node8 -p "variant,fpm;node_version,8.x"
+      - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.fpm.node10 -p "variant,fpm;node_version,10.x"
       - orbit generate -f utils/README.blueprint.md -o README.md
