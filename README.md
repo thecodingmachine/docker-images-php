@@ -10,7 +10,7 @@ Fat? It means the images come with the most common PHP extensions.
  - You can enable or disable the extensions using environment variables.
  - You can also modify the `php.ini` settings using environment variables.
  - 3 variants available: `CLI`, `apache` and `fpm`
- - Images are bundled with cron. Cron jobs can be configured using environment variables
+ - Images are bundled with [Supercronic](https://github.com/aptible/supercronic) which is a Cron compatible task runner. Cron jobs can be configured using environment variables
  - Images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
  - Everything is done to limit file permission issues that often arise when using Docker. The image is actively tested on Linux, Windows and MacOS
@@ -308,11 +308,13 @@ CRON_SCHEDULE_2=0 3 * * *
 CRON_COMMAND_2=vendor/bin/console other:stuff
 ```
 
-**Important**: Cron was never designed with Docker in mind (it is way older than Docker). It will run correctly on
-your container. If at some point you want to scale and add more containers, it will run on all your containers.
-At that point, if you only want to run a Cron task once for your application (and not once per container), you might
-want to have a look at alternative solutions like [Tasker](https://github.com/opsxcq/tasker) or one of the many
-other alternatives.
+**Important**: The cron runner we use is "Supercronic" and not the orginial "cron" that has a number of issues
+with containers. Even with Supercronic, the architecture of cron was never designed with Docker in mind 
+(Cron is way older than Docker). It will run correctly on your container. If at some point you want to scale and add 
+more containers, it will run on all your containers. At that point, if you only want to run a Cron task once for your 
+application (and not once per container), you might want to have a look at alternative solutions like 
+[Tasker](https://github.com/opsxcq/tasker) or use the native features of your orchestrator (if you use Kubernetes,
+you have a native task runner available), or one of the many other alternatives.
 
 ## Launching commands on container startup
 
