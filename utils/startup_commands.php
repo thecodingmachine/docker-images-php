@@ -14,11 +14,11 @@ echo "set -e\n";
 
 
 // Let's run the commands as user $UID if env variable UID is set.
-$prepend = '';
-if (isset($_SERVER['UID'])) {
-    $prepend = 'sudo -u \\#'.$_SERVER['UID'].' ';
-}
 
 foreach ($commands as $command) {
-    echo $prepend.$command."\n";
+    $line = $command;
+    if (isset($_SERVER['UID'])) {
+        $line = 'sudo -E -u \\#'.$_SERVER['UID'].' bash -c '.escapeshellarg($line);
+    }
+    echo $line."\n";
 }
