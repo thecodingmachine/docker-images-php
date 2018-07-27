@@ -74,4 +74,8 @@ RESULT=`docker run -v $(pwd)/tests/php.ini:/usr/local/etc/php/php.ini thecodingm
 RESULT=`docker run -e PHP_INI_SESSION__SAVE_PATH="tcp://localhost?auth=yourverycomplex\"passwordhere" thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep "session.save_path"`
 [[ "$RESULT" = "session.save_path => tcp://localhost?auth=yourverycomplex\"passwordhere => tcp://localhost?auth=yourverycomplex\"passwordhere" ]]
 
+# Tests that environment variables are passed to startup scripts
+RESULT=`docker run -e FOO="bar" -e STARTUP_COMMAND_1="env" -e UID=0 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} sleep 1 | grep "FOO"`
+[[ "$RESULT" = "FOO=bar" ]]
+
 echo "Tests passed with success"
