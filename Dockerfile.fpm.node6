@@ -266,6 +266,8 @@ COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 
+
+
 CMD ["php-fpm"]
 
 
