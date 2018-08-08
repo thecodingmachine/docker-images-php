@@ -268,4 +268,7 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 
 
+CMD ["php-fpm"]
+
+
 USER docker
