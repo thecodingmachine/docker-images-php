@@ -85,6 +85,11 @@ RUN npm install
 RUN npm run build
 ```
 
+Example with PHP-FPM:
+```
+$ docker run -d -p 9000:9000 --rm --name php-fpm -v "$PWD":/var/www/html thecodingmachine/php:7.2-v1-fpm
+```
+
 ## Extensions available
 
 Below is a list of extensions available in this image:
