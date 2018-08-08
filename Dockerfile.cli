@@ -231,4 +231,8 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 
 
+CMD ["php", "-v"]
+
+
+
 USER docker

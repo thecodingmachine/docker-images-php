@@ -61,13 +61,19 @@ These images are based on the [official PHP image](https://hub.docker.com/_/php/
 Example with CLI:
 
 ```bash
-$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:7.1-v1-cli php your-script.php
+$ docker run -it --rm --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:7.1-v1-cli php your-script.php
 ```
 
 Example with Apache:
 
 ```bash
-$ docker run -p 80:80 --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:7.1-v1-apache
+$ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:7.1-v1-apache
+```
+
+Example with PHP-FPM:
+
+```bash
+$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/7.1-v1-fpm
 ```
 
 Example with Apache + Node 8.x in a Dockerfile:
@@ -80,11 +86,6 @@ COPY src/ /var/www/html/
 RUN composer install
 RUN npm install
 RUN npm run build
-```
-
-Example with PHP-FPM:
-```
-$ docker run -d -p 9000:9000 --rm --name php-fpm -v "$PWD":/var/www/html thecodingmachine/php:7.2-v1-fpm
 ```
 
 ## Extensions available
