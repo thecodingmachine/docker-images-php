@@ -49,13 +49,19 @@ These images are based on the [official PHP image](https://hub.docker.com/_/php/
 Example with CLI:
 
 ```bash
-$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:{{ $image.php_version }}-v1-cli php your-script.php
+$ docker run -it --rm --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:{{ $image.php_version }}-v1-cli php your-script.php
 ```
 
 Example with Apache:
 
 ```bash
-$ docker run -p 80:80 --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:{{ $image.php_version }}-v1-apache
+$ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:{{ $image.php_version }}-v1-apache
+```
+
+Example with PHP-FPM:
+
+```bash
+$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/{{ $image.php_version }}-v1-fpm
 ```
 
 Example with Apache + Node 8.x in a Dockerfile:

@@ -304,5 +304,11 @@ CMD ["apache2-foreground"]
 ENV APACHE_RUN_USER=docker \
     APACHE_RUN_GROUP=docker
 {{end}}
+{{if eq $variant "cli" }}
+CMD ["php", "-v"]
+{{end}}
+{{if eq $variant "fpm" }}
+CMD ["php-fpm"]
+{{end}}
 
 USER docker
