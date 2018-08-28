@@ -99,7 +99,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default:** apcu mysqli opcache pdo pdo_mysql redis zip soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath bz2 calendar dba enchant ev event exif gd gettext gmp igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba enchant ev event exif gd gettext gmp igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
 
 ## Enabling/disabling extensions
 
@@ -419,6 +419,60 @@ spec:
     image: thecodingmachine/php:7.2-v1-apache
     securityContext:
       allowPrivilegeEscalation: true # never use "false" here.
+```
+
+## Profiling with Blackfire
+
+This image comes with the Blackfire PHP probe. You can install it using:
+
+```bash
+PHP_EXTENSION_BLACKFIRE=1
+```
+
+By default, the image expects that the blackfire agent is started in another container.
+
+Your `docker-compose.yml` file will typically look like this:
+
+**docker-compose.yml**
+```yml
+version: '3.3'
+services:
+  php:
+    image: thecodingmachine/php:7.2-v1-apache
+    ports:
+      - "80:80"
+    environment:
+      PHP_EXTENSION_BLACKFIRE: 1
+  blackfire:
+    image: blackfire/blackfire
+    environment:
+        # Exposes the host BLACKFIRE_SERVER_ID and TOKEN environment variables.
+        - BLACKFIRE_SERVER_ID
+        - BLACKFIRE_SERVER_TOKEN
+        # You can also use global environment credentials :
+        # BLACKFIRE_SERVER_ID: SERVER-ID
+        # BLACKFIRE_SERVER_TOKEN: SERVER-TOKEN
+```
+
+See [Blackfire Docker documentation](https://blackfire.io/docs/integrations/docker#running-the-agent) for more information.
+
+The image assumes that the Blackfire agent is accessible via the `blackfire` URL (like in the exemple above).
+If for some reason, the container name is not "blackfire", you can customize the agent URL with the `BLACKFIRE_AGENT` environment variable:
+
+**docker-compose.yml**
+```yml
+version: '3.3'
+services:
+  php:
+    image: thecodingmachine/php:7.2-v1-apache
+    environment:
+      PHP_EXTENSION_BLACKFIRE: 1
+      BLACKFIRE_AGENT: myblackfire
+    # ...
+  myblackfire:
+    image: blackfire/blackfire
+    environment:
+        # ...
 ```
 
 ## Contributing
