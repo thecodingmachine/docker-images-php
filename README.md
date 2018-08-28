@@ -420,7 +420,7 @@ spec:
 
 ## Profiling with Blackfire
 
-This image comes with the Blackfire PHP probe. You can install it using:
+This image comes with the [Blackfire]() PHP probe. You can install it using:
 
 ```bash
 PHP_EXTENSION_BLACKFIRE=1
