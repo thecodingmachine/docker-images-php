@@ -12,7 +12,7 @@ $availableExtensions = [
     'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'ev', 'event', 'exif', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
     'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
     'shmop', 'snmp', 'soap', 'sockets', 'sysvmsg', 'sysvsem', 'sysvshm', 'tidy', 'wddx', 'xmlrpc', 'xsl', 'zip',
-    'xdebug', 'amqp', 'igbinary', 'memcached', 'mongodb', 'redis', 'apcu', 'yaml', 'weakref'
+    'xdebug', 'amqp', 'igbinary', 'memcached', 'mongodb', 'redis', 'apcu', 'yaml', 'weakref', 'blackfire'
 ];
 
 $delimiter = [',', '|', ';', ':'];
@@ -70,6 +70,10 @@ foreach ($phpExtensions as $phpExtension) {
     }
 }
 
+if (enableExtension('xdebug') && enableExtension('blackfire')) {
+    error_log('WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.');
+}
+
 foreach ($availableExtensions as $extension) {
     if (enableExtension($extension)) {
         if ($extension === 'xdebug') {
@@ -79,6 +83,13 @@ foreach ($availableExtensions as $extension) {
             //echo "xdebug.remote_autostart=off\n";
             //echo "xdebug.remote_port=9000\n";
             //echo "xdebug.remote_connect_back=0\n";
+        } elseif ($extension === 'blackfire') {
+            $blackFireAgent = getenv('BLACKFIRE_AGENT');
+            if (!$blackFireAgent) {
+                $blackFireAgent = 'blackfire';
+            }
+            echo "extension=blackfire.so\n";
+            echo "blackfire.agent_socket=tcp://$blackFireAgent:8707\n";
         } elseif ($extension === 'opcache') {
             echo "zend_extension=opcache.so\n";
         } else {
