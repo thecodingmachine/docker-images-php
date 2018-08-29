@@ -406,6 +406,60 @@ spec:
       allowPrivilegeEscalation: true # never use "false" here.
 ```
 
+## Profiling with Blackfire
+
+This image comes with the [Blackfire]() PHP probe. You can install it using:
+
+```bash
+PHP_EXTENSION_BLACKFIRE=1
+```
+
+By default, the image expects that the blackfire agent is started in another container.
+
+Your `docker-compose.yml` file will typically look like this:
+
+**docker-compose.yml**
+```yml
+version: '3.3'
+services:
+  php:
+    image: thecodingmachine/php:{{ $image.php_version }}-v1-apache
+    ports:
+      - "80:80"
+    environment:
+      PHP_EXTENSION_BLACKFIRE: 1
+  blackfire:
+    image: blackfire/blackfire
+    environment:
+        # Exposes the host BLACKFIRE_SERVER_ID and TOKEN environment variables.
+        - BLACKFIRE_SERVER_ID
+        - BLACKFIRE_SERVER_TOKEN
+        # You can also use global environment credentials :
+        # BLACKFIRE_SERVER_ID: SERVER-ID
+        # BLACKFIRE_SERVER_TOKEN: SERVER-TOKEN
+```
+
+See [Blackfire Docker documentation](https://blackfire.io/docs/integrations/docker#running-the-agent) for more information.
+
+The image assumes that the Blackfire agent is accessible via the `blackfire` URL (like in the exemple above).
+If for some reason, the container name is not "blackfire", you can customize the agent URL with the `BLACKFIRE_AGENT` environment variable:
+
+**docker-compose.yml**
+```yml
+version: '3.3'
+services:
+  php:
+    image: thecodingmachine/php:{{ $image.php_version }}-v1-apache
+    environment:
+      PHP_EXTENSION_BLACKFIRE: 1
+      BLACKFIRE_AGENT: myblackfire
+    # ...
+  myblackfire:
+    image: blackfire/blackfire
+    environment:
+        # ...
+```
+
 ## Contributing
 
 There is one branch per minor PHP version and version of the image.
