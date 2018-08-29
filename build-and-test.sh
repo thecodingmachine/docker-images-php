@@ -33,6 +33,13 @@ set -e
 # Let's check that the "xdebug.remote_host" contains a value different from "no value"
 docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
 
+# Tests that blackfire + xdebug will output an error
+RESULT=`docker run -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.'`
+[[ "$RESULT" = "WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire." ]]
+
+# Check that blackfire can be enabled
+docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep blackfire
+
 if [[ $VARIANT == apache* ]]; then
     # Test if environment variables are passed to PHP
     DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT}`
