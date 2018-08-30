@@ -2,6 +2,9 @@
 
 set -e
 
+# Let's write a file saying the container is started (we are no longer in build mode, useful for composer_proxy.sh)
+touch /opt/container_started
+
 # Let's apply the requested php.ini file
 if [ ! -f /usr/local/etc/php/php.ini ] || [ -L /usr/local/etc/php/php.ini ]; then
     ln -sf /usr/local/etc/php/php.ini-${TEMPLATE_PHP_INI} /usr/local/etc/php/php.ini
