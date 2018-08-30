@@ -50,6 +50,7 @@ docker build -t test/composer_with_gd --build-arg BRANCH="$BRANCH" --build-arg B
 
 # This should run ok (the sudo disable environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/composer_with_gd sudo composer update
+docker rmi test/composer_with_gd
 
 # Let's check that the crons are actually sending logs in the right place
 
