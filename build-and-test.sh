@@ -46,7 +46,10 @@ if [[ $VARIANT == apache* ]]; then
 fi
 
 # Let's check that the extensions are enabled when composer is run
-docker build --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
+docker build -t test/composer_with_gd --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
+
+# This should run ok (the sudo disable environment variables but call to composer proxy does not trigger PHP ini file regeneration)
+docker run --rm test/composer_with_gd sudo composer update
 
 # Let's check that the crons are actually sending logs in the right place
 
