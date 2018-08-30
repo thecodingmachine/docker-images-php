@@ -115,5 +115,5 @@ if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
     exec "$@";
 else
-    exec "sudo" "-E" "-u" "#$DOCKER_USER_ID" "$@";
+    exec "sudo" "-E" "-H" "-u" "#$DOCKER_USER_ID" "$@";
 fi

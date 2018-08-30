@@ -19,6 +19,17 @@ RESULT=`docker run -v $(pwd)/user1999:$CONTAINER_CWD thecodingmachine/php:${BRAN
 [[ "$RESULT" = "1999" ]]
 sudo rm -rf user1999
 
+# and it also works for users with existing IDs in the container
+sudo mkdir -p user33
+sudo cp tests/apache/composer.json user33/
+sudo chown -R 33:33 user33
+ls -al user33
+RESULT=`docker run -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} id -ur`
+[[ "$RESULT" = "33" ]]
+RESULT=`docker run -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} composer update -vvv`
+sudo rm -rf user33
+
+
 # Let's check that mbstring, mysqlnd and ftp are enabled by default (they are compiled in PHP)
 docker run --rm thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep mbstring
 docker run --rm thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep mysqlnd
