@@ -27,11 +27,17 @@ if [[ "$DOCKER_USER" == "" ]]; then
         DOCKER_USER=`ls -dl $(pwd) | cut -d " " -f 3`
     else
         # we are on a Mac or Windows,
-        # Most of the case, we don't core about the rights (they are not respected)
-        # In case of a NFS mounf( common on MacOS), the created files will belong to the NFS user.
-        # Apache should therefore have the ID of this user.
+        # Most of the cases, we don't care about the rights (they are not respected)
         FILE_OWNER=`ls -dl testing_file_system_rights.foo/somefile | cut -d " " -f 3`
-        DOCKER_USER=$FILE_OWNER
+        if [[ "$FILE_OWNER" == "root" ]]; then
+            # if the created user belongs to root, we are likely on a Windows host.
+            # all files will belong to root, but it does not matter as everybody can write/delete those (0777 access rights)
+            DOCKER_USER=docker
+        else
+            # In case of a NFS mounf( common on MacOS), the created files will belong to the NFS user.
+            # Apache should therefore have the ID of this user.
+            DOCKER_USER=$FILE_OWNER
+        fi
     fi
 
     rm -rf testing_file_system_rights.foo
