@@ -24,17 +24,27 @@ if [[ "$DOCKER_USER" == "" ]]; then
     chmod 700 testing_file_system_rights.foo
     su docker -c "touch testing_file_system_rights.foo/somefile > /dev/null 2>&1"
     HAS_CONSISTENT_RIGHTS=$?
-    rm -rf testing_file_system_rights.foo
-    set -e
 
     if [[ "$HAS_CONSISTENT_RIGHTS" != "0" ]]; then
         # If not specified, the DOCKER_USER is the owner of the current working directory (heuristic!)
         DOCKER_USER=`ls -dl $(pwd) | cut -d " " -f 3`
     else
-        # we are on a Mac or Windows... who cares about permissions?
-        # So for Windows and MacOSX, we should force the user used to be Docker.
-        DOCKER_USER=docker
+        # we are on a Mac or Windows,
+        # Most of the cases, we don't care about the rights (they are not respected)
+        FILE_OWNER=`ls -dl testing_file_system_rights.foo/somefile | cut -d " " -f 3`
+        if [[ "$FILE_OWNER" == "root" ]]; then
+            # if the created user belongs to root, we are likely on a Windows host.
+            # all files will belong to root, but it does not matter as everybody can write/delete those (0777 access rights)
+            DOCKER_USER=docker
+        else
+            # In case of a NFS mount (common on MacOS), the created files will belong to the NFS user.
+            # Apache should therefore have the ID of this user.
+            DOCKER_USER=$FILE_OWNER
+        fi
     fi
+
+    rm -rf testing_file_system_rights.foo
+    set -e
 
     unset HAS_CONSISTENT_RIGHTS
 fi
