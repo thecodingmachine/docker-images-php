@@ -37,7 +37,7 @@ if [[ "$DOCKER_USER" == "" ]]; then
             # all files will belong to root, but it does not matter as everybody can write/delete those (0777 access rights)
             DOCKER_USER=docker
         else
-            # In case of a NFS mounf( common on MacOS), the created files will belong to the NFS user.
+            # In case of a NFS mount (common on MacOS), the created files will belong to the NFS user.
             # Apache should therefore have the ID of this user.
             DOCKER_USER=$FILE_OWNER
         fi
