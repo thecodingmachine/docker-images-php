@@ -435,7 +435,7 @@ Your `docker-compose.yml` file will typically look like this:
 version: '3.3'
 services:
   php:
-    image: thecodingmachine/php:7.2-v1-apache
+    image: thecodingmachine/php:7.1-v1-apache
     ports:
       - "80:80"
     environment:
@@ -461,7 +461,7 @@ If for some reason, the container name is not "blackfire", you can customize the
 version: '3.3'
 services:
   php:
-    image: thecodingmachine/php:7.2-v1-apache
+    image: thecodingmachine/php:7.1-v1-apache
     environment:
       PHP_EXTENSION_BLACKFIRE: 1
       BLACKFIRE_AGENT: myblackfire
