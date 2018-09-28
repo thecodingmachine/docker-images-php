@@ -52,7 +52,6 @@ RESULT=`docker run -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecod
 docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep blackfire
 
 # Check that memcached can be enabled
-docker run --rm -e PHP_EXTENSION_MEMCACHED=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m
 docker run --rm -e PHP_EXTENSION_MEMCACHED=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep memcached
 
 if [[ $VARIANT == apache* ]]; then
