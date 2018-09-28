@@ -51,6 +51,9 @@ RESULT=`docker run -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecod
 # Check that blackfire can be enabled
 docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep blackfire
 
+# Check that memcached can be enabled
+docker run --rm -e PHP_EXTENSION_MEMCACHED=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep memcached
+
 if [[ $VARIANT == apache* ]]; then
     # Test if environment variables are passed to PHP
     DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT}`
