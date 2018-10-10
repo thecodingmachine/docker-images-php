@@ -9,8 +9,8 @@ $compiledExtensions = [
 ];
 
 $availableExtensions = [
-    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'ev', 'event', 'exif', 'gd', 'gettext', 'gmp', 'imap', 'intl', 'ldap',
-    'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
+    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'ev', 'event', 'exif', 'gd', 'gettext', 'gmp', 'gnupg', 'imap',
+    'intl', 'ldap', 'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
     'shmop', 'snmp', 'soap', 'sockets', 'sysvmsg', 'sysvsem', 'sysvshm', 'tidy', 'wddx', 'xmlrpc', 'xsl', 'zip',
     'xdebug', 'amqp', 'igbinary', 'memcached', 'mongodb', 'redis', 'apcu', 'yaml', 'weakref', 'blackfire'
 ];
