@@ -1,3 +1,6 @@
+7.2 [![Build Status](https://travis-ci.org/thecodingmachine/docker-images-php.svg?branch=7.2-v1)](https://travis-ci.org/thecodingmachine/docker-images-php)
+7.1 [![Build Status](https://travis-ci.org/thecodingmachine/docker-images-php.svg?branch=7.1-v1)](https://travis-ci.org/thecodingmachine/docker-images-php)
+
 # General purpose PHP images for Docker
 
 This repository contains a set of **fat**, developer-friendly, general purpose PHP images for Docker.
@@ -96,7 +99,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default:** apcu mysqli opcache pdo pdo_mysql redis zip soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba enchant ev event exif gd gettext gmp igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba enchant ev event exif gd gettext gmp gnupg igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
 
 ## Enabling/disabling extensions
 
