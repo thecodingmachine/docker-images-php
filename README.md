@@ -99,7 +99,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default:** apcu mysqli opcache pdo pdo_mysql redis zip soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba enchant ev event exif gd gettext gmp igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba enchant ev event exif gd gettext gmp gnupg igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
 
 ## Enabling/disabling extensions
 

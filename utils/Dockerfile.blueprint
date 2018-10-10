@@ -49,7 +49,7 @@ RUN buildDeps=" \
         bcmath bz2 calendar dba enchant exif ftp gd gettext gmp imap intl ldap mbstring mysqli opcache pcntl pdo pdo_dblib pdo_mysql pdo_pgsql pgsql pspell shmop snmp soap sockets sysvmsg sysvsem sysvshm tidy wddx xmlrpc xsl zip xdebug \
     " \
     && sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list \
-    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libjpeg62-turbo libmcrypt4 libpq5 libsybdb5 libx11-6 libxpm4 libxslt1.1 libmemcached11 libmemcachedutil2 snmp bind9-host git nano sudo iproute2 openssh-client procps --no-install-recommends \
+    && apt-get update && apt-get install -y libc-client2007e libenchant1c2a libfreetype6 libjpeg62-turbo libmcrypt4 libpq5 libsybdb5 libx11-6 libxpm4 libxslt1.1 libmemcached11 libmemcachedutil2 libgpgme11 snmp bind9-host git nano sudo iproute2 openssh-client procps --no-install-recommends \
     && apt-get install -y $buildDeps --no-install-recommends \
     && docker-php-source extract \
     && cd /usr/src/php/ext/ \
