@@ -57,6 +57,9 @@ docker run --rm -e PHP_EXTENSION_MEMCACHED=1 thecodingmachine/php:${BRANCH}-${BR
 # Check that gnupg can be enabled
 docker run --rm -e PHP_EXTENSION_GNUPG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep gnupg
 
+# Check that amqp can be enabled
+docker run --rm -e PHP_EXTENSION_AMQP=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep amqp
+
 if [[ $VARIANT == apache* ]]; then
     # Test if environment variables are passed to PHP
     DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT}`
