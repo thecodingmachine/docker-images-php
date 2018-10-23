@@ -24,9 +24,9 @@ sudo mkdir -p user33
 sudo cp tests/apache/composer.json user33/
 sudo chown -R 33:33 user33
 ls -al user33
-RESULT=`docker run -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} id -ur`
+RESULT=`docker run --rm -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} id -ur`
 [[ "$RESULT" = "33" ]]
-RESULT=`docker run -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} composer update -vvv`
+RESULT=`docker run --rm -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} composer update -vvv`
 sudo rm -rf user33
 
 
@@ -45,7 +45,7 @@ set -e
 docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
 
 # Tests that blackfire + xdebug will output an error
-RESULT=`docker run -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.'`
+RESULT=`docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.'`
 [[ "$RESULT" = "WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire." ]]
 
 # Check that blackfire can be enabled
@@ -53,6 +53,12 @@ docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${BRANCH}-${BR
 
 # Check that memcached can be enabled
 docker run --rm -e PHP_EXTENSION_MEMCACHED=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep memcached
+
+# Check that gnupg can be enabled
+docker run --rm -e PHP_EXTENSION_GNUPG=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep gnupg
+
+# Check that amqp can be enabled
+docker run --rm -e PHP_EXTENSION_AMQP=1 thecodingmachine/php:${BRANCH}-${BRANCH_VARIANT} php -m | grep amqp
 
 if [[ $VARIANT == apache* ]]; then
     # Test if environment variables are passed to PHP
