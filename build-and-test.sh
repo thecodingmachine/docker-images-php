@@ -118,6 +118,9 @@ docker run --rm -e PHP_EXTENSION_MEMCACHED=1 thecodingmachine/php:${PHP_VERSION}
 # Check that gnupg can be enabled
 docker run --rm -e PHP_EXTENSION_GNUPG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep gnupg
 
+# Check that amqp can be enabled
+docker run --rm -e PHP_EXTENSION_AMQP=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep amqp
+
 # Let's check that the extensions are enabled when composer is run
 docker build -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
 

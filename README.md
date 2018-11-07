@@ -86,7 +86,7 @@ These images are based on the [official PHP image](https://hub.docker.com/_/php/
 Example with CLI:
 
 ```bash
-$ docker run -it --rm --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:7.2-v2-cli php your-script.php
+$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:7.2-v2-cli php your-script.php
 ```
 
 Example with Apache:
