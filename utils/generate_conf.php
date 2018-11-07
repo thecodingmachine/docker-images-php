@@ -4,52 +4,15 @@
  * The script is run on each start of the container.
  */
 
+require 'utils.php';
+
 $compiledExtensions = [
     'ftp', 'mysqlnd', 'mbstring'
 ];
 
-$availableExtensions = [
-    'ast', 'bcmath', 'bz2', 'calendar', 'dba', 'enchant', 'ev', 'event', 'exif', 'gd', 'gettext', 'gmp', 'gnupg', 'imap',
-    'intl', 'ldap', 'mcrypt', 'mysqli', 'opcache', 'pcntl', 'pdo_dblib', 'pdo_mysql', 'pdo_pgsql', 'pgsql', 'pspell',
-    'shmop', 'snmp', 'soap', 'sockets', 'sysvmsg', 'sysvsem', 'sysvshm', 'tidy', 'wddx', 'xmlrpc', 'xsl', 'zip',
-    'xdebug', 'amqp', 'igbinary', 'memcached', 'mongodb', 'redis', 'apcu', 'yaml', 'weakref', 'blackfire'
-];
+$availableExtensions = getAvailableExtensions();
 
-$delimiter = [',', '|', ';', ':'];
-$replace = str_replace($delimiter, ' ', getenv('PHP_EXTENSIONS'));
-$phpExtensions = explode(' ', $replace);
-$phpExtensions = array_map('trim', $phpExtensions);
-$phpExtensions = array_map('strtolower', $phpExtensions);
-$phpExtensions = array_filter($phpExtensions);
-
-function enableExtension(string $extensionName): bool {
-    global $phpExtensions;
-
-    // If an extension name is set explicitly to "0" or "false" or "no", then it is not enabled.
-    // This has priority
-    $envName = 'PHP_EXTENSION_'.strtoupper($extensionName);
-
-    $env = strtolower(trim(getenv($envName)));
-
-    if ($env === '0' || $env === 'false' || $env === 'no' || $env === 'off') {
-        return false;
-    }
-
-    if (in_array($extensionName, $phpExtensions, true)) {
-        return true;
-    }
-
-    if ($env == '') {
-        return false;
-    }
-
-    if ($env === '1' || $env === 'true' || $env === 'yes' || $env === 'on') {
-        return true;
-    }
-
-    file_put_contents('php://stderr', 'Invalid environment variable value found for '.$envName.'. Value: "'.$env.'". Valid values are "0", "1", "yes", "no", "true", "false", "on", "off".'."\n");
-    exit(1);
-}
+$phpExtensions = getPhpExtensionsEnvVar();
 
 foreach ($compiledExtensions as $phpExtension) {
     $envName = 'PHP_EXTENSION_'.strtoupper($phpExtension);
@@ -58,6 +21,10 @@ foreach ($compiledExtensions as $phpExtension) {
 
     if ($env === '0' || $env === 'false' || $env === 'no' || $env === 'off') {
         file_put_contents('php://stderr', "You cannot disable extension '$phpExtension'. It is compiled in the PHP binary.\n");
+        exit(1);
+    }
+    if (enableExtension($phpExtension)) {
+        file_put_contents('php://stderr', "You cannot explicitly enable extension '$phpExtension'. It is compiled in the PHP binary and therefore always available.\n");
         exit(1);
     }
 }
