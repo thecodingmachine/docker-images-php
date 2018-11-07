@@ -60,7 +60,7 @@ env:
     PHP_VERSION="7.1"
 
 script:
-- BRANCH=${TRAVIS_BRANCH} VARIANT=${VARIANT} ./build-and-test.sh
+- PHP_VERSION="${PHP_VERSION}" BRANCH="${TRAVIS_BRANCH}" VARIANT="${VARIANT}" ./build-and-test.sh
 
 # Let's push only if not in a pull request and the branch matches the v2 format
 - if [[ "$TRAVIS_PULL_REQUEST" = false && "$TRAVIS_BRANCH" =~ ^v[0-9.]+$ ]] ; then BRANCH_VARIANT=`echo "$VARIANT" | sed 's/\./-/g'` && docker login -u $DOCKER_USER -p $DOCKER_PASS && docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}; fi
