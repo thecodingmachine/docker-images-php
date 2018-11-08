@@ -1,4 +1,4 @@
 php_version: 7.2
 compiled_php_extensions: mbstring ftp mysqlnd
 enabled_php_extensions: apcu mysqli opcache pdo pdo_mysql redis zip soap
-disabled_php_extensions: amqp ast bcmath blackfire bz2 calendar dba enchant ev event exif gd gettext gmp gnupg igbinary imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+disabled_php_extensions: amqp ast bcmath blackfire bz2 calendar dba enchant ev event exif gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
