@@ -8,6 +8,7 @@
 ## Breaking changes
 
 - PHP 7.1 base image is now **Debian Stretch**
+- Dropped Node 6 images
 
 ## New extensions
 

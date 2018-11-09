@@ -88,8 +88,6 @@ RUN composer global require hirak/prestissimo
 USER root
 
 
-
-
 ENV APACHE_DOCUMENT_ROOT /
 
 RUN sed -ri -e 's!/var/www/html!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
@@ -152,6 +150,15 @@ RUN { \
 USER root
 
 # |--------------------------------------------------------------------------
+# | NodeJS
+# |--------------------------------------------------------------------------
+# |
+# | NodeJS path registration (if we install NodeJS, this is useful).
+# |
+ENV PATH="$PATH:./node_modules/.bin"
+RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin#g' /etc/sudoers
+
+# |--------------------------------------------------------------------------
 # | Entrypoint
 # |--------------------------------------------------------------------------
 # |
@@ -206,3 +213,24 @@ COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_exten
 ONBUILD ARG PHP_EXTENSIONS
 ONBUILD ENV PHP_EXTENSIONS="$PHP_EXTENSIONS"
 ONBUILD RUN sudo PHP_EXTENSIONS="$PHP_EXTENSIONS" php /usr/local/bin/install_selected_extensions.php
+
+# |--------------------------------------------------------------------------
+# | NodeJS
+# |--------------------------------------------------------------------------
+# |
+# | Installs NodeJS and npm. The later will allow you to easily manage
+# | your frontend dependencies.
+# | Also installs yarn. It provides some nice improvements over npm.
+# |
+ONBUILD ARG NODE_VERSION
+ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends gnupg && \
+    curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo bash - && \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends nodejs && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends yarn; \
+    fi;

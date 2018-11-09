@@ -133,4 +133,10 @@ docker build -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" -
 docker run --rm test/composer_with_gd sudo composer update
 docker rmi test/composer_with_gd
 
+#################################
+# Let's build the "node" images
+#################################
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node8 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node8 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node10 .
+
 echo "Tests passed with success"

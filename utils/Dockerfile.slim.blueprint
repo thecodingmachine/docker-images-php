@@ -1,7 +1,5 @@
-{{- $stack := .Orbit.Images -}}
 {{- $php_version := .Orbit.php_version -}}
 {{- $variant := .Orbit.variant -}}
-{{- $node_version := .Orbit.node_version -}}
 
 FROM php:{{ $php_version }}-{{ $variant }}-stretch
 
@@ -92,43 +90,6 @@ USER docker
 RUN composer global require hirak/prestissimo
 USER root
 
-{{if .Orbit.node_version }}
-# |--------------------------------------------------------------------------
-# | NodeJS
-# |--------------------------------------------------------------------------
-# |
-# | Installs NodeJS and npm. The later will allow you to easily manage
-# | your frontend dependencies.
-# |
-
-RUN apt-get update &&\
-    apt-get install -y --no-install-recommends gnupg &&\
-    curl -sL https://deb.nodesource.com/setup_{{- $node_version }}.x | bash - &&\
-    apt-get update &&\
-    apt-get install -y --no-install-recommends nodejs
-
-# |--------------------------------------------------------------------------
-# | yarn
-# |--------------------------------------------------------------------------
-# |
-# | Installs yarn. It provides some nice improvements over npm.
-# |
-
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
-    apt-get update &&\
-    apt-get install -y --no-install-recommends yarn
-
-# |--------------------------------------------------------------------------
-# | PATH updating
-# |--------------------------------------------------------------------------
-# |
-# | Let's add ./node_modules/.bin to the PATH (utility function to use NPM bin easily)
-# |
-ENV PATH="$PATH:./node_modules/.bin"
-RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin#g' /etc/sudoers
-{{end}}
-
 {{if eq $variant "apache" }}
 ENV APACHE_DOCUMENT_ROOT /
 
@@ -195,6 +156,15 @@ RUN { \
 USER root
 
 # |--------------------------------------------------------------------------
+# | NodeJS
+# |--------------------------------------------------------------------------
+# |
+# | NodeJS path registration (if we install NodeJS, this is useful).
+# |
+ENV PATH="$PATH:./node_modules/.bin"
+RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin#g' /etc/sudoers
+
+# |--------------------------------------------------------------------------
 # | Entrypoint
 # |--------------------------------------------------------------------------
 # |
@@ -253,3 +223,24 @@ COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_exten
 ONBUILD ARG PHP_EXTENSIONS
 ONBUILD ENV PHP_EXTENSIONS="$PHP_EXTENSIONS"
 ONBUILD RUN sudo PHP_EXTENSIONS="$PHP_EXTENSIONS" php /usr/local/bin/install_selected_extensions.php
+
+# |--------------------------------------------------------------------------
+# | NodeJS
+# |--------------------------------------------------------------------------
+# |
+# | Installs NodeJS and npm. The later will allow you to easily manage
+# | your frontend dependencies.
+# | Also installs yarn. It provides some nice improvements over npm.
+# |
+ONBUILD ARG NODE_VERSION
+ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends gnupg && \
+    curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo bash - && \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends nodejs && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends yarn; \
+    fi;

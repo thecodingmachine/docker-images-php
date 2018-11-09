@@ -33,17 +33,8 @@ This repository contains a set of developer-friendly, general purpose PHP images
 | [thecodingmachine/php:{{ . }}-v2-cli-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.cli.node8)       | `{{ . }}.x` | fat | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-cli-node8)
 | [thecodingmachine/php:{{ . }}-v2-cli-node10](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.cli.node10)       | `{{ . }}.x` | fat | cli     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-cli-node10.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-cli-node10)
 | [thecodingmachine/php:{{ . }}-v2-slim-apache](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.apache)             | `{{ . }}.x` | slim | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-apache)
-| [thecodingmachine/php:{{ . }}-v2-slim-apache-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.apache.node6) | `{{ . }}.x` | slim | apache  | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-apache-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-apache-node6)
-| [thecodingmachine/php:{{ . }}-v2-slim-apache-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.apache.node8) | `{{ . }}.x` | slim | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-apache-node8)
-| [thecodingmachine/php:{{ . }}-v2-slim-apache-node10](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.apache.node10) | `{{ . }}.x` | slim | apache  | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-apache-node10.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-apache-node10)
 | [thecodingmachine/php:{{ . }}-v2-slim-fpm](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.fpm)                   | `{{ . }}.x` | slim | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-fpm)
-| [thecodingmachine/php:{{ . }}-v2-slim-fpm-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.fpm.node6)       | `{{ . }}.x` | slim | fpm     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-fpm-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-fpm-node6)
-| [thecodingmachine/php:{{ . }}-v2-slim-fpm-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.fpm.node8)       | `{{ . }}.x` | slim | fpm     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-fpm-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-fpm-node8)
-| [thecodingmachine/php:{{ . }}-v2-slim-fpm-node10](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.fpm.node10)       | `{{ . }}.x` | slim | fpm     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-fpm-node10.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-fpm-node10)
 | [thecodingmachine/php:{{ . }}-v2-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.cli)                   | `{{ . }}.x` | slim | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-cli)
-| [thecodingmachine/php:{{ . }}-v2-slim-cli-node6](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.cli.node6)       | `{{ . }}.x` | slim | cli     | `6.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-cli-node6.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-cli-node6)
-| [thecodingmachine/php:{{ . }}-v2-slim-cli-node8](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.cli.node8)       | `{{ . }}.x` | slim | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-cli-node8)
-| [thecodingmachine/php:{{ . }}-v2-slim-cli-node10](https://github.com/thecodingmachine/docker-images-php/blob/{{ . }}-v2/Dockerfile.{{ . }}.slim.cli.node10)       | `{{ . }}.x` | slim | cli     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v2-slim-cli-node10.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v2-slim-cli-node10)
 {{end}}
 
 Note: we do not tag patch releases of PHP, only minor versions. You will find one image for PHP 7.1, one for PHP 7.2, 
@@ -254,6 +245,23 @@ Behind the scenes, the image will:
 - set the parameter `xdebug.remote_enable=1`
 - if you are using a Linux or Windows machine, the `xdebug.remote_host` IP will point to your Docker gateway
 - if you are using a MaxOS machine, the `xdebug.remote_host` IP will point to [`docker.for.mac.localhost`](https://docs.docker.com/docker-for-mac/networking/#use-cases-and-workarounds)
+
+## NodeJS
+
+The *fat* images come with a Node variant. You can use Node 8 or Node 10. If you need a Node 6 variant, [use thecodingmachine/php v1 images](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
+
+If you use the *slim* images, you can install a NodeJS version with a simple ARG during the build:
+
+```Dockerfile
+ARG NODE_VERSION=10
+FROM thecodingmachine/php:{{ $image.php_version }}-v2-slim-apache
+# The build will automatically trigger the download of Node 10
+# (thanks to a ONBUILD hook in the slim image)
+```
+
+Beware! The `ARG NODE_VERSION` command must be written before the `FROM`. This is not a typo.
+
+`NODE_VERSION` can take any valid node versions (from 6 to 11 at the time of writing this README)
 
 ## Permissions
 

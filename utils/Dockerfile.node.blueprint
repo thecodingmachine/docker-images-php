@@ -1,4 +1,8 @@
-FROM thecodingmachine/php:7.1-v2-apache
+{{- $php_version := .Orbit.php_version -}}
+{{- $variant := .Orbit.variant -}}
+{{- $node_version := .Orbit.node_version -}}
+
+FROM thecodingmachine/php:{{ $php_version }}-v2-{{ $variant }}
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -6,7 +10,7 @@ USER root
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gnupg && \
-    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_{{ $node_version }}.x | bash - && \
     apt-get update && \
     apt-get install -y --no-install-recommends nodejs && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \

@@ -1,4 +1,3 @@
-{{- $stack := .Orbit.Images -}}
 {{- $php_version := .Orbit.php_version -}}
 {{- $variant := .Orbit.variant -}}
 {{- $node_version := .Orbit.node_version -}}
