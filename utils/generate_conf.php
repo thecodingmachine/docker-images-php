@@ -59,6 +59,10 @@ foreach ($availableExtensions as $extension) {
             echo "blackfire.agent_socket=tcp://$blackFireAgent:8707\n";
         } elseif ($extension === 'opcache') {
             echo "zend_extension=opcache.so\n";
+        } elseif ($extension === 'event' && !enableExtension('sockets')) {
+            // Event extension depends on Sockets extension
+            echo "extension=sockets.so\n";
+            echo "extension=event.so\n";
         } else {
             echo "extension=$extension.so\n";
         }

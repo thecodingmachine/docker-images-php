@@ -114,18 +114,6 @@ RESULT=`docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 t
 # Check that blackfire can be enabled
 docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep blackfire
 
-# Check that memcached can be enabled
-docker run --rm -e PHP_EXTENSION_MEMCACHED=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep memcached
-
-# Check that gnupg can be enabled
-docker run --rm -e PHP_EXTENSION_GNUPG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep gnupg
-
-# Check that amqp can be enabled
-docker run --rm -e PHP_EXTENSION_AMQP=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep amqp
-
-# Check that imagick can be enabled
-docker run --rm -e PHP_EXTENSION_IMAGICK=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep imagick
-
 # Let's check that the extensions are enabled when composer is run
 docker build -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
 
