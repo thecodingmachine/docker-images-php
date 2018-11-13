@@ -23,9 +23,15 @@ if [ -n "$DEV_DEPENDENCIES" ]; then
 fi
 
 if [ -n "$EXTENSION" ]; then
-    # Simple test to check the extension is enabled
-    php -m
+    # Let's perform a test
+    php -m | grep $EXTENSION
     # And now, let's disable it!
-    ls -al /usr/local/etc/php/conf.d
     rm -f /usr/local/etc/php/conf.d/docker-php-ext-$EXTENSION.ini
+fi
+
+if [ -n "$PECL_EXTENSION" ]; then
+    # Let's perform a test
+    PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/testextension.ini
+    php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$PECL_EXTENSION}}"
+    rm /usr/local/etc/php/conf.d/testextension.ini
 fi
