@@ -1,3 +1,5 @@
+ARG INSTALL_CRON=1
+ARG INSTALL_COMPOSER=1
 FROM thecodingmachine/php:7.2-v2-slim-apache
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"

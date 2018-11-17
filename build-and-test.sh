@@ -59,16 +59,11 @@ if [[ $VARIANT == apache* ]]; then
     docker stop $DOCKER_CID
 fi
 
-# Let's check that the crons are actually sending logs in the right place
-RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1`
-[[ "$RESULT" = "msg=foobar" ]]
-
-RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&2 echo "error")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=error' | head -n1`
-[[ "$RESULT" = "msg=error" ]]
-
-# Let's check that the cron with a user different from root is actually run.
-RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="whoami" -e CRON_USER_1="docker" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=docker' | head -n1`
-[[ "$RESULT" = "msg=docker" ]]
+# Let's check that the access to cron will fail with a message
+set +e
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} sleep 1 2>&1 | grep -o 'Cron is not available in this image'`
+set -e
+[[ "$RESULT" = "Cron is not available in this image" ]]
 
 # Let's check that the configuration is loaded from the correct php.ini (development, production or imported in the image)
 RESULT=`docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
@@ -97,6 +92,18 @@ RESULT=`docker run --rm -e STARTUP_COMMAND_1="cd / && whoami" -e UID=0 thecoding
 # Let's build the "fat" image
 #################################
 docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} -f Dockerfile.${PHP_VERSION}.${VARIANT} .
+
+# Let's check that the crons are actually sending logs in the right place
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1`
+[[ "$RESULT" = "msg=foobar" ]]
+
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&2 echo "error")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=error' | head -n1`
+[[ "$RESULT" = "msg=error" ]]
+
+# Let's check that the cron with a user different from root is actually run.
+RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="whoami" -e CRON_USER_1="docker" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=docker' | head -n1`
+[[ "$RESULT" = "msg=docker" ]]
+
 
 # Let's check that mbstring cannot extension cannot be disabled
 set +e

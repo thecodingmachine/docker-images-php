@@ -8,8 +8,8 @@ This repository contains a set of developer-friendly, general purpose PHP images
  - You can also modify the `php.ini` settings using environment variables.
  - 2 types available: `slim` (no extensions preloaded) or `fat` (most common PHP extensions are built-in)
  - 3 variants available: `CLI`, `apache` and `fpm`
- - Images are bundled with [Supercronic](https://github.com/aptible/supercronic) which is a Cron compatible task runner. Cron jobs can be configured using environment variables
- - Images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
+ - Fat images are bundled with [Supercronic](https://github.com/aptible/supercronic) which is a Cron compatible task runner. Cron jobs can be configured using environment variables
+ - Fat images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
  - Everything is done to limit file permission issues that often arise when using Docker. The image is actively tested on Linux, Windows and MacOS
 
@@ -341,6 +341,15 @@ CRON_COMMAND_1=vendor/bin/console do:stuff
 CRON_USER_2=www-data
 CRON_SCHEDULE_2=0 3 * * *
 CRON_COMMAND_2=vendor/bin/console other:stuff
+```
+
+Cron is **installed by default in the fat images**. If you are using the "*slim*" images, you need to install it by passing
+a single argument before the "FROM" clause in your Dockerfile:
+
+```Dockerfile
+ARG INSTALL_CRON=1
+FROM thecodingmachine/php:{{ $image.php_version }}-v2-slim-apache
+# The build triggers automatically the installation of Cron
 ```
 
 **Important**: The cron runner we use is "Supercronic" and not the orginial "cron" that has a number of issues
