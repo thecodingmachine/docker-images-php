@@ -2,6 +2,8 @@
 {{- $variant := .Orbit.variant -}}
 {{- $node_version := .Orbit.node_version -}}
 
+ARG INSTALL_CRON=1
+ARG INSTALL_COMPOSER=1
 FROM thecodingmachine/php:{{ $php_version }}-v2-slim-{{ $variant }}{{if .Orbit.node_version }}-node{{ $node_version }}{{end}}
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"

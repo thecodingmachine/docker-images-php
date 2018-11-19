@@ -18,23 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends git nano sudo i
 RUN cd /usr/local/lib/thecodingmachine-php/extensions/current/zip && ./install.sh
 # RUN echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
 
-
-# |--------------------------------------------------------------------------
-# | Supercronic
-# |--------------------------------------------------------------------------
-# |
-# | Supercronic is a drop-in replacement for cron (for containers).
-# |
-
-RUN SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.5/supercronic-linux-amd64 \
- && SUPERCRONIC=supercronic-linux-amd64 \
- && SUPERCRONIC_SHA1SUM=9aeb41e00cc7b71d30d33c57a2333f2c2581a201 \
- && curl -fsSLO "$SUPERCRONIC_URL" \
- && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
- && chmod +x "$SUPERCRONIC" \
- && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
- && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
-
 # |--------------------------------------------------------------------------
 # | User
 # |--------------------------------------------------------------------------
@@ -84,7 +67,10 @@ COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 # |
 
 USER docker
-RUN composer global require hirak/prestissimo
+RUN composer global require hirak/prestissimo && \
+    composer global require bamarni/symfony-console-autocomplete && \
+    rm -rf $HOME\.composer
+
 USER root
 
 
@@ -135,8 +121,6 @@ RUN mkdir ~/.ssh && touch ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts && 
 # |
 # | Let's update the .bashrc to add nice aliases
 # |
-
-RUN composer global require bamarni/symfony-console-autocomplete
 
 RUN echo 'eval "$(symfony-autocomplete)"' > ~/.bash_profile
 
@@ -213,6 +197,26 @@ COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_exten
 ONBUILD ARG PHP_EXTENSIONS
 ONBUILD ENV PHP_EXTENSIONS="$PHP_EXTENSIONS"
 ONBUILD RUN sudo PHP_EXTENSIONS="$PHP_EXTENSIONS" php /usr/local/bin/install_selected_extensions.php
+
+# |--------------------------------------------------------------------------
+# | Supercronic
+# |--------------------------------------------------------------------------
+# |
+# | Supercronic is a drop-in replacement for cron (for containers).
+# |
+
+ONBUILD ARG INSTALL_CRON
+ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
+ SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.5/supercronic-linux-amd64 \
+ && SUPERCRONIC=supercronic-linux-amd64 \
+ && SUPERCRONIC_SHA1SUM=9aeb41e00cc7b71d30d33c57a2333f2c2581a201 \
+ && curl -fsSLO "$SUPERCRONIC_URL" \
+ && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+ && chmod +x "$SUPERCRONIC" \
+ && sudo mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
+ && sudo ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic; \
+ fi;
+
 
 # |--------------------------------------------------------------------------
 # | NodeJS
