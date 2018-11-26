@@ -116,7 +116,7 @@ if [[ "$IMAGE_VARIANT" == "apache" ]]; then
 fi
 
 if [ -e /etc/container/startup.sh ]; then
-    sudo -E -u "#$DOCKER_USER_ID" source /etc/container/startup.sh
+    sudo -E -u "#$DOCKER_USER_ID" /etc/container/startup.sh
 fi
 sudo -E -u "#$DOCKER_USER_ID" sh -c "php /usr/local/bin/startup_commands.php | bash"
 
