@@ -75,6 +75,9 @@ RESULT=`docker run --rm -e TEMPLATE_PHP_INI=production thecodingmachine/php:${PH
 RESULT=`docker run --rm -v $(pwd)/tests/php.ini:/usr/local/etc/php/php.ini thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
 [[ "$RESULT" = "error_reporting => 24575 => 24575" ]]
 
+RESULT=`docker run --rm -e PHP_INI_ERROR_REPORTING="E_ERROR | E_WARNING" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
+[[ "$RESULT" = "error_reporting => 3 => 3" ]]
+
 # Tests that environment variables with an equal sign are correctly handled
 RESULT=`docker run --rm -e PHP_INI_SESSION__SAVE_PATH="tcp://localhost?auth=yourverycomplex\"passwordhere" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep "session.save_path"`
 [[ "$RESULT" = "session.save_path => tcp://localhost?auth=yourverycomplex\"passwordhere => tcp://localhost?auth=yourverycomplex\"passwordhere" ]]
