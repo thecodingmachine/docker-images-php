@@ -27,7 +27,7 @@ if [ -n "$EXTENSION" ]; then
     php -m | grep $EXTENSION
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`php -r "echo '';" 2>&1`
-    [[ $OUTPUT == "" ]]
+    [[ "$OUTPUT" == "" ]]
     # And now, let's disable it!
     rm -f /usr/local/etc/php/conf.d/docker-php-ext-$EXTENSION.ini
 fi
@@ -38,6 +38,6 @@ if [ -n "$PECL_EXTENSION" ]; then
     php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$PECL_EXTENSION}}"
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`php -r "echo '';" 2>&1`
-    [[ $OUTPUT == "" ]]
+    [[ "$OUTPUT" == "" ]]
     rm /usr/local/etc/php/conf.d/testextension.ini
 fi
