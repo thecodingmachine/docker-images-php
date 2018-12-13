@@ -163,7 +163,7 @@ COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_exten
 
 ONBUILD ARG PHP_EXTENSIONS
 ONBUILD ENV PHP_EXTENSIONS="$PHP_EXTENSIONS"
-ONBUILD RUN sudo PHP_EXTENSIONS="$PHP_EXTENSIONS" php /usr/local/bin/install_selected_extensions.php
+ONBUILD RUN sudo -E PHP_EXTENSIONS="$PHP_EXTENSIONS" php /usr/local/bin/install_selected_extensions.php
 
 # |--------------------------------------------------------------------------
 # | Supercronic

@@ -31,5 +31,8 @@ if (!$extensions) {
 }
 
 foreach ($extensions as $extension) {
-    passthru('cd ' .EXTENSIONS_INSTALL_DIR.$extension. ' && ./install.sh');
+    passthru('cd ' .EXTENSIONS_INSTALL_DIR.$extension. ' && ./install.sh', $returnCode);
+    if ($returnCode !== 0) {
+        exit($returnCode);
+    }
 }

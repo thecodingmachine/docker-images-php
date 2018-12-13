@@ -1,4 +1,4 @@
-FROM php:7.1-cli-stretch
+FROM php:7.3-apache-stretch
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -11,7 +11,7 @@ LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <
 # |
 
 COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
-RUN ln -s 7.1 /usr/local/lib/thecodingmachine-php/extensions/current
+RUN ln -s 7.3 /usr/local/lib/thecodingmachine-php/extensions/current
 
 # Install php extensions
 RUN apt-get update && apt-get install -y --no-install-recommends git nano sudo iproute2 openssh-client procps unzip
@@ -74,11 +74,24 @@ RUN composer global require hirak/prestissimo && \
 USER root
 
 
+ENV APACHE_DOCUMENT_ROOT /
+
+RUN sed -ri -e 's!/var/www/html!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# |--------------------------------------------------------------------------
+# | Apache mod_rewrite
+# |--------------------------------------------------------------------------
+# |
+# | Enables Apache mod_rewrite.
+# |
+
+RUN a2enmod rewrite
 
 
-RUN mkdir -p /usr/src/app && chown docker:docker /usr/src/app
-WORKDIR /usr/src/app
 
+
+RUN chown docker:docker /var/www/html
 
 
 # |--------------------------------------------------------------------------
@@ -136,7 +149,7 @@ RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/
 # | Defines the entrypoint.
 # |
 
-ENV IMAGE_VARIANT=cli
+ENV IMAGE_VARIANT=apache
 
 # Add Tini (to be able to stop the container with ctrl-c.
 # See: https://github.com/krallin/tini
@@ -147,14 +160,33 @@ RUN chmod +x /tini
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
+COPY utils/enable_apache_mods.php /usr/local/bin/enable_apache_mods.php
+COPY utils/apache-expose-envvars.sh /usr/local/bin/apache-expose-envvars.sh
+
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 
+# Let's register a servername to remove the message "apache2: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message"
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
+RUN a2enconf servername
 
-CMD ["php", "-v"]
+CMD ["apache2-foreground"]
+
+# |--------------------------------------------------------------------------
+# | Entrypoint
+# |--------------------------------------------------------------------------
+# |
+# | Defines Apache user. Bu default, we switch this to "docker" user.
+# | This way, no problem to write from Apache in the current working directory.
+# | Important! This should be changed back to www-data in production.
+# |
+
+ENV APACHE_RUN_USER=docker \
+    APACHE_RUN_GROUP=docker
+
 
 
 

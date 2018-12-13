@@ -45,4 +45,17 @@ tasks:
       - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.2.fpm.node8 -p "php_version,7.2;variant,fpm;node_version,8"
       - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.2.fpm.node10 -p "php_version,7.2;variant,fpm;node_version,10"
 
+      - orbit generate -f utils/Dockerfile.slim.blueprint -o Dockerfile.7.3.slim.apache -p "php_version,7.3;variant,apache"
+      - orbit generate -f utils/Dockerfile.slim.blueprint -o Dockerfile.7.3.slim.cli -p "php_version,7.3;variant,cli"
+      - orbit generate -f utils/Dockerfile.slim.blueprint -o Dockerfile.7.3.slim.fpm -p "php_version,7.3;variant,fpm"
+      - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.7.3.apache -p "php_version,7.3;variant,apache;node_version,"
+      - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.3.apache.node8 -p "php_version,7.3;variant,apache;node_version,8"
+      - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.3.apache.node10 -p "php_version,7.3;variant,apache;node_version,10"
+      - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.7.3.cli -p "php_version,7.3;variant,cli;node_version,"
+      - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.3.cli.node8 -p "php_version,7.3;variant,cli;node_version,8"
+      - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.3.cli.node10 -p "php_version,7.3;variant,cli;node_version,10"
+      - orbit generate -f utils/Dockerfile.blueprint -o Dockerfile.7.3.fpm -p "php_version,7.3;variant,fpm;node_version,"
+      - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.3.fpm.node8 -p "php_version,7.3;variant,fpm;node_version,8"
+      - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.7.3.fpm.node10 -p "php_version,7.3;variant,fpm;node_version,10"
+
       - orbit generate -f utils/README.blueprint.md -o README.md
