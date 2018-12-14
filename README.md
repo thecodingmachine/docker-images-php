@@ -20,6 +20,18 @@ This repository contains a set of developer-friendly, general purpose PHP images
 
 | Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
+| [thecodingmachine/php:7.3-v2-apache](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.apache)             | `7.3.x` | fat | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-apache.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-apache)
+| [thecodingmachine/php:7.3-v2-apache-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.apache.node8) | `7.3.x` | fat | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-apache-node8)
+| [thecodingmachine/php:7.3-v2-apache-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.apache.node10) | `7.3.x` | fat | apache  | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-apache-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-apache-node10)
+| [thecodingmachine/php:7.3-v2-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.fpm)                   | `7.3.x` | fat | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-fpm)
+| [thecodingmachine/php:7.3-v2-fpm-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.fpm.node8)       | `7.3.x` | fat | fpm     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-fpm-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-fpm-node8)
+| [thecodingmachine/php:7.3-v2-fpm-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.fpm.node10)       | `7.3.x` | fat | fpm     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-fpm-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-fpm-node10)
+| [thecodingmachine/php:7.3-v2-cli](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.cli)                   | `7.3.x` | fat | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-cli.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-cli)
+| [thecodingmachine/php:7.3-v2-cli-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.cli.node8)       | `7.3.x` | fat | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-cli-node8)
+| [thecodingmachine/php:7.3-v2-cli-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.cli.node10)       | `7.3.x` | fat | cli     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-cli-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-cli-node10)
+| [thecodingmachine/php:7.3-v2-slim-apache](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.slim.apache)             | `7.3.x` | slim | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-slim-apache)
+| [thecodingmachine/php:7.3-v2-slim-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.slim.fpm)                   | `7.3.x` | slim | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-slim-fpm)
+| [thecodingmachine/php:7.3-v2-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.slim.cli)                   | `7.3.x` | slim | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-slim-cli)
 | [thecodingmachine/php:7.2-v2-apache](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.2.apache)             | `7.2.x` | fat | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.2-v2-apache.svg)](https://microbadger.com/images/thecodingmachine/php:7.2-v2-apache)
 | [thecodingmachine/php:7.2-v2-apache-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.2.apache.node8) | `7.2.x` | fat | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.2-v2-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.2-v2-apache-node8)
 | [thecodingmachine/php:7.2-v2-apache-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.2.apache.node10) | `7.2.x` | fat | apache  | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.2-v2-apache-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.2-v2-apache-node10)
@@ -109,6 +121,15 @@ Below is a list of extensions available in this image:
 **Enabled by default:** apcu mysqli opcache pdo pdo_mysql redis zip soap
 
 **Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+
+**Note**: as of 2018-12-13, PHP 7.3 has just been released and some extensions are not yet ready:
+
+- *amqp* extension is not compatible with PHP 7.3 yet
+- *blackfire* is not compatible with PHP 7.3 yet
+- *mcrypt* is not available anymore in PHP 7.3
+- *memcached* is not compatible with PHP 7.3 yet
+- *weakref* is not compatible with PHP 7.3 ([there might not be a version for PHP 7.3](https://wiki.php.net/rfc/weakrefs))
+- *xdebug* is provided in version 2.7.0beta1
 
 ### Enabling/disabling extensions in the fat image
 

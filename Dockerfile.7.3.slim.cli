@@ -1,4 +1,4 @@
-FROM php:7.1-cli-stretch
+FROM php:7.3-cli-stretch
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -11,7 +11,7 @@ LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <
 # |
 
 COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
-RUN ln -s 7.1 /usr/local/lib/thecodingmachine-php/extensions/current
+RUN ln -s 7.3 /usr/local/lib/thecodingmachine-php/extensions/current
 
 # Install php extensions
 RUN apt-get update && apt-get install -y --no-install-recommends git nano sudo iproute2 openssh-client procps unzip

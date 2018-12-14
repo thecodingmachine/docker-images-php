@@ -16,7 +16,7 @@ This repository contains a set of developer-friendly, general purpose PHP images
 {{ $image := .Orbit.Images }}
 ## Images
 
-{{ $versions := list "7.2" "7.1" }}
+{{ $versions := list "7.3" "7.2" "7.1" }}
 
 | Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
@@ -97,6 +97,15 @@ Below is a list of extensions available in this image:
 **Enabled by default:** {{ $image.enabled_php_extensions }}
 
 **Available (can be enabled using environment variables):** {{ $image.disabled_php_extensions }}
+
+**Note**: as of 2018-12-13, PHP 7.3 has just been released and some extensions are not yet ready:
+
+- *amqp* extension is not compatible with PHP 7.3 yet
+- *blackfire* is not compatible with PHP 7.3 yet
+- *mcrypt* is not available anymore in PHP 7.3
+- *memcached* is not compatible with PHP 7.3 yet
+- *weakref* is not compatible with PHP 7.3 ([there might not be a version for PHP 7.3](https://wiki.php.net/rfc/weakrefs))
+- *xdebug* is provided in version 2.7.0beta1
 
 ### Enabling/disabling extensions in the fat image
 
