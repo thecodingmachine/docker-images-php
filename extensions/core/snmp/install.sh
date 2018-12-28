@@ -7,5 +7,4 @@ export DEPENDENCIES="snmp libsnmp30 libc6 libpci3 libsensors4 libwrap0 procps li
 
 ../docker-install.sh
 
-mkdir /var/lib/snmp/mib_indexes
 chmod 700 /var/lib/snmp/mib_indexes
