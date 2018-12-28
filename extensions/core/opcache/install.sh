@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-
+set -e
 export EXTENSION=opcache
 
 ../docker-install.sh

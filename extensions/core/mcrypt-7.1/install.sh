@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 # Comments: MCrypt is deprecated and usage is generally discouraged. Provided here for legacy apps only.
 
 export EXTENSION=mcrypt

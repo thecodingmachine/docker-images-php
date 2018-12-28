@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 set -ex
 
 apt-get install -y --no-install-recommends libldap2-dev libldap-2.4-2

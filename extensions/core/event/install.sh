@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 # Sockets is required for event extension to work.
 export EXTENSION="sockets"
 export PECL_EXTENSION="event"
