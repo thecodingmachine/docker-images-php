@@ -102,7 +102,6 @@ Below is a list of extensions available in this image:
 
 - *amqp* extension is not compatible with PHP 7.3 yet
 - *mcrypt* is not available anymore in PHP 7.3
-- *memcached* is not compatible with PHP 7.3 yet
 - *weakref* is not compatible with PHP 7.3 ([there might not be a version for PHP 7.3](https://wiki.php.net/rfc/weakrefs))
 - *xdebug* is provided in version 2.7.0beta1
 
@@ -567,7 +566,7 @@ This command will generate all the files from the "blueprint" templates.
 You can then test your changes using the `build-and-test.sh` command:
 
 ```bash
-PHP_VERSION={{ $image.php_version }} BRANCH=v2 VARIANT=apache.node10 ./build-and-test.sh
+PHP_VERSION={{ $image.php_version }} BRANCH=v2 VARIANT=apache ./build-and-test.sh
 ```
 
 ## Special thanks
