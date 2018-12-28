@@ -125,7 +125,6 @@ Below is a list of extensions available in this image:
 **Note**: as of 2018-12-13, PHP 7.3 has just been released and some extensions are not yet ready:
 
 - *amqp* extension is not compatible with PHP 7.3 yet
-- *blackfire* is not compatible with PHP 7.3 yet
 - *mcrypt* is not available anymore in PHP 7.3
 - *memcached* is not compatible with PHP 7.3 yet
 - *weakref* is not compatible with PHP 7.3 ([there might not be a version for PHP 7.3](https://wiki.php.net/rfc/weakrefs))
