@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-PECL_EXTENSION=xdebug ../docker-install.sh
+# We need the "host" command to detect the remote host on MacOS and Windows
+PECL_EXTENSION=xdebug DEPENDENCIES="bind9-host" ../docker-install.sh
