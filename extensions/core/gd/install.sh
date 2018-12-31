@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-
+set -e
 export EXTENSION=gd
 export DEV_DEPENDENCIES="libjpeg62-turbo-dev libpng-dev libxpm-dev libfreetype6-dev"
 export DEPENDENCIES="libjpeg62-turbo libpng16-16 zlib1g libxpm4 libfreetype6"

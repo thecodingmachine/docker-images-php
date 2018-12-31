@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 set -ex
 
 for ext in */; do \

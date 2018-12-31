@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 set -ex
 
 apt-get install -y --no-install-recommends freetds-dev libsybdb5 libct4

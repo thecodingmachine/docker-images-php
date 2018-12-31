@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-
-export EXTENSION=opcache
-
-../docker-install.sh
-
-
+set -e
 docker-php-ext-install opcache
 
 php -m | grep "Zend OPcache"

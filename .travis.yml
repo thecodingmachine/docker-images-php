@@ -38,6 +38,7 @@ script:
   if [[ "$TRAVIS_PULL_REQUEST" = false && "$TRAVIS_BRANCH" =~ ^v[0-9.]+$ ]] ; then
     BRANCH_VARIANT=`echo "$VARIANT" | sed 's/\./-/g'`
     docker login -u $DOCKER_USER -p $DOCKER_PASS
+    docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-slim-${BRANCH_VARIANT}
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node8
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node10
