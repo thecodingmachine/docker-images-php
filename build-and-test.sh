@@ -111,7 +111,7 @@ RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="wh
 
 # Let's check that 2 commands split with a ; are run by the same user.
 RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="whoami;whoami" -e CRON_USER_1="docker" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=docker' | wc -l`
-[[ "$RESULT" = "2" ]]
+[[ "$RESULT" -gt "1" ]]
 
 
 # Let's check that mbstring cannot extension cannot be disabled

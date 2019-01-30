@@ -22,12 +22,11 @@ foreach ($_SERVER as $key => $command) {
         $user = getenv('CRON_USER'.$suffix);
 
         if ($user) {
-            $userCmd = "sudo -E -u $user ";
+            echo $schedule." sudo -E -u $user -- bash -c ".escapeshellarg($command)."\n";
         } else {
-            $userCmd = '';
+            echo $schedule.' '.$command."\n";
         }
 
-        echo $schedule.' '.$userCmd.$command."\n";
     }
 }
 
