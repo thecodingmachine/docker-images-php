@@ -86,7 +86,7 @@ $ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thec
 Example with PHP-FPM:
 
 ```bash
-$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:7.2-v2-fpm
+$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/7.2-v2-fpm
 ```
 
 Example with Apache + Node 8.x in a Dockerfile:
@@ -120,7 +120,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default:** apcu mysqli opcache pdo pdo_mysql redis zip soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
 
 **Note**: as of 2018-12-13, PHP 7.3 has just been released and some extensions are not yet ready:
 
