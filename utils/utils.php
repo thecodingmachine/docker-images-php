@@ -34,7 +34,6 @@ function getExtensions(): array
     // that create too many layers.
     //$toCheckExtensions = array_merge(getDeclaredEnvVars(), getPhpExtensionsEnvVar());
     //return array_filter($toCheckExtensions, 'enableExtension');
-    var_dump(getPhpExtensionsEnvVar());
     return array_filter(getPhpExtensionsEnvVar(), 'enableExtension');
 }
 
