@@ -393,6 +393,16 @@ application (and not once per container), you might want to have a look at alter
 [Tasker](https://github.com/opsxcq/tasker) or use the native features of your orchestrator (if you use Kubernetes,
 you have a native task runner available), or one of the many other alternatives.
 
+Please notice that by default, containers are running in the UTC timezone. So your CRONs will run at UTC time.
+If you want to change a timezone in a container, you can use the `TZ` environment variable.
+
+```bash
+# Run this cron at 1 am, Paris time
+TZ=Europe/Paris
+CRON_SCHEDULE_1=0 1 * * *
+CRON_COMMAND_1=vendor/bin/console do:stuff
+```
+
 ## Launching commands on container startup
 
 You can launch commands on container startup using the `STARTUP_COMMAND_XXX` environment variables.
