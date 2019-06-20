@@ -137,7 +137,7 @@ PHP_EXTENSIONS=pgsql gettext imap sockets
 If you are using the slim image, you can automatically compile the extensions using the `PHP_EXTENSIONS` ARG in your Dockerfile.
 
 ```Dockerfile
-ARG PHP_EXTENSIONS="apcu mysqli opcache pdo pdo_mysql redis zip soap"
+ARG PHP_EXTENSIONS="apcu mysqli opcache pdo_mysql redis zip soap"
 FROM thecodingmachine/php:{{ $image.php_version }}-v2-slim-apache
 # The build will automatically trigger the download and compilation
 # of the extensions (thanks to a ONBUILD hook in the slim image)
@@ -153,7 +153,7 @@ first FROM):
 
 ```Dockerfile
 # The PHP_EXTENSIONS ARG will apply to the "slim" image
-ARG PHP_EXTENSIONS="apcu mysqli opcache pdo pdo_mysql zip soap"
+ARG PHP_EXTENSIONS="apcu mysqli opcache pdo_mysql zip soap"
 
 FROM thecodingmachine/php:7.2-v2-apache-node10 AS builder
 

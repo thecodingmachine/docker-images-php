@@ -127,7 +127,7 @@ For both types, these extensions are **compiled in PHP** (cannot be disabled): m
 
 Below is a list of extensions available in this image:
 
-**Enabled by default:** apcu mysqli opcache pdo pdo_mysql redis zip soap
+**Enabled by default:** apcu mysqli opcache pdo_mysql redis zip soap
 
 **Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
 
@@ -167,7 +167,7 @@ PHP_EXTENSIONS=pgsql gettext imap sockets
 If you are using the slim image, you can automatically compile the extensions using the `PHP_EXTENSIONS` ARG in your Dockerfile.
 
 ```Dockerfile
-ARG PHP_EXTENSIONS="apcu mysqli opcache pdo pdo_mysql redis zip soap"
+ARG PHP_EXTENSIONS="apcu mysqli opcache pdo_mysql redis zip soap"
 FROM thecodingmachine/php:7.2-v2-slim-apache
 # The build will automatically trigger the download and compilation
 # of the extensions (thanks to a ONBUILD hook in the slim image)
@@ -183,7 +183,7 @@ first FROM):
 
 ```Dockerfile
 # The PHP_EXTENSIONS ARG will apply to the "slim" image
-ARG PHP_EXTENSIONS="apcu mysqli opcache pdo pdo_mysql zip soap"
+ARG PHP_EXTENSIONS="apcu mysqli opcache pdo_mysql zip soap"
 
 FROM thecodingmachine/php:7.2-v2-apache-node10 AS builder
 
