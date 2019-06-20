@@ -612,6 +612,15 @@ You can then test your changes using the `build-and-test.sh` command:
 PHP_VERSION=7.2 BRANCH=v2 VARIANT=apache ./build-and-test.sh
 ```
 
+### Files to change
+
+To add a new version (php, node, apache, ...), please edit the following files :
+- utils/README.blueprint.md 
+  - Add your image in this section: Images
+- orbit.yml: Your image in generation task 
+- .travis.yml: To check the new image
+- build-and-test.sh: Add your image in test
+
 ## Special thanks
 
 These images have been strongly inspired by [tetraweb/php](https://hub.docker.com/r/tetraweb/php/).
