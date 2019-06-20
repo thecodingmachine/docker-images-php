@@ -42,4 +42,5 @@ script:
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node8
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node10
+    docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node12
   fi
