@@ -142,5 +142,6 @@ docker rmi test/composer_with_gd
 #################################
 docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node8 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node8 .
 docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node10 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node12 .
 
 echo "Tests passed with success"
