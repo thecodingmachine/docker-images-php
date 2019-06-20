@@ -455,6 +455,32 @@ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/sr
        -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:7.2-v2-cli php your-script.php 
 ```
 
+## Using the CLI variant
+
+The CLI images (thecodingmachine/php:7.x-v2-cli) expect a command to be passed in parameter.
+You should override the Docker "command".
+
+Important! You should not override the Docker "entrypoint".
+
+**Usage in a Dockerfile:**
+
+```Dockerfile
+FROM thecodingmachine/php:7.2-v2-cli
+
+CMD ["php", "myprogram.php", "some_param"]
+```
+
+**Usage with Docker compose:**
+
+**docker-compose.yml**
+```yml
+version: '3'
+services:
+  my_app:
+    image: thecodingmachine/php:7.2-v2-cli
+    command: php myprogram.php some_param
+```
+
 ## Registering SSH private keys
 
 If your PHP project as a dependency on [a package stored in a private GIT repository](https://getcomposer.org/doc/05-repositories.md#using-private-repositories), 
