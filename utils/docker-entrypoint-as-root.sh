@@ -65,6 +65,9 @@ fi
 DOCKER_USER_ID=`id -ur $DOCKER_USER`
 #echo "Docker user id: $DOCKER_USER_ID"
 
+# Fix access rights to stdout and stderr
+chown $DOCKER_USER /proc/self/fd/{1,2}
+
 if [ -z "$XDEBUG_REMOTE_HOST" ]; then
     export XDEBUG_REMOTE_HOST=`/sbin/ip route|awk '/default/ { print $3 }'`
 

@@ -638,9 +638,10 @@ You can then test your changes using the `build-and-test.sh` command:
 PHP_VERSION=7.2 BRANCH=v2 VARIANT=apache ./build-and-test.sh
 ```
 
-### Files to change
+### Adding additional images
 
 To add a new version (php, node, apache, ...), please edit the following files :
+
 - utils/README.blueprint.md 
   - Add your image in this section: Images
 - orbit.yml: Your image in generation task 
