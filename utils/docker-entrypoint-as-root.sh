@@ -66,7 +66,10 @@ DOCKER_USER_ID=`id -ur $DOCKER_USER`
 #echo "Docker user id: $DOCKER_USER_ID"
 
 # Fix access rights to stdout and stderr
+# Note: chown can fail on older versions of Docker (seen failing on Docker 17.06 on CentOS)
+set +e
 chown $DOCKER_USER /proc/self/fd/{1,2}
+set -e
 
 if [ -z "$XDEBUG_REMOTE_HOST" ]; then
     export XDEBUG_REMOTE_HOST=`/sbin/ip route|awk '/default/ { print $3 }'`
