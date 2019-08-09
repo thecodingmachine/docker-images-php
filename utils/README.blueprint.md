@@ -255,7 +255,7 @@ services:
 As an alternative, you can use the `APACHE_EXTENSIONS` global variable:
 
 ```
-PHP_EXTENSIONS="dav ssl"
+APACHE_EXTENSIONS="dav ssl"
 ```
 
 **Apache modules enabled by default:** access_compat, alias, auth_basic, authn_core, authn_file, authz_core, authz_host, authz_user, autoindex, deflate, dir, env, expires, filter, mime, mpm_prefork, negotiation, php7, reqtimeout, rewrite, setenvif, status
