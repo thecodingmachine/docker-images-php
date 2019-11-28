@@ -1,20 +1,14 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -e
-set +x
+set -x
 
 # Let's disable autoclean of package list after apt-get install
 mv /etc/apt/apt.conf.d/docker-clean /tmp/docker-clean
 
 apt-get update
 
-for ext in */; do \
-    cd $ext
-    ext_no_slash=${ext%/}
-    echo "***************** Installing $ext_no_slash ******************"
-    ./install.sh
-    cd ..
-done
+php /usr/local/bin/install_selected_extensions.php
 
 # Let's enable autoclean again
 mv /tmp/docker-clean /etc/apt/apt.conf.d/docker-clean

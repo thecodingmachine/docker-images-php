@@ -12,10 +12,28 @@ if [ -n "$CONFIGURE_OPTIONS" ]; then
 fi
 
 if [ -n "$EXTENSION" ]; then
-    docker-php-ext-install $EXTENSION
+  set +e
+  if apt-cache search --names-only "php${PHP_VERSION}-$EXTENSION" | grep "php${PHP_VERSION}-$EXTENSION"; then
+    set -e
+    apt-get install -y --no-install-recommends php${PHP_VERSION}-$EXTENSION
+  else
+    set -e
+    apt-get install -y --no-install-recommends php-$EXTENSION
+  fi
+
 fi
 
 if [ -n "$PECL_EXTENSION" ]; then
+    # if env ready?
+
+    # is phpize installed?
+    if which pecl && which phpize; then
+      echo "pecl found"
+      which pecl
+    else
+      apt-get install -y --no-install-recommends build-essential php-pear php${PHP_VERSION}-dev pkg-config
+    fi
+
     pecl install $PECL_EXTENSION
 fi
 
@@ -25,20 +43,22 @@ fi
 
 if [ -n "$EXTENSION" ]; then
     # Let's perform a test
-    php -m | grep $EXTENSION
+    php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$EXTENSION}}"
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`php -r "echo '';" 2>&1`
     [[ "$OUTPUT" == "" ]]
     # And now, let's disable it!
-    rm -f /usr/local/etc/php/conf.d/docker-php-ext-$EXTENSION.ini
+    rm -f /etc/php/${PHP_VERSION}/cli/conf.d/*-$EXTENSION.ini
+    rm -f /etc/php/${PHP_VERSION}/apache/conf.d/*-$EXTENSION.ini
+    rm -f /etc/php/${PHP_VERSION}/fpm/conf.d/*-$EXTENSION.ini
 fi
 
 if [ -n "$PECL_EXTENSION" ]; then
     # Let's perform a test
-    PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/testextension.ini
+    PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/cli/conf.d/testextension.ini
     php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$PECL_EXTENSION}}"
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`php -r "echo '';" 2>&1`
     [[ "$OUTPUT" == "" ]]
-    rm /usr/local/etc/php/conf.d/testextension.ini
+    rm /etc/php/${PHP_VERSION}/cli/conf.d/testextension.ini
 fi

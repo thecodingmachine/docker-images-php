@@ -6,8 +6,10 @@ set -e
 touch /opt/container_started
 
 # Let's apply the requested php.ini file
-if [ ! -f /usr/local/etc/php/php.ini ] || [ -L /usr/local/etc/php/php.ini ]; then
-    ln -sf /usr/local/etc/php/php.ini-${TEMPLATE_PHP_INI} /usr/local/etc/php/php.ini
+
+# TODO: APACHE AND PHP-FPM
+if [ ! -f /etc/php/${PHP_VERSION}/cli/php.ini ] || [ -L /etc/php/${PHP_VERSION}/cli/php.ini ]; then
+    ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/cli/php.ini
 fi
 
 # Let's find the user to use for commands.
@@ -106,7 +108,7 @@ fi
 unset DOCKER_FOR_MAC_REMOTE_HOST
 unset REMOTE_HOST_FOUND
 
-php /usr/local/bin/generate_conf.php > /usr/local/etc/php/conf.d/generated_conf.ini
+php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
 php /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab

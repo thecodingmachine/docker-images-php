@@ -1,7 +1,14 @@
-FROM php:7.1-fpm-stretch
+FROM ubuntu:bionic
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
+# Fixes some weird terminal issues such as broken clear / CTRL+L
+ENV TERM=linux
+
+# Ensure apt doesn't ask questions when installing stuff
+ENV DEBIAN_FRONTEND=noninteractive
+
+ENV PHP_VERSION=7.1
 
 # |--------------------------------------------------------------------------
 # | Main PHP extensions
@@ -10,13 +17,32 @@ LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <
 # | Installs the main PHP extensions
 # |
 
-COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
-RUN ln -s 7.1 /usr/local/lib/thecodingmachine-php/extensions/current
-
-# Install php extensions
-RUN apt-get update && apt-get install -y --no-install-recommends git nano sudo iproute2 openssh-client procps unzip
-RUN cd /usr/local/lib/thecodingmachine-php/extensions/current/zip && ./install.sh
-# RUN echo 'extension=zip.so' > /usr/local/etc/php/conf.d/generated_conf.ini
+# Install php an other packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gnupg \
+    && echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu bionic main" > /etc/apt/sources.list.d/ondrej-php.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        nano \
+        sudo \
+        iproute2 \
+        openssh-client \
+        procps \
+        unzip \
+        ca-certificates \
+        curl \
+        php7.1-cli \
+        php7.1-curl \
+        php7.1-json \
+        php7.1-mbstring \
+        php7.1-opcache \
+        php7.1-readline \
+        php7.1-xml \
+        php7.1-zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 # |--------------------------------------------------------------------------
 # | User
@@ -36,10 +62,15 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # | Let's download php.ini for prod and development
 # |
 
-ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-production /usr/local/etc/php/php.ini-production
-ADD https://raw.githubusercontent.com/php/php-src/php-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
-RUN chmod 644 /usr/local/etc/php/php.ini-*
+#ADD https://raw.githubusercontent.com/php/php-src/PHP-7.1/php.ini-production /usr/local/etc/php/php.ini-production
+#ADD https://raw.githubusercontent.com/php/php-src/PHP-7.1/php.ini-development /usr/local/etc/php/php.ini-development
+#RUN chmod 644 /usr/local/etc/php/php.ini-*
+
 ENV TEMPLATE_PHP_INI=development
+
+# Let's remove the default php.ini file (it will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
+
 
 # |--------------------------------------------------------------------------
 # | Composer
@@ -69,7 +100,7 @@ COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 USER docker
 RUN composer global require hirak/prestissimo && \
     composer global require bamarni/symfony-console-autocomplete && \
-    rm -rf $HOME\.composer
+    rm -rf ~/.composer
 
 USER root
 
@@ -149,6 +180,9 @@ COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
 
+COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
+RUN ln -s 7.1 /usr/local/lib/thecodingmachine-php/extensions/current
+
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 
@@ -157,13 +191,16 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["php-fpm"]
 
 
+RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/cli/conf.d/generated_conf.ini
+
 USER docker
 
 COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_extensions.php
+COPY utils/install_selected_extensions.sh /usr/local/bin/install_selected_extensions.sh
 
 ONBUILD ARG PHP_EXTENSIONS
 ONBUILD ENV PHP_EXTENSIONS="$PHP_EXTENSIONS"
-ONBUILD RUN sudo -E PHP_EXTENSIONS="$PHP_EXTENSIONS" php /usr/local/bin/install_selected_extensions.php
+ONBUILD RUN sudo -E PHP_EXTENSIONS="$PHP_EXTENSIONS" /usr/local/bin/install_selected_extensions.sh
 
 # |--------------------------------------------------------------------------
 # | Supercronic

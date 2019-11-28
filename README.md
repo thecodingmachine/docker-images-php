@@ -131,12 +131,11 @@ Below is a list of extensions available in this image:
 
 **Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
 
-**Note**: as of 2018-12-13, PHP 7.3 has just been released and some extensions are not yet ready:
+**Note**: as of 2019-11-28, PHP 7.4 has just been released and some extensions are not yet ready:
 
-- *amqp* extension is not compatible with PHP 7.3 yet
-- *mcrypt* is not available anymore in PHP 7.3
-- *weakref* is not compatible with PHP 7.3 ([there might not be a version for PHP 7.3](https://wiki.php.net/rfc/weakrefs))
-- *xdebug* is provided in version 2.7.0beta1
+- *blackfire* extension is not compatible with PHP 7.4 yet
+- *mcrypt* is not available anymore in PHP 7.3+
+- *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
 
 ### Enabling/disabling extensions in the fat image
 
@@ -159,7 +158,7 @@ services:
 As an alternative, you can use the `PHP_EXTENSIONS` global variable:
 
 ```
-PHP_EXTENSIONS=pgsql gettext imap sockets
+PHP_EXTENSIONS=pgsql gettext imap
 ```
 
 ### Compiling extensions in the slim image
