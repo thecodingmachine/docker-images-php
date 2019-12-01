@@ -1,4 +1,4 @@
-FROM thecodingmachine/php:7.4-v2-apache
+FROM thecodingmachine/php:7.4-v3-apache
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 

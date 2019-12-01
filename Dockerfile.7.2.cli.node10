@@ -1,4 +1,4 @@
-FROM thecodingmachine/php:7.2-v2-cli
+FROM thecodingmachine/php:7.2-v3-cli
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
