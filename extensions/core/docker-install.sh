@@ -35,10 +35,10 @@ if [ -n "$PECL_EXTENSION" ]; then
     fi
 
     pecl install $PECL_EXTENSION
-    echo "extension=${PECL_EXTENSION}.so" > /etc/php/${PHP_VERSION}/mods-available/${PECL_EXTENSION}.ini
+    echo "extension=${PHP_EXT_PHP_NAME:-${PECL_EXTENSION}}.so" > /etc/php/${PHP_VERSION}/mods-available/${PHP_EXT_PHP_NAME:-${PECL_EXTENSION}}.ini
     # Adding this in the list of Ubuntu extensions because we use that list as a base for the modules list.
     # TODO: question: cannot we use /etc/php/mods-available instead???
-    touch /var/lib/php/modules/${PHP_VERSION}/registry/${PECL_EXTENSION}
+    touch /var/lib/php/modules/${PHP_VERSION}/registry/${PHP_EXT_PHP_NAME:-${PECL_EXTENSION}}
 fi
 
 if [ -n "$DEV_DEPENDENCIES" ]; then

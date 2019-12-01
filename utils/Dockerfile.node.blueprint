@@ -2,7 +2,7 @@
 {{- $variant := .Orbit.variant -}}
 {{- $node_version := .Orbit.node_version -}}
 
-FROM thecodingmachine/php:{{ $php_version }}-v2-{{ $variant }}
+FROM thecodingmachine/php:{{ $php_version }}-v3-{{ $variant }}
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
