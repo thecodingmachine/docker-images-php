@@ -16,7 +16,7 @@ This repository contains a set of developer-friendly, general purpose PHP images
 {{ $image := .Orbit.Images }}
 ## Images
 
-{{ $versions := list "7.3" "7.2" "7.1" }}
+{{ $versions := list "7.4" "7.3" "7.2" "7.1" }}
 
 | Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
@@ -84,22 +84,22 @@ RUN npm run build
 
 This image comes with 2 "types": the *slim* and the **fat** image.
 
-The slim image contains no extensions. But it provides a simple way to install them. You would typically use the "slim"
+The slim image contains only a set a base PHP extensions.
+
+Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
+
+The slim image provides a simple way to install the other extensions. You would typically use the "slim"
 image in a `Dockerfile` when building your own custom image.
 
 The fat image contains the most commonly used extensions. You would typically use it in a local or CI environment.
-
-### Compiled extensions
-
-For both types, these extensions are **compiled in PHP** (cannot be disabled): {{ $image.compiled_php_extensions }}
 
 ### Fat image
 
 Below is a list of extensions available in this image:
 
-**Enabled by default:** {{ $image.enabled_php_extensions }}
+**Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
 
-**Available (can be enabled using environment variables):** {{ $image.disabled_php_extensions }}
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml
 
 **Note**: as of 2019-11-28, PHP 7.4 has just been released and some extensions are not yet ready:
 
@@ -136,7 +136,7 @@ PHP_EXTENSIONS=pgsql gettext imap
 If you are using the slim image, you can automatically compile the extensions using the `PHP_EXTENSIONS` ARG in your Dockerfile.
 
 ```Dockerfile
-ARG PHP_EXTENSIONS="apcu mysqli opcache pdo_mysql redis zip soap"
+ARG PHP_EXTENSIONS="apcu mysqli pdo_mysql redis soap"
 FROM thecodingmachine/php:{{ $image.php_version }}-v2-slim-apache
 # The build will automatically trigger the download and compilation
 # of the extensions (thanks to a ONBUILD hook in the slim image)

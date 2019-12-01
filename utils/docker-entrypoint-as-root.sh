@@ -109,6 +109,8 @@ unset DOCKER_FOR_MAC_REMOTE_HOST
 unset REMOTE_HOST_FOUND
 
 php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
+php /usr/local/bin/setup_extensions.php | sudo bash
+
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
 php /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab

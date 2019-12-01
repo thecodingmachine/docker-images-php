@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-export EXTENSION=apcu
+export PECL_EXTENSION=apcu
 
 ../docker-install.sh

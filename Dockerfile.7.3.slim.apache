@@ -3,7 +3,7 @@ FROM ubuntu:bionic
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
 # Fixes some weird terminal issues such as broken clear / CTRL+L
-ENV TERM=linux
+#ENV TERM=linux
 
 # Ensure apt doesn't ask questions when installing stuff
 ENV DEBIAN_FRONTEND=noninteractive
@@ -88,7 +88,41 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 COPY utils/utils.php /usr/local/bin/utils.php
 COPY utils/composer_proxy.sh /usr/local/bin/composer
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
+COPY utils/setup_extensions.php /usr/local/bin/setup_extensions.php
 
+# |--------------------------------------------------------------------------
+# | Default PHP extensions to be enabled
+# | By default, enable all the extensions that are enabled on a base Ubuntu install
+# |--------------------------------------------------------------------------
+ENV PHP_EXTENSION_CALENDAR=1 \
+    PHP_EXTENSION_CTYPE=1 \
+    PHP_EXTENSION_CURL=1 \
+    PHP_EXTENSION_DOM=1 \
+    PHP_EXTENSION_EXIF=1 \
+    PHP_EXTENSION_FILEINFO=1 \
+    PHP_EXTENSION_FTP=1 \
+    PHP_EXTENSION_GETTEXT=1 \
+    PHP_EXTENSION_ICONV=1 \
+    PHP_EXTENSION_JSON=1 \
+    PHP_EXTENSION_MBSTRING=1 \
+    PHP_EXTENSION_OPCACHE=1 \
+    PHP_EXTENSION_PDO=1 \
+    PHP_EXTENSION_PHAR=1 \
+    PHP_EXTENSION_POSIX=1 \
+    PHP_EXTENSION_READLINE=1 \
+    PHP_EXTENSION_SHMOP=1 \
+    PHP_EXTENSION_SIMPLEXML=1 \
+    PHP_EXTENSION_SOCKETS=1 \
+    PHP_EXTENSION_SYSVMSG=1 \
+    PHP_EXTENSION_SYSVSEM=1 \
+    PHP_EXTENSION_SYSVSHM=1 \
+    PHP_EXTENSION_TOKENIZER=1 \
+    PHP_EXTENSION_WDDX=1 \
+    PHP_EXTENSION_XML=1 \
+    PHP_EXTENSION_XMLREADER=1 \
+    PHP_EXTENSION_XMLWRITER=1 \
+    PHP_EXTENSION_XSL=1 \
+    PHP_EXTENSION_ZIP=1
 
 # |--------------------------------------------------------------------------
 # | prestissimo

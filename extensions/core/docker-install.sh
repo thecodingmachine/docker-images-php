@@ -35,6 +35,10 @@ if [ -n "$PECL_EXTENSION" ]; then
     fi
 
     pecl install $PECL_EXTENSION
+    echo "extension=${PECL_EXTENSION}.so" > /etc/php/${PHP_VERSION}/mods-available/${PECL_EXTENSION}.ini
+    # Adding this in the list of Ubuntu extensions because we use that list as a base for the modules list.
+    # TODO: question: cannot we use /etc/php/mods-available instead???
+    touch /var/lib/php/modules/${PHP_VERSION}/registry/${PECL_EXTENSION}
 fi
 
 if [ -n "$DEV_DEPENDENCIES" ]; then
@@ -55,10 +59,12 @@ fi
 
 if [ -n "$PECL_EXTENSION" ]; then
     # Let's perform a test
+    PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" php /usr/local/bin/setup_extensions.php | bash
     PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/cli/conf.d/testextension.ini
     php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$PECL_EXTENSION}}"
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`php -r "echo '';" 2>&1`
     [[ "$OUTPUT" == "" ]]
+    PHP_EXTENSIONS="" php /usr/local/bin/setup_extensions.php | bash
     rm /etc/php/${PHP_VERSION}/cli/conf.d/testextension.ini
 fi

@@ -20,6 +20,21 @@ This repository contains a set of developer-friendly, general purpose PHP images
 
 | Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
+| [thecodingmachine/php:7.4-v2-apache](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.apache)             | `7.4.x` | fat | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-apache.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-apache)
+| [thecodingmachine/php:7.4-v2-apache-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.apache.node8) | `7.4.x` | fat | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-apache-node8)
+| [thecodingmachine/php:7.4-v2-apache-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.apache.node10) | `7.4.x` | fat | apache  | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-apache-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-apache-node10)
+| [thecodingmachine/php:7.4-v2-apache-node12](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.apache.node12) | `7.4.x` | fat | apache  | `12.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-apache-node12.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-apache-node12)
+| [thecodingmachine/php:7.4-v2-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.fpm)                   | `7.4.x` | fat | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-fpm)
+| [thecodingmachine/php:7.4-v2-fpm-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.fpm.node8)       | `7.4.x` | fat | fpm     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-fpm-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-fpm-node8)
+| [thecodingmachine/php:7.4-v2-fpm-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.fpm.node10)       | `7.4.x` | fat | fpm     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-fpm-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-fpm-node10)
+| [thecodingmachine/php:7.4-v2-fpm-node12](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.fpm.node12)       | `7.4.x` | fat | fpm     | `12.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-fpm-node12.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-fpm-node12)
+| [thecodingmachine/php:7.4-v2-cli](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.cli)                   | `7.4.x` | fat | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-cli.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-cli)
+| [thecodingmachine/php:7.4-v2-cli-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.cli.node8)       | `7.4.x` | fat | cli     | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-cli-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-cli-node8)
+| [thecodingmachine/php:7.4-v2-cli-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.cli.node10)       | `7.4.x` | fat | cli     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-cli-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-cli-node10)
+| [thecodingmachine/php:7.4-v2-cli-node12](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.cli.node12)       | `7.4.x` | fat | cli     | `12.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-cli-node12.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-cli-node12)
+| [thecodingmachine/php:7.4-v2-slim-apache](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.slim.apache)             | `7.4.x` | slim | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-slim-apache)
+| [thecodingmachine/php:7.4-v2-slim-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.slim.fpm)                   | `7.4.x` | slim | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-slim-fpm)
+| [thecodingmachine/php:7.4-v2-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.4.slim.cli)                   | `7.4.x` | slim | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.4-v2-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:7.4-v2-slim-cli)
 | [thecodingmachine/php:7.3-v2-apache](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.apache)             | `7.3.x` | fat | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-apache.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-apache)
 | [thecodingmachine/php:7.3-v2-apache-node8](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.apache.node8) | `7.3.x` | fat | apache  | `8.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-apache-node8.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-apache-node8)
 | [thecodingmachine/php:7.3-v2-apache-node10](https://github.com/thecodingmachine/docker-images-php/blob/v2/Dockerfile.7.3.apache.node10) | `7.3.x` | fat | apache  | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.3-v2-apache-node10.svg)](https://microbadger.com/images/thecodingmachine/php:7.3-v2-apache-node10)
@@ -83,26 +98,26 @@ These images are based on the [official PHP image](https://hub.docker.com/_/php/
 Example with CLI:
 
 ```bash
-$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:7.2-v2-cli php your-script.php
+$ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:7.4-v2-cli php your-script.php
 ```
 
 Example with Apache:
 
 ```bash
-$ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:7.2-v2-apache
+$ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:7.4-v2-apache
 ```
 
 Example with PHP-FPM:
 
 ```bash
-$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/7.2-v2-fpm
+$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/7.4-v2-fpm
 ```
 
 Example with Apache + Node 8.x in a Dockerfile:
 
 **Dockerfile**
 ```Dockerfile
-FROM thecodingmachine/php:7.2-v2-apache-node8
+FROM thecodingmachine/php:7.4-v2-apache-node8
 
 COPY src/ /var/www/html/
 RUN composer install
@@ -114,22 +129,22 @@ RUN npm run build
 
 This image comes with 2 "types": the *slim* and the **fat** image.
 
-The slim image contains no extensions. But it provides a simple way to install them. You would typically use the "slim"
+The slim image contains only a set a base PHP extensions.
+
+Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
+
+The slim image provides a simple way to install the other extensions. You would typically use the "slim"
 image in a `Dockerfile` when building your own custom image.
 
 The fat image contains the most commonly used extensions. You would typically use it in a local or CI environment.
-
-### Compiled extensions
-
-For both types, these extensions are **compiled in PHP** (cannot be disabled): mbstring ftp mysqlnd
 
 ### Fat image
 
 Below is a list of extensions available in this image:
 
-**Enabled by default:** apcu mysqli opcache pdo_mysql redis zip soap
+**Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole sysvmsg sysvsem sysvshm tidy wddx weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml
 
 **Note**: as of 2019-11-28, PHP 7.4 has just been released and some extensions are not yet ready:
 
@@ -147,7 +162,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:7.2-v2-apache-node8
+    image: thecodingmachine/php:7.4-v2-apache-node8
     environment:
       # Enable the PostgreSQL extension
       PHP_EXTENSION_PGSQL: 1
@@ -166,8 +181,8 @@ PHP_EXTENSIONS=pgsql gettext imap
 If you are using the slim image, you can automatically compile the extensions using the `PHP_EXTENSIONS` ARG in your Dockerfile.
 
 ```Dockerfile
-ARG PHP_EXTENSIONS="apcu mysqli opcache pdo_mysql redis zip soap"
-FROM thecodingmachine/php:7.2-v2-slim-apache
+ARG PHP_EXTENSIONS="apcu mysqli pdo_mysql redis soap"
+FROM thecodingmachine/php:7.4-v2-slim-apache
 # The build will automatically trigger the download and compilation
 # of the extensions (thanks to a ONBUILD hook in the slim image)
 ```
@@ -205,7 +220,7 @@ not contain Node, and contains only required extensions.
 
 ## Setting parameters in php.ini
 
-By default, the base `php.ini` file used is the [*development* php.ini](https://github.com/php/php-src/blob/PHP-7.2/php.ini-development) file that comes with PHP. 
+By default, the base `php.ini` file used is the [*development* php.ini](https://github.com/php/php-src/blob/PHP-7.4/php.ini-development) file that comes with PHP. 
 
 You can use the production `php.ini` file using the `TEMPLATE_PHP_INI` environment variable:
 
@@ -220,7 +235,7 @@ You can override parameters in `php.ini` using the PHP_INI_XXX environment varia
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:7.2-v2-apache-node8
+    image: thecodingmachine/php:7.4-v2-apache-node8
     environment:
       # set the parameter memory_limit=1g
       PHP_INI_MEMORY_LIMIT: 1g
@@ -273,7 +288,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:7.2-v2-apache-node8
+    image: thecodingmachine/php:7.4-v2-apache-node8
     environment:
       # Enable the DAV extension for Apache
       APACHE_EXTENSION_DAV: 1
@@ -316,7 +331,7 @@ If you use the *slim* images, you can install a NodeJS version with a simple ARG
 
 ```Dockerfile
 ARG NODE_VERSION=10
-FROM thecodingmachine/php:7.2-v2-slim-apache
+FROM thecodingmachine/php:7.4-v2-slim-apache
 # The build will automatically trigger the download of Node 10
 # (thanks to a ONBUILD hook in the slim image)
 ```
@@ -369,7 +384,7 @@ This can be done easily:
 
 **Dockerfile**
 ```
-FROM thecodingmachine/php:7.2-v2-apache
+FROM thecodingmachine/php:7.4-v2-apache
 
 # ...
 
@@ -413,7 +428,7 @@ a single argument before the "FROM" clause in your Dockerfile:
 
 ```Dockerfile
 ARG INSTALL_CRON=1
-FROM thecodingmachine/php:7.2-v2-slim-apache
+FROM thecodingmachine/php:7.4-v2-slim-apache
 # The build triggers automatically the installation of Cron
 ```
 
@@ -451,7 +466,7 @@ If such a file is mounted in the image, it will be executed on container startup
 
 ```bash
 docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp \ 
-       -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:7.2-v2-cli php your-script.php 
+       -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:7.4-v2-cli php your-script.php 
 ```
 
 ## Using the CLI variant
@@ -464,7 +479,7 @@ Important! You should not override the Docker "entrypoint".
 **Usage in a Dockerfile:**
 
 ```Dockerfile
-FROM thecodingmachine/php:7.2-v2-cli
+FROM thecodingmachine/php:7.4-v2-cli
 
 CMD ["php", "myprogram.php", "some_param"]
 ```
@@ -476,7 +491,7 @@ CMD ["php", "myprogram.php", "some_param"]
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:7.2-v2-cli
+    image: thecodingmachine/php:7.4-v2-cli
     command: php myprogram.php some_param
 ```
 
@@ -496,7 +511,7 @@ This option is the easiest way to go if you are using the image on a development
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:7.2-v2-apache-node8
+    image: thecodingmachine/php:7.4-v2-apache-node8
     volumes:
       - ~/.ssh:/home/docker/.ssh
 ```
@@ -517,7 +532,7 @@ Now, let's write a Dockerfile.
 
 **Dockerfile**
 ```yml
-FROM thecodingmachine/php:7.2-v2-apache
+FROM thecodingmachine/php:7.4-v2-apache
 
 ARG SSH_PRIVATE_KEY
 ARG SSH_KNOWN_HOSTS
@@ -555,7 +570,7 @@ kind: Pod
 spec:
   containers:
   - name: foobar
-    image: thecodingmachine/php:7.2-v2-apache
+    image: thecodingmachine/php:7.4-v2-apache
     securityContext:
       allowPrivilegeEscalation: true # never use "false" here.
 ```
@@ -577,7 +592,7 @@ Your `docker-compose.yml` file will typically look like this:
 version: '3.3'
 services:
   php:
-    image: thecodingmachine/php:7.2-v2-apache
+    image: thecodingmachine/php:7.4-v2-apache
     ports:
       - "80:80"
     environment:
@@ -603,7 +618,7 @@ If for some reason, the container name is not "blackfire", you can customize the
 version: '3.3'
 services:
   php:
-    image: thecodingmachine/php:7.2-v2-apache
+    image: thecodingmachine/php:7.4-v2-apache
     environment:
       PHP_EXTENSION_BLACKFIRE: 1
       BLACKFIRE_AGENT: myblackfire
@@ -634,7 +649,7 @@ This command will generate all the files from the "blueprint" templates.
 You can then test your changes using the `build-and-test.sh` command:
 
 ```bash
-PHP_VERSION=7.2 BRANCH=v2 VARIANT=apache ./build-and-test.sh
+PHP_VERSION=7.4 BRANCH=v2 VARIANT=apache ./build-and-test.sh
 ```
 
 ### Adding additional images
