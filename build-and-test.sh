@@ -6,7 +6,7 @@ set -xe
 export BRANCH_VARIANT=`echo "$VARIANT" | sed 's/\./-/g'`
 
 # Let's build the "slim" image.
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.slim.${VARIANT} .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} -f Dockerfile.${PHP_VERSION}.slim.${VARIANT} .
 
 # Post build unit tests
 
@@ -44,10 +44,12 @@ RESULT=`docker run --rm -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${P
 RESULT=`docker run --rm -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} composer update -vvv`
 sudo rm -rf user33
 
-# Let's check that mbstring is enabled by default (they are compiled in PHP)
+# Let's check that mbstring, mysqlnd and ftp are enabled by default (they are compiled in PHP)
 docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep mbstring
+docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep mysqlnd
+docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep ftp
 docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep PDO
-#docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep pdo_sqlite
+docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep pdo_sqlite
 
 if [[ $VARIANT == apache* ]]; then
     # Test if environment variables are passed to PHP
@@ -57,23 +59,6 @@ if [[ $VARIANT == apache* ]]; then
     sleep 5
 
     RESULT=`curl http://localhost:81/tests/test.php`
-    [[ "$RESULT" = "foo" ]]
-    docker stop $DOCKER_CID
-
-
-    # Test Apache document root (relative)
-    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html -e APACHE_DOCUMENT_ROOT=tests thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
-    # Let's wait for Apache to start
-    sleep 5
-    RESULT=`curl http://localhost:81/test.php`
-    [[ "$RESULT" = "foo" ]]
-    docker stop $DOCKER_CID
-
-    # Test Apache document root (absolute)
-    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/foo -e APACHE_DOCUMENT_ROOT=/var/www/foo/tests thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
-    # Let's wait for Apache to start
-    sleep 5
-    RESULT=`curl http://localhost:81/test.php`
     [[ "$RESULT" = "foo" ]]
     docker stop $DOCKER_CID
 fi
@@ -91,7 +76,7 @@ RESULT=`docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRA
 RESULT=`docker run --rm -e TEMPLATE_PHP_INI=production thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
 [[ "$RESULT" = "error_reporting => 22527 => 22527" ]]
 
-RESULT=`docker run --rm -v $(pwd)/tests/php.ini:/etc/php/${PHP_VERSION}/cli/php.ini thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
+RESULT=`docker run --rm -v $(pwd)/tests/php.ini:/usr/local/etc/php/php.ini thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
 [[ "$RESULT" = "error_reporting => 24575 => 24575" ]]
 
 RESULT=`docker run --rm -e PHP_INI_ERROR_REPORTING="E_ERROR | E_WARNING" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
@@ -115,7 +100,7 @@ docker run --rm -v $PWD/tests/startup.sh:/etc/container/startup.sh thecodingmach
 #################################
 # Let's build the "fat" image
 #################################
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT} .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} -f Dockerfile.${PHP_VERSION}.${VARIANT} .
 
 # Let's check that the crons are actually sending logs in the right place
 RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1`
@@ -142,14 +127,13 @@ set -e
 # Let's check that the "xdebug.remote_host" contains a value different from "no value"
 docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.remote_host| grep -v "no value"
 
-if [[ "${PHP_VERSION}" != "7.4" ]]; then
-  # Tests that blackfire + xdebug will output an error
-  RESULT=`docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.'`
-  [[ "$RESULT" = "WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire." ]]
+# Tests that blackfire + xdebug will output an error
+RESULT=`docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.'`
+[[ "$RESULT" = "WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire." ]]
 
-  # Check that blackfire can be enabled
-  docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep blackfire
-fi
+# Check that blackfire can be enabled
+docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -m | grep blackfire
+
 # Let's check that the extensions are enabled when composer is run
 docker build -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
 
@@ -160,8 +144,8 @@ docker rmi test/composer_with_gd
 #################################
 # Let's build the "node" images
 #################################
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node8 --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT}.node8 .
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10 --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT}.node10 .
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12 --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT}.node12 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node8 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node8 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node10 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12 -f Dockerfile.${PHP_VERSION}.${VARIANT}.node12 .
 
 echo "Tests passed with success"

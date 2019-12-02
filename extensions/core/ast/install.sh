@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-export EXTENSION=ast
+export PECL_EXTENSION=ast
 
 ../docker-install.sh
