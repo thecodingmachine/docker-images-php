@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
 set -e
-export PECL_EXTENSION=memcached
-export DEV_DEPENDENCIES="libmemcached-dev zlib1g-dev"
-export DEPENDENCIES="libmemcached11 libmemcachedutil2 zlib1g"
+export DEPENDENCIES="php-igbinary php-msgpack"
+export EXTENSION=memcached
+
+# we need to do some weird stuff to get memcached working
+phpdismod igbinary
+phpenmod igbinary
 
 ../docker-install.sh
+
+phpdismod igbinary

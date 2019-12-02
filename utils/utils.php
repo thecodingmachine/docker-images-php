@@ -10,7 +10,7 @@ define('EXTENSIONS_INSTALL_DIR', '/usr/local/lib/thecodingmachine-php/extensions
  */
 function getAvailableExtensions(): array
 {
-    return array_map(function(string $fileName) { return substr(basename($fileName), 0, -3);}, glob('/usr/local/lib/php/extensions/*/*.so'));
+    return array_map(function(string $fileName) { return basename($fileName);}, glob('/var/lib/php/modules/'.getenv('PHP_VERSION').'/registry/*'));
 }
 
 /**
