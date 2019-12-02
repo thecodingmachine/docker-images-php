@@ -3,7 +3,8 @@
 ARG INSTALL_CRON=1
 ARG INSTALL_COMPOSER=1
 ARG PHP_VERSION
-FROM thecodingmachine/php:${PHP_VERSION}-v3-slim-{{ $variant }}
+ARG GLOBAL_VERSION
+FROM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-slim-{{ $variant }}
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 

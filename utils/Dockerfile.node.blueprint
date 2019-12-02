@@ -2,7 +2,8 @@
 {{- $node_version := .Orbit.node_version -}}
 
 ARG PHP_VERSION
-FROM thecodingmachine/php:${PHP_VERSION}-v3-{{ $variant }}
+ARG GLOBAL_VERSION
+FROM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-{{ $variant }}
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 

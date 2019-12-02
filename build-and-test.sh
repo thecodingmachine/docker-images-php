@@ -6,7 +6,7 @@ set -xe
 export BRANCH_VARIANT=`echo "$VARIANT" | sed 's/\./-/g'`
 
 # Let's build the "slim" image.
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} --build-arg PHP_VERSION=${PHP_VERSION} -f Dockerfile.slim.${VARIANT} .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.slim.${VARIANT} .
 
 # Post build unit tests
 
@@ -98,7 +98,7 @@ docker run --rm -v $PWD/tests/startup.sh:/etc/container/startup.sh thecodingmach
 #################################
 # Let's build the "fat" image
 #################################
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} --build-arg PHP_VERSION=${PHP_VERSION} -f Dockerfile.${VARIANT} .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT} .
 
 # Let's check that the crons are actually sending logs in the right place
 RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1`
@@ -143,8 +143,8 @@ docker rmi test/composer_with_gd
 #################################
 # Let's build the "node" images
 #################################
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node8 --build-arg PHP_VERSION=${PHP_VERSION} -f Dockerfile.${VARIANT}.node8 .
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10 --build-arg PHP_VERSION=${PHP_VERSION} -f Dockerfile.${VARIANT}.node10 .
-docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12 --build-arg PHP_VERSION=${PHP_VERSION} -f Dockerfile.${VARIANT}.node12 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node8 --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT}.node8 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10 --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT}.node10 .
+docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12 --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.${VARIANT}.node12 .
 
 echo "Tests passed with success"
