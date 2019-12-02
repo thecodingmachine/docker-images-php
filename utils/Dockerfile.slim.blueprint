@@ -142,7 +142,7 @@ RUN composer global require hirak/prestissimo && \
 USER root
 
 {{if eq $variant "apache" }}
-ENV APACHE_DOCUMENT_ROOT /
+ENV APACHE_DOCUMENT_ROOT=
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends apache2 \
@@ -150,8 +150,8 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-RUN sed -ri -e 's!/var/www/html!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!/var/www/html/${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite

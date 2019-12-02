@@ -131,6 +131,12 @@ if [ -e /etc/container/startup.sh ]; then
 fi
 sudo -E -u "#$DOCKER_USER_ID" sh -c "php /usr/local/bin/startup_commands.php | bash"
 
+if [[ "$APACHE_DOCUMENT_ROOT" == /* ]]; then
+  export ABSOLUTE_APACHE_DOCUMENT_ROOT="$APACHE_DOCUMENT_ROOT"
+else
+  export ABSOLUTE_APACHE_DOCUMENT_ROOT="/var/www/html/$APACHE_DOCUMENT_ROOT"
+fi
+
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
 if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;

@@ -165,7 +165,7 @@ RUN composer install &&\
 FROM thecodingmachine/php:7.2-v3-slim-apache
 
 ENV APP_ENV=prod \
-    APACHE_DOCUMENT_ROOT=/public
+    APACHE_DOCUMENT_ROOT=public/
 
 COPY --from=builder /var/www/html .
 ```
@@ -231,6 +231,15 @@ For the *apache* variant, you can change the document root of Apache (i.e. your 
 ```
 # The root of your website is in the "public" directory:
 APACHE_DOCUMENT_ROOT=public/
+```
+
+If the APACHE_DOCUMENT_ROOT starts with a "/", it will be considered an absolute path.
+If the APACHE_DOCUMENT_ROOT does not starts with a "/", it will be a path relative to "/var/www/html".
+
+```
+# These 2 variables are identical
+APACHE_DOCUMENT_ROOT=public/
+APACHE_DOCUMENT_ROOT=/var/www/html/public
 ```
 
 ## Enabling/disabling Apache extensions
