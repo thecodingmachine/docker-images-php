@@ -165,7 +165,7 @@ RUN a2enmod rewrite
 
 {{if eq $variant "fpm" }}
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends php-fpm \
+    && apt-get install -y --no-install-recommends php${PHP_VERSION}-fpm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 {{end}}
