@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-export EXTENSION=mongodb
+export PECL_EXTENSION=mongodb
 
 ../docker-install.sh

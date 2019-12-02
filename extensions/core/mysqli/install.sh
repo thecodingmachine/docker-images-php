@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-export EXTENSION=mysql
+export EXTENSION=mysqli
 
 ../docker-install.sh

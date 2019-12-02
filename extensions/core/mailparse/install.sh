@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 set -e
-EXTENSION=mailparse ../docker-install.sh
+PECL_EXTENSION=mailparse ../docker-install.sh
