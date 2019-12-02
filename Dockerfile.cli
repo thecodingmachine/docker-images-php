@@ -1,9 +1,7 @@
-{{- $variant := .Orbit.variant -}}
-
 ARG INSTALL_CRON=1
 ARG INSTALL_COMPOSER=1
 ARG PHP_VERSION
-FROM thecodingmachine/php:${PHP_VERSION}-v3-slim-{{ $variant }}
+FROM thecodingmachine/php:${PHP_VERSION}-v3-slim-cli
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
