@@ -151,6 +151,9 @@ RUN apt-get update \
 RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+COPY utils/apache-docker-php.conf /etc/apache2/conf-available/docker-php.conf
+RUN a2enconf docker-php
+
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite
 # |--------------------------------------------------------------------------
