@@ -76,6 +76,14 @@ if [[ $VARIANT == apache* ]]; then
     RESULT=`curl http://localhost:81/test.php`
     [[ "$RESULT" = "foo" ]]
     docker stop $DOCKER_CID
+
+    # Test Apache HtAccess
+    DOCKER_CID=`docker run --rm -p "81:80" -d -v $(pwd)/tests/testHtAccess:/foo -e APACHE_DOCUMENT_ROOT=/foo thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    # Let's wait for Apache to start
+    sleep 5
+    RESULT=`curl http://localhost:81/`
+    [[ "$RESULT" = "foo" ]]
+    docker stop $DOCKER_CID
 fi
 
 # Let's check that the access to cron will fail with a message
