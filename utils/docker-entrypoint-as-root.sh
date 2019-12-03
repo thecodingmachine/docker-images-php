@@ -140,7 +140,7 @@ fi
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
 if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
-    exec "/usr/sbin/apache2ctl" "-DFOREGROUND";
+    exec "$@";
 else
     exec "sudo" "-E" "-H" "-u" "#$DOCKER_USER_ID" "$@";
 fi
