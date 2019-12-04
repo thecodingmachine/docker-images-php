@@ -135,7 +135,7 @@ ENV PHP_EXTENSION_CALENDAR=1 \
 USER docker
 RUN composer global require hirak/prestissimo && \
     composer global require bamarni/symfony-console-autocomplete && \
-    rm -rf ~/.composer
+    rm -rf ~/.composer/cache
 
 USER root
 
