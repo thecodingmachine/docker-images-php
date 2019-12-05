@@ -72,14 +72,6 @@ ENV TEMPLATE_PHP_INI=development
 # Let's remove the default CLI php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
-
-# Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
-RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
-
-
-
-
-
 # |--------------------------------------------------------------------------
 # | Composer
 # |--------------------------------------------------------------------------
@@ -209,6 +201,8 @@ ENV APACHE_DOCUMENT_ROOT=
 RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+# Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
 
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite

@@ -74,17 +74,6 @@ ENV TEMPLATE_PHP_INI=development
 # Let's remove the default CLI php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
-{{if eq $variant "apache" }}
-# Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
-RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
-{{end}}
-
-{{if eq $variant "fpm" }}
-# Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
-RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
-{{end}}
-
-
 # |--------------------------------------------------------------------------
 # | Composer
 # |--------------------------------------------------------------------------
@@ -214,6 +203,8 @@ ENV APACHE_DOCUMENT_ROOT=
 RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+# Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
 
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite
@@ -230,6 +221,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends php${PHP_VERSION}-fpm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+# Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
 {{end}}
 
 

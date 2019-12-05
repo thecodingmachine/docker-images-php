@@ -72,11 +72,6 @@ ENV TEMPLATE_PHP_INI=development
 # Let's remove the default CLI php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
-
-
-
-
-
 # |--------------------------------------------------------------------------
 # | Composer
 # |--------------------------------------------------------------------------
