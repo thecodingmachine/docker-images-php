@@ -69,9 +69,15 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENV TEMPLATE_PHP_INI=development
 
-# Let's remove the default php.ini files (they will be copied from TEMPLATE_PHP_INI)
-RUN rm /etc/php/${PHP_VERSION}/cli/php.ini &&\
-    rm /etc/php/${PHP_VERSION}/apache2/php.ini
+# Let's remove the default CLI php.ini file (it will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
+
+
+
+
+# Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
+
 
 
 # |--------------------------------------------------------------------------
