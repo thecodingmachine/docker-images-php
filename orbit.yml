@@ -34,5 +34,4 @@ tasks:
       - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.fpm.node8 -p "variant,fpm;node_version,8"
       - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.fpm.node10 -p "variant,fpm;node_version,10"
       - orbit generate -f utils/Dockerfile.node.blueprint -o Dockerfile.fpm.node12 -p "variant,fpm;node_version,12"
-
       - orbit generate -f utils/README.blueprint.md -o README.md

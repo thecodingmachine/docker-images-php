@@ -7,9 +7,16 @@ touch /opt/container_started
 
 # Let's apply the requested php.ini file
 
-# TODO: APACHE AND PHP-FPM
 if [ ! -f /etc/php/${PHP_VERSION}/cli/php.ini ] || [ -L /etc/php/${PHP_VERSION}/cli/php.ini ]; then
     ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/cli/php.ini
+fi
+
+if [[ "$IMAGE_VARIANT" == "apache" ]]; then
+    ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/apache2/php.ini
+fi
+
+if [[ "$IMAGE_VARIANT" == "fpm" ]]; then
+    ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/fpm/php.ini
 fi
 
 # Let's find the user to use for commands.
