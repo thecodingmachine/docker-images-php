@@ -71,8 +71,9 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENV TEMPLATE_PHP_INI=development
 
-# Let's remove the default php.ini file (it will be copied from TEMPLATE_PHP_INI)
-RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
+# Let's remove the default php.ini files (they will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/cli/php.ini &&\
+    rm /etc/php/${PHP_VERSION}/apache2/php.ini
 
 
 # |--------------------------------------------------------------------------
@@ -323,7 +324,7 @@ CMD ["apache2-foreground"]
 # | Entrypoint
 # |--------------------------------------------------------------------------
 # |
-# | Defines Apache user. Bu default, we switch this to "docker" user.
+# | Defines Apache user. By default, we switch this to "docker" user.
 # | This way, no problem to write from Apache in the current working directory.
 # | Important! This should be changed back to www-data in production.
 # |
