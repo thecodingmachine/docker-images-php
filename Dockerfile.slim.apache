@@ -325,6 +325,12 @@ ENV APACHE_RUN_USER=docker \
 
 RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/cli/conf.d/generated_conf.ini
 
+
+RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/apache2/conf.d/generated_conf.ini
+
+
+
+
 USER docker
 
 COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_extensions.php
