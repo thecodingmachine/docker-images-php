@@ -133,6 +133,8 @@ The slim image contains only a set a base PHP extensions.
 
 Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
 
+These extensions are enabled by default.
+
 The slim image provides a simple way to install the other extensions. You would typically use the "slim"
 image in a `Dockerfile` when building your own custom image.
 
