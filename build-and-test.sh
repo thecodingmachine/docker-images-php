@@ -84,6 +84,14 @@ if [[ $VARIANT == apache* ]]; then
     RESULT=`curl http://localhost:81/`
     [[ "$RESULT" = "foo" ]]
     docker stop $DOCKER_CID
+
+    # Test PHP_INI_... variables are correctly handled by apache
+    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html -e PHP_INI_MEMORY_LIMIT=2G thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    # Let's wait for Apache to start
+    sleep 5
+    RESULT=`curl http://localhost:81/tests/apache/echo_memory_limit.php`
+    [[ "$RESULT" = "2G" ]]
+    docker stop $DOCKER_CID
 fi
 
 # Let's check that the access to cron will fail with a message
