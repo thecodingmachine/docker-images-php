@@ -148,6 +148,7 @@ RUN apt-get update \
 
 # Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
+RUN ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
 
 
 
