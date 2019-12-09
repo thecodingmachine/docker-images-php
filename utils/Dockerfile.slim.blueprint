@@ -224,6 +224,7 @@ RUN apt-get update \
 
 # Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
+RUN ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
 {{end}}
 
 
@@ -343,6 +344,14 @@ CMD ["php-fpm"]
 {{end}}
 
 RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/cli/conf.d/generated_conf.ini
+
+{{if eq $variant "apache" }}
+RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/apache2/conf.d/generated_conf.ini
+{{end}}
+{{if eq $variant "fpm" }}
+RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/fpm/conf.d/generated_conf.ini
+{{end}}
+
 
 USER docker
 
