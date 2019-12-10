@@ -225,6 +225,8 @@ RUN apt-get update \
 # Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
 RUN ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
+COPY utils/fpm-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf
+COPY utils/fpm-zz-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker.conf
 {{end}}
 
 
@@ -349,7 +351,11 @@ RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /et
 RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/apache2/conf.d/generated_conf.ini
 {{end}}
 {{if eq $variant "fpm" }}
-RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/fpm/conf.d/generated_conf.ini
+RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/fpm/conf.d/generated_conf.ini && \
+    sed -i 's/^user = www-data/;user = www-data/g' /etc/php/7.4/fpm/pool.d/www.conf && \
+    sed -i 's/^group = www-data/;group = www-data/g' /etc/php/7.4/fpm/pool.d/www.conf && \
+    sed -i 's#listen = /run/php/php7.4-fpm.sock#;listen = /run/php/php7.4-fpm.sock#g' /etc/php/7.4/fpm/pool.d/www.conf && \
+    sed -i 's#pid = /run/php/php7.4-fpm.pid#;pid = /run/php/php7.4-fpm.pid#g' /etc/php/7.4/fpm/php-fpm.conf
 {{end}}
 
 
