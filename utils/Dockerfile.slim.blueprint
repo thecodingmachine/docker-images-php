@@ -225,6 +225,8 @@ RUN apt-get update \
 # Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
 RUN ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
+COPY utils/fpm-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf
+COPY utils/fpm-zz-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker.conf
 {{end}}
 
 
@@ -349,7 +351,15 @@ RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /et
 RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/apache2/conf.d/generated_conf.ini
 {{end}}
 {{if eq $variant "fpm" }}
-RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/fpm/conf.d/generated_conf.ini
+RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/fpm/conf.d/generated_conf.ini && \
+    sed -i 's/^user = www-data/;user = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i 's/^group = www-data/;group = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i 's#listen = /run/php/php${PHP_VERSION}-fpm.sock#;listen = /run/php/php${PHP_VERSION}-fpm.sock#g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i "s#pid = /run/php/php${PHP_VERSION}-fpm.pid#;pid = /run/php/php${PHP_VERSION}-fpm.pid#g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf && \
+    if [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then \
+        sed -i 's/^log_limit =/;log_limit =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf && \
+        sed -i 's/^decorate_workers_output =/;decorate_workers_output =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf; \
+    fi
 {{end}}
 
 

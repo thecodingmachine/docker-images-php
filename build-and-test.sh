@@ -94,6 +94,17 @@ if [[ $VARIANT == apache* ]]; then
     docker stop $DOCKER_CID
 fi
 
+if [[ $VARIANT == fpm* ]]; then
+    # Test if environment starts without errors
+    DOCKER_CID=`docker run --rm -p "9000:9000" -d -v $(pwd):/var/www/html thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+
+    # Let's wait for FPM to start
+    sleep 5
+
+    # If the container is still up, it will not fail when stopping.
+    docker stop $DOCKER_CID
+fi
+
 # Let's check that the access to cron will fail with a message
 set +e
 RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo "foobar")" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} sleep 1 2>&1 | grep -o 'Cron is not available in this image'`
