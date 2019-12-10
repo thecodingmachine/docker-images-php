@@ -248,10 +248,10 @@ RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /et
 
 
 RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/fpm/conf.d/generated_conf.ini && \
-    sed -i 's/^user = www-data/;user = www-data/g' /etc/php/7.4/fpm/pool.d/www.conf && \
-    sed -i 's/^group = www-data/;group = www-data/g' /etc/php/7.4/fpm/pool.d/www.conf && \
-    sed -i 's#listen = /run/php/php7.4-fpm.sock#;listen = /run/php/php7.4-fpm.sock#g' /etc/php/7.4/fpm/pool.d/www.conf && \
-    sed -i 's#pid = /run/php/php7.4-fpm.pid#;pid = /run/php/php7.4-fpm.pid#g' /etc/php/7.4/fpm/php-fpm.conf
+    sed -i 's/^user = www-data/;user = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i 's/^group = www-data/;group = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i 's#listen = /run/php/php${PHP_VERSION}-fpm.sock#;listen = /run/php/php${PHP_VERSION}-fpm.sock#g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i "s#pid = /run/php/php${PHP_VERSION}-fpm.pid#;pid = /run/php/php${PHP_VERSION}-fpm.pid#g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf
 
 
 
