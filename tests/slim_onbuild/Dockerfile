@@ -2,5 +2,5 @@ ARG BRANCH
 ARG BRANCH_VARIANT
 ARG PHP_VERSION
 
-ARG PHP_EXTENSIONS="xdebug pdo_pgsql"
+ARG PHP_EXTENSIONS="xdebug pdo_pgsql pdo_sqlite"
 FROM thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
