@@ -15,6 +15,7 @@ docker build -t test/slim_onbuild --build-arg PHP_VERSION="${PHP_VERSION}" --bui
 # This should run ok (the sudo disable environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/slim_onbuild php -m | grep sockets
 docker run --rm test/slim_onbuild php -m | grep xdebug
+docker run --rm test/slim_onbuild php -m | grep pdo_pgsql
 docker rmi test/slim_onbuild
 
 # Post build unit tests
