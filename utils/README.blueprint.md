@@ -595,6 +595,10 @@ services:
         # ...
 ```
 
+## Migrating from v2
+
+Check the [migration notes](MIGRATING.md).
+
 ## Contributing
 
 There is one branch per minor PHP version and version of the image.
