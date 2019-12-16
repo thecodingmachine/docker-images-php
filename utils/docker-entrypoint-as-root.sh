@@ -8,7 +8,7 @@ touch /opt/container_started
 # Let's apply the requested php.ini file
 
 if [ ! -f /etc/php/${PHP_VERSION}/cli/php.ini ] || [ -L /etc/php/${PHP_VERSION}/cli/php.ini ]; then
-    ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/cli/php.ini
+    ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI}.cli /etc/php/${PHP_VERSION}/cli/php.ini
 fi
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then

@@ -60,8 +60,13 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # | Default php.ini file
 # |--------------------------------------------------------------------------
 # |
-# | Let's download php.ini for prod and development
+# | For some reasons, the official image has a php.ini-production.cli file
+# | but no php.ini-development.cli file. Let's create this one.
 # |
+
+RUN cp /usr/lib/php/${PHP_VERSION}/php.ini-development /usr/lib/php/${PHP_VERSION}/php.ini-development.cli && \
+    sed -i 's/^disable_functions/;disable_functions/g' /usr/lib/php/${PHP_VERSION}/php.ini-development.cli && \
+    sed -i 's/^memory_limit = .*/memory_limit = -1/g' /usr/lib/php/${PHP_VERSION}/php.ini-development.cli
 
 #ADD https://raw.githubusercontent.com/php/php-src/PHP-${PHP_VERSION}/php.ini-production /usr/local/etc/php/php.ini-production
 #ADD https://raw.githubusercontent.com/php/php-src/PHP-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
