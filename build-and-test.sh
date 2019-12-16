@@ -141,6 +141,10 @@ RESULT=`docker run --rm -e STARTUP_COMMAND_1="cd / && whoami" -e UID=0 thecoding
 # Tests that startup.sh is correctly executed
 docker run --rm -v $PWD/tests/startup.sh:/etc/container/startup.sh thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep "startup.sh executed"
 
+# Tests that disable_functions is commented in php.ini cli
+RESULT=`docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep "disable_functions"`
+[[ "$RESULT" = "disable_functions => no value => no value" ]]
+
 #################################
 # Let's build the "fat" image
 #################################
