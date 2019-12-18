@@ -6,4 +6,8 @@ if (!file_exists('/opt/container_started')) {
     passthru('php /usr/local/bin/setup_extensions.php | sudo bash');
 }
 
-require __DIR__.'/real_composer';
+array_shift($argv);
+
+$args = array_map(function(string $item) { return escapeshellarg($item); }, $argv);
+
+passthru('real_composer '.implode(' ', $args));
