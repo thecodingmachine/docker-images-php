@@ -88,7 +88,7 @@ When 7.1.13 is out, you certainly want to upgrade automatically to this patch re
 
 Images are automatically updated when a new patch version of PHP is released, so the PHP 7.1 image will always contain 
 the most up-to-date version of the PHP 7.1.x branch. If you want to automatically update your images on your production
-environment, you can use tools like [watchtower](https://github.com/v3tec/watchtower) that will monitor new versions of
+environment, you can use tools like [watchtower](https://github.com/containrrr/watchtower) that will monitor new versions of
 the images and update your environment on the fly.
 
 ## Usage
