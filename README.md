@@ -148,9 +148,8 @@ Below is a list of extensions available in this image:
 
 **Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml
 
-**Note**: as of 2019-11-28, PHP 7.4 has just been released and some extensions are not yet ready:
+**Note**:
 
-- *blackfire* extension is not compatible with PHP 7.4 yet
 - *mcrypt* is not available anymore in PHP 7.3+
 - *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
 
