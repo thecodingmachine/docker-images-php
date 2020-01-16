@@ -4,7 +4,7 @@
  * The script is run on each start of the container.
  */
 
-require 'utils.php';
+require __DIR__.'/utils.php';
 
 // Reading environment variables from $_SERVER (because $_ENV is not necessarily populated, depending on variables_order directive):
 
