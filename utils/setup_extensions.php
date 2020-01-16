@@ -5,7 +5,7 @@
  * The script is run on each start of the container.
  */
 
-require 'utils.php';
+require __DIR__.'/utils.php';
 
 $compiledExtensions = [
     /*'ftp', 'mysqlnd', 'mbstring'*/
