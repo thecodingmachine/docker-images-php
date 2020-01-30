@@ -101,7 +101,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy uploadprogress weakref(-beta) xdebug xmlrpc xsl yaml
 
 **Note**:
 
