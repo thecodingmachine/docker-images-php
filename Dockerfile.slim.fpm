@@ -279,12 +279,13 @@ ONBUILD RUN sudo -E PHP_EXTENSIONS="$PHP_EXTENSIONS" /usr/local/bin/install_sele
 # |
 # | Supercronic is a drop-in replacement for cron (for containers).
 # |
+ENV SUPERCRONIC_OPTIONS=
 
 ONBUILD ARG INSTALL_CRON
 ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
- SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.5/supercronic-linux-amd64 \
+ SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.9/supercronic-linux-amd64 \
  && SUPERCRONIC=supercronic-linux-amd64 \
- && SUPERCRONIC_SHA1SUM=9aeb41e00cc7b71d30d33c57a2333f2c2581a201 \
+ && SUPERCRONIC_SHA1SUM=5ddf8ea26b56d4a7ff6faecdd8966610d5cb9d85 \
  && curl -fsSLO "$SUPERCRONIC_URL" \
  && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
  && chmod +x "$SUPERCRONIC" \

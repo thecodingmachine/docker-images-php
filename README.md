@@ -146,7 +146,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy uploadprogress weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml
 
 **Note**:
 
@@ -459,6 +459,21 @@ TZ=Europe/Paris
 CRON_SCHEDULE_1=0 1 * * *
 CRON_COMMAND_1=vendor/bin/console do:stuff
 ```
+
+### Supercronic options
+To specify Supercronic options you can set the `SUPERCRONIC_OPTIONS` environment variable.
+
+This can be used to enable duplicate jobs. Per default, Supercronic will wait for a given job to finish before that job is scheduled again.\
+With the option `-overlapping` Supercronic will run duplicate instances of the jobs instead of waiting for them.
+
+```bash
+SUPERCRONIC_OPTIONS=-overlapping
+
+# Or multiple options
+SUPERCRONIC_OPTIONS=-overlapping -debug
+```
+
+For more options see see the [Supercronic Documentation](https://github.com/aptible/supercronic/blob/master/README.md).
 
 ## Launching commands on container startup
 

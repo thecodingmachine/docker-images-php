@@ -126,7 +126,7 @@ chmod 0644 /tmp/generated_crontab
 
 # If generated_crontab is not empty, start supercronic
 if [[ -s /tmp/generated_crontab ]]; then
-    supercronic /tmp/generated_crontab &
+    supercronic ${SUPERCRONIC_OPTIONS} /tmp/generated_crontab &
 fi
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
