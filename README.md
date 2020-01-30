@@ -460,6 +460,21 @@ CRON_SCHEDULE_1=0 1 * * *
 CRON_COMMAND_1=vendor/bin/console do:stuff
 ```
 
+### Supercronic options
+To specify Supercronic options you can set the `SUPERCRONIC_OPTIONS` environment variable.
+
+This can be used to enable duplicate jobs. Per default, Supercronic will wait for a given job to finish before that job is scheduled again.\
+With the option `-overlapping` Supercronic will run duplicate instances of the jobs instead of waiting for them.
+
+```bash
+SUPERCRONIC_OPTIONS=-overlapping
+
+# Or multiple options
+SUPERCRONIC_OPTIONS=-overlapping -debug
+```
+
+For more options see see the [Supercronic Documentation](https://github.com/aptible/supercronic/blob/master/README.md).
+
 ## Launching commands on container startup
 
 You can launch commands on container startup using the `STARTUP_COMMAND_XXX` environment variables.
