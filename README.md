@@ -110,7 +110,7 @@ $ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thec
 Example with PHP-FPM:
 
 ```bash
-$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/7.4-v3-fpm
+$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:7.4-v3-fpm
 ```
 
 Example with Apache + Node 8.x in a Dockerfile:
