@@ -12,4 +12,5 @@ array_shift($argv);
 $args = array_map(function(string $item) { return escapeshellarg($item); }, $argv);
 
 // Let's pass the command down to the real composer
-passthru('real_composer '.implode(' ', $args));
+passthru('real_composer '.implode(' ', $args), $exitCode);
+exit($exitCode);
