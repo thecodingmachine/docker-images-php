@@ -148,8 +148,6 @@ Below is a list of extensions available in this image:
 - *mcrypt* is not available anymore in PHP 7.3+
 - *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
 
-### Enabling/disabling extensions in the fat image
-
 You can enable/disable extensions using the `PHP_EXTENSION_[extension_name]` environment variable.
 
 For instance:
