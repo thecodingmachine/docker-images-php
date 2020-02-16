@@ -125,28 +125,23 @@ RUN npm install
 RUN npm run build
 ```
 
-## Extensions available
+## Differences between fat and slim images
 
 This image comes with 2 "types": the *slim* and the **fat** image.
 
-The slim image contains only a set a base PHP extensions.
+The slim image enables only a set a base PHP extensions by default, with a simple way to install other extensions when built from a `Dockerfile`. You would typically use the "slim" image to build your own custom (and as small as possible) image for production.
 
-Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
-
-These extensions are enabled by default.
-
-The slim image provides a simple way to install the other extensions. You would typically use the "slim"
-image in a `Dockerfile` when building your own custom image.
-
-The fat image contains the most commonly used extensions. You would typically use it in a local or CI environment.
+The fat image enables more extensions than the slim image by default (the most commonly used ones) and more extensions can be enabled through environment variables. This makes the fat image larger than if you use slim images, but easier to use directly with docker-compose (no `Dockerfile` necessary). You would typically use it in a local or CI environment.
 
 ### Fat image
 
 Below is a list of extensions available in this image:
 
-**Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
+**Enabled by default same as in Slim image:** `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml
+**Enabled by default in addition to extensions enabled in Slim image:** `apcu mysqli pdo_mysql igbinary redis soap`
+
+**Available (can be enabled using environment variables):** `amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml`
 
 **Note**:
 
@@ -177,9 +172,13 @@ As an alternative, you can use the `PHP_EXTENSIONS` global variable:
 PHP_EXTENSIONS=pgsql gettext imap
 ```
 
-### Compiling extensions in the slim image
+### Extensions in the slim image
 
-If you are using the slim image, you can automatically compile the extensions using the `PHP_EXTENSIONS` ARG in your Dockerfile.
+These extensions are enabled by default in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
+
+The following extensions can be enabled: `amqp apcu ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb mysqli pcntl pcov pdo_dblib pdo_mysql pdo_pgsql pdo_sqlite pgsql pspell redis shmop snmp soap sockets sqlite3 swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml`
+
+You can automatically compile additional extensions using the `PHP_EXTENSIONS` ARG in your Dockerfile.
 
 ```Dockerfile
 ARG PHP_EXTENSIONS="apcu mysqli pdo_mysql redis soap"
@@ -189,9 +188,6 @@ FROM thecodingmachine/php:7.4-v3-slim-apache
 ```
 
 Beware! The `ARG PHP_EXTENSIONS` command must be written before the `FROM`. This is not a typo.
-
-Note: the slim image comes with literally no extensions. Not even "opcache" which is definitely useful performance-wise.
-We highly recommend to install at least the "opcache" extension.
 
 **Heads up**: if you are using multistage builds, the "ARG" variable must be put at the very top of the file (before the 
 first FROM):
