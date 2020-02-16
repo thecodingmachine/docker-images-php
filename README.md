@@ -133,7 +133,7 @@ The slim image enables only a set a base PHP extensions by default, with a simpl
 
 The fat image enables more extensions than the slim image by default (the most commonly used ones) and more extensions can be enabled through environment variables. This makes the fat image larger than if you use slim images, but easier to use directly with docker-compose (no `Dockerfile` necessary). You would typically use it in a local or CI environment.
 
-### Fat image
+### Extensions in the fat image
 
 Below is a list of extensions available in this image:
 
