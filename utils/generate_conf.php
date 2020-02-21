@@ -10,7 +10,11 @@ require __DIR__.'/utils.php';
 
 foreach ($_SERVER as $key => $value) {
     if (strpos($key, 'PHP_INI_') === 0) {
-        $iniParam = strtolower(substr($key, 8));
+        $iniParam = substr($key, 8);
+        if ($iniParam !== 'SMTP') {
+            // SMTP is the only php.ini parameter that contains uppercase letters (!)
+            $iniParam = strtolower($iniParam);
+        }
         $iniParam = str_replace('__', '.', $iniParam);
         // Let's protect the value if this is a string.
         if (!is_numeric($value) && $iniParam !== 'error_reporting') {
