@@ -130,6 +130,10 @@ RESULT=`docker run --rm -e PHP_INI_ERROR_REPORTING="E_ERROR | E_WARNING" thecodi
 RESULT=`docker run --rm -e PHP_INI_SESSION__SAVE_PATH="tcp://localhost?auth=yourverycomplex\"passwordhere" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep "session.save_path"`
 [[ "$RESULT" = "session.save_path => tcp://localhost?auth=yourverycomplex\"passwordhere => tcp://localhost?auth=yourverycomplex\"passwordhere" ]]
 
+# Tests that the SMTP parameter is set in uppercase
+RESULT=`docker run --rm -e PHP_INI_SMTP="192.168.0.1" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep "SMTP"`
+[[ "$RESULT" = "SMTP => 192.168.0.1 => 192.168.0.1" ]]
+
 # Tests that environment variables are passed to startup scripts when UID is set
 RESULT=`docker run --rm -e FOO="bar" -e STARTUP_COMMAND_1="env" -e UID=0 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} sleep 1 | grep "FOO"`
 [[ "$RESULT" = "FOO=bar" ]]
