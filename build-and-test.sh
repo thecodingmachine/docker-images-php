@@ -131,7 +131,7 @@ RESULT=`docker run --rm -e PHP_INI_SESSION__SAVE_PATH="tcp://localhost?auth=your
 [[ "$RESULT" = "session.save_path => tcp://localhost?auth=yourverycomplex\"passwordhere => tcp://localhost?auth=yourverycomplex\"passwordhere" ]]
 
 # Tests that the SMTP parameter is set in uppercase
-RESULT=`docker run --rm -e PHP_INI_SMTP="192.168.0.1" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep "SMTP"`
+RESULT=`docker run --rm -e PHP_INI_SMTP="192.168.0.1" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep "^SMTP"`
 [[ "$RESULT" = "SMTP => 192.168.0.1 => 192.168.0.1" ]]
 
 # Tests that environment variables are passed to startup scripts when UID is set
