@@ -86,7 +86,7 @@ This image comes with 2 "types": the *slim* and the **fat** image.
 
 The slim image contains only a set a base PHP extensions.
 
-Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
+Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pcntl pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
 
 These extensions are enabled by default.
 
@@ -101,7 +101,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy uploadprogress uuid weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy uploadprogress uuid weakref(-beta) xdebug xmlrpc xsl yaml
 
 **Note**:
 
