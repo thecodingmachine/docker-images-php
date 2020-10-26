@@ -38,7 +38,7 @@ for e in "${!APACHE_@}"; do
 done
 
 _shutdown() {
-  echo "Stopping Apache2 graceful..."
+  echo "Stopping Apache2 gracefully..."
 
   pid=$(cat "/var/run/apache2/apache2.pid")
   apachectl graceful-stop
