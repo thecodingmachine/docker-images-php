@@ -199,7 +199,7 @@ ENV PHP_EXTRA_CONFIGURE_ARGS --with-apxs2 --disable-cgi
 # https://httpd.apache.org/docs/2.4/stopping.html#gracefulstop
 STOPSIGNAL SIGWINCH
 
-COPY utils/apache2-foreground /usr/local/bin/
+COPY utils/apache2-background /usr/local/bin/
 
 EXPOSE 80
 
@@ -329,7 +329,7 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
 RUN a2enconf servername
 
-CMD ["apache2-foreground"]
+CMD ["apache2-background"]
 
 # |--------------------------------------------------------------------------
 # | Entrypoint
