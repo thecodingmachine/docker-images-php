@@ -145,7 +145,7 @@ else
 fi
 
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
-if [[ "$@" == "apache2-foreground" ]]; then
+if [[ "$@" == "apache2-background" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
     exec "$@";
 else
