@@ -116,6 +116,26 @@ fi
 unset DOCKER_FOR_MAC_REMOTE_HOST
 unset REMOTE_HOST_FOUND
 
+if [ -e /usr/sbin/dma ]; then
+    # set sendmail path for PHP
+    if [ "$DMA_FROM" = "" ]; then
+        DMA_FROM=noreply@example.org
+    fi
+    export PHP_INI_SENDMAIL_PATH="/usr/sbin/sendmail -t -i -f'$DMA_FROM'"
+
+    # generate DMA config based on DMA_CONF_... environment variables
+    php /usr/local/bin/generate_dma.php > /etc/dma/dma.conf
+	
+	# generate DMA authentication file based on DMA_AUTH_... environment variables
+    if [ -n "$DMA_AUTH_USERNAME" ] && [ -n "$DMA_AUTH_PASSWORD" ]; then
+        if [ -z "$DMA_CONF_SMARTHOST" ]; then
+            echo "DMA_AUTH_USERNAME and DMA_AUTH_PASSWORD are set, but DMA_CONF_SMARTHOST is empty - not attempting authentication" >&2
+        else
+            echo "$DMA_AUTH_USERNAME|$DMA_CONF_SMARTHOST:$DMA_AUTH_PASSWORD" > /etc/dma/auth.conf
+        fi
+    fi
+fi
+
 sudo chown docker:docker /opt/php_env_var_cache.php
 /usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php &> /dev/null
 
