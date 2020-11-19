@@ -40,3 +40,7 @@ if (enableExtension('blackfire')) {
     //echo "extension=blackfire.so\n";
     echo "blackfire.agent_socket=tcp://$blackFireAgent:8707\n";
 }
+
+if (enableExtension('http2')) {
+    echo "Protocols h2 http/1.1\n";
+}
