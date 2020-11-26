@@ -129,16 +129,8 @@ ENV PHP_EXTENSION_CALENDAR=1 \
     PHP_EXTENSION_XSL=1 \
     PHP_EXTENSION_ZIP=1
 
-# |--------------------------------------------------------------------------
-# | prestissimo
-# |--------------------------------------------------------------------------
-# |
-# | Installs Prestissimo to improve Composer download performance.
-# |
-
 USER docker
-RUN composer global require hirak/prestissimo && \
-    composer global require bamarni/symfony-console-autocomplete && \
+RUN composer global require bamarni/symfony-console-autocomplete && \
     rm -rf ~/.composer/cache
 
 USER root
