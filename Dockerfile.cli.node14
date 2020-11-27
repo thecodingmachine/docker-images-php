@@ -1,6 +1,6 @@
 ARG PHP_VERSION
 ARG GLOBAL_VERSION
-FROM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-apache
+FROM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-cli
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -8,7 +8,7 @@ USER root
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gnupg && \
-    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get update && \
     apt-get install -y --no-install-recommends nodejs && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \

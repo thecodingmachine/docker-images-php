@@ -36,12 +36,12 @@ RUN apt-get update \
         curl \
         php${PHP_VERSION}-cli \
         php${PHP_VERSION}-curl \
-        php${PHP_VERSION}-json \
         php${PHP_VERSION}-mbstring \
         php${PHP_VERSION}-opcache \
         php${PHP_VERSION}-readline \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-zip \
+    && if [ "${PHP_VERSION}" = "7.1" ] || [ "${PHP_VERSION}" = "7.2" ] || [ "${PHP_VERSION}" = "7.3" ] || [ "${PHP_VERSION}" = "7.4" ]; then apt-get install -y --no-install-recommends php${PHP_VERSION}-json; fi \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
@@ -86,7 +86,7 @@ RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
 #ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN curl -sS https://getcomposer.org/installer | php -- --1 --install-dir=/usr/local/bin --filename=real_composer &&\
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=real_composer &&\
     chmod +x /usr/local/bin/real_composer
 
 # TODO: utils.php in /usr/local/bin... bof!

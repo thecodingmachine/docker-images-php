@@ -8,7 +8,7 @@ USER root
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gnupg && \
-    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get update && \
     apt-get install -y --no-install-recommends nodejs && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \

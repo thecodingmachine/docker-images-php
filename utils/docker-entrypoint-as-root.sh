@@ -81,8 +81,8 @@ set +e
 chown $DOCKER_USER /proc/self/fd/{1,2}
 set -e
 
-if [ -z "$XDEBUG_REMOTE_HOST" ]; then
-    export XDEBUG_REMOTE_HOST=`/sbin/ip route|awk '/default/ { print $3 }'`
+if [ -z "$XDEBUG_CLIENT_HOST" ]; then
+    export XDEBUG_CLIENT_HOST=`/sbin/ip route|awk '/default/ { print $3 }'`
 
     set +e
     # On Windows and MacOS with Docker >= 18.03, check that host.docker.internal exists. it true, use this.
@@ -92,7 +92,7 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
         # The host exists.
         DOCKER_HOST_INTERNAL=`host -t A host.docker.internal | awk '/has address/ { print $4 }'`
         if [ "$DOCKER_HOST_INTERNAL" != "127.0.0.1" ]; then
-            export XDEBUG_REMOTE_HOST=$DOCKER_HOST_INTERNAL
+            export XDEBUG_CLIENT_HOST=$DOCKER_HOST_INTERNAL
             export REMOTE_HOST_FOUND=1
         fi
     fi
@@ -106,7 +106,7 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
           # The host exists.
           DOCKER_FOR_MAC_REMOTE_HOST=`host -t A docker.for.mac.localhost | awk '/has address/ { print $4 }'`
           if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
-              export XDEBUG_REMOTE_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
+              export XDEBUG_CLIENT_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
           fi
       fi
     fi
