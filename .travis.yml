@@ -55,4 +55,11 @@ script:
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node10
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node12
     docker push thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node14
+    # Let's also tag PHP patch releases
+    PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o`
+    docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-${TRAVIS_BRANCH}-slim-${BRANCH_VARIANT} thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-slim-${BRANCH_VARIANT}
+    docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT} thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}
+    docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node10 thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node10
+    docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node12 thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node12
+    docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node14 thecodingmachine/php:${PHP_VERSION}-${TRAVIS_BRANCH}-${BRANCH_VARIANT}-node14
   fi

@@ -82,14 +82,14 @@ This repository contains a set of developer-friendly, general purpose PHP images
 | [thecodingmachine/php:7.1-v4-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.cli)                   | `7.1.x` | slim | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:7.1-v4-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:7.1-v4-slim-cli)
 
 
-Note: we do not tag patch releases of PHP, only minor versions. You will find one image for PHP 7.3, one for PHP 7.4, 
-but no tagged image for PHP 7.3.12. This is because we believe you have no valid reason to ask explicitly for 7.3.12.
-When 7.3.13 is out, you certainly want to upgrade automatically to this patch release since patch releases contain only bugfixes.
 
-Images are automatically updated when a new patch version of PHP is released, so the PHP 7.4 image will always contain 
-the most up-to-date version of the PHP 7.4.x branch. If you want to automatically update your images on your production
-environment, you can use tools like [watchtower](https://github.com/containrrr/watchtower) that will monitor new versions of
-the images and update your environment on the fly.
+Note: we also tag patch releases of PHP versions. So you can specify a specific patch release using thecodingmachine/php:**8.0.2**-v4-cli for instance.
+However, unless you have a **very specific need** (for instance if the latest patch release of PHP introduced regressions), believe you have no valid reason to ask explicitly for 8.0.2 for instance.
+When 8.0.3 is out, you certainly want to upgrade automatically to this patch release since patch releases contain only bugfixes.
+Also, we automatically rebuild X.Y images every week, but only the latest X.Y.Z patch release gets a rebuild. The other patch releases are frozen in time and will contain bugs and security issues. So use those with great care.
+
+[Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP 7.4 image will always contain 
+the most up-to-date version of the PHP 7.4.x branch.
 
 ## Usage
 
