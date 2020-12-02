@@ -86,12 +86,13 @@ RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
 #ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=real_composer &&\
-    chmod +x /usr/local/bin/real_composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
+    chmod +x /usr/local/bin/composer
 
 # TODO: utils.php in /usr/local/bin... bof!
 COPY utils/utils.php /usr/local/bin/utils.php
-COPY utils/composer_proxy.php /usr/local/bin/composer
+RUN mv /usr/bin/php /usr/bin/real_php
+COPY utils/php_proxy.sh /usr/bin/php
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/setup_extensions.php /usr/local/bin/setup_extensions.php
 

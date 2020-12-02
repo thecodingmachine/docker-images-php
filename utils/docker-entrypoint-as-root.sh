@@ -2,7 +2,7 @@
 
 set -e
 
-# Let's write a file saying the container is started (we are no longer in build mode, useful for composer_proxy.php)
+# Let's write a file saying the container is started (we are no longer in build mode, useful for php_proxy.sh)
 touch /opt/container_started
 
 # Let's apply the requested php.ini file
