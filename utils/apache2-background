@@ -37,4 +37,25 @@ for e in "${!APACHE_@}"; do
 	fi
 done
 
-exec apache2 -DFOREGROUND "$@"
+_shutdown() {
+  echo "Stopping Apache2 gracefully..."
+
+  pid=$(cat "/var/run/apache2/apache2.pid")
+  apachectl graceful-stop
+
+  echo "Waiting for PID $pid to exit..."
+  tail --pid=$pid -f /dev/null
+
+  echo "Exiting..."
+  stop=true
+}
+
+stop=false
+trap _shutdown SIGTERM
+
+echo "Starting Apache2 in the background..."
+apache2 -k start "$@"
+
+while [ "$stop" = false ]; do
+	sleep 0.5;
+done
