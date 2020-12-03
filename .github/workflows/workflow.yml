@@ -10,7 +10,6 @@ on:
   schedule:
     - cron: '0 0 * * 0'
 
-
 jobs:
   build_test_maybe_release:
     strategy:
@@ -49,7 +48,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Build and test
         run: |
-          PHP_VERSION="${{ matrix.php_version }}" BRANCH="$GITHUB_REF_NAME_SLUG" VARIANT="${{ matrix.variant }}" ./build-and-test.sh
+          PHP_VERSION="${{ matrix.php_version }}" BRANCH="v3" VARIANT="${{ matrix.variant }}" ./build-and-test.sh
           docker images | grep thecodingmachine/php
       - name: Login to DockerHub
         # Merge ~ push.
@@ -63,8 +62,8 @@ jobs:
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
           BRANCH_VARIANT=`echo "${{ matrix.variant }}" | sed 's/\./-/g'`
-          docker push thecodingmachine/php:${{ matrix.php_version }}-${GITHUB_REF_NAME_SLUG}-slim-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${{ matrix.php_version }}-${GITHUB_REF_NAME_SLUG}-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${{ matrix.php_version }}-${GITHUB_REF_NAME_SLUG}-${BRANCH_VARIANT}-node8
-          docker push thecodingmachine/php:${{ matrix.php_version }}-${GITHUB_REF_NAME_SLUG}-${BRANCH_VARIANT}-node10
-          docker push thecodingmachine/php:${{ matrix.php_version }}-${GITHUB_REF_NAME_SLUG}-${BRANCH_VARIANT}-node12
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-slim-${BRANCH_VARIANT}
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}-node8
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}-node10
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}-node12
