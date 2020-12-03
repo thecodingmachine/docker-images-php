@@ -43,7 +43,7 @@ When 7.1.13 is out, you certainly want to upgrade automatically to this patch re
 
 Images are automatically updated when a new patch version of PHP is released, so the PHP 7.1 image will always contain 
 the most up-to-date version of the PHP 7.1.x branch. If you want to automatically update your images on your production
-environment, you can use tools like [watchtower](https://github.com/v3tec/watchtower) that will monitor new versions of
+environment, you can use tools like [watchtower](https://github.com/containrrr/watchtower) that will monitor new versions of
 the images and update your environment on the fly.
 
 ## Usage
@@ -65,7 +65,7 @@ $ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thec
 Example with PHP-FPM:
 
 ```bash
-$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/{{ $image.php_version }}-v3-fpm
+$ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:{{ $image.php_version }}-v3-fpm
 ```
 
 Example with Apache + Node 8.x in a Dockerfile:
@@ -86,7 +86,9 @@ This image comes with 2 "types": the *slim* and the **fat** image.
 
 The slim image contains only a set a base PHP extensions.
 
-Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
+Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pcntl pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
+
+These extensions are enabled by default.
 
 The slim image provides a simple way to install the other extensions. You would typically use the "slim"
 image in a `Dockerfile` when building your own custom image.
@@ -99,11 +101,10 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 calendar dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcntl pcov pdo_dblib pdo_pgsql pgsql pspell shmop snmp sockets swoole tidy weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg igbinary imagick imap intl ldap mcrypt memcached mongodb pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy uploadprogress uuid weakref(-beta) xdebug xmlrpc xsl yaml
 
-**Note**: as of 2019-11-28, PHP 7.4 has just been released and some extensions are not yet ready:
+**Note**:
 
-- *blackfire* extension is not compatible with PHP 7.4 yet
 - *mcrypt* is not available anymore in PHP 7.3+
 - *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
 
@@ -268,7 +269,7 @@ APACHE_EXTENSIONS="dav ssl"
 
 **Apache modules enabled by default:** access_compat, alias, auth_basic, authn_core, authn_file, authz_core, authz_host, authz_user, autoindex, deflate, dir, env, expires, filter, mime, mpm_prefork, negotiation, php7, reqtimeout, rewrite, setenvif, status
 
-**Apache modules available:** access_compat, actions, alias, allowmethods, asis, auth_basic, auth_digest, auth_form, authn_anon, authn_core, authn_dbd, authn_dbm, authn_file, authn_socache, authnz_fcgi, authnz_ldap, authz_core, authz_dbd, authz_dbm, authz_groupfile, authz_host, authz_owner, authz_user, autoindex, buffer, cache, cache_disk, cache_socache, cgi, cgid, charset_lite, data, dav, dav_fs, dav_lock, dbd, deflate, dialup, dir, dump_io, echo, env, ext_filter, file_cache, filter, headers, heartbeat, heartmonitor, ident, include, info, lbmethod_bybusyness, lbmethod_byrequests, lbmethod_bytraffic, lbmethod_heartbeat, ldap, log_debug, log_forensic, lua, macro, mime, mime_magic, mpm_event, mpm_prefork, mpm_worker, negotiation, php7, proxy, proxy_ajp, proxy_balancer, proxy_connect, proxy_express, proxy_fcgi, proxy_fdpass, proxy_ftp, proxy_html, proxy_http, proxy_scgi, proxy_wstunnel, ratelimit, reflector, remoteip, reqtimeout, request, rewrite, sed, session, session_cookie, session_crypto, session_dbd, setenvif, slotmem_plain, slotmem_shm, socache_dbm, socache_memcache, socache_shmcb, speling, ssl, status, substitute, suexec, unique_id, userdir, usertrack, vhost_alias, xml2enc
+**Apache modules available:** access_compat, actions, alias, allowmethods, asis, auth_basic, auth_digest, auth_form, authn_anon, authn_core, authn_dbd, authn_dbm, authn_file, authn_socache, authnz_fcgi, authnz_ldap, authz_core, authz_dbd, authz_dbm, authz_groupfile, authz_host, authz_owner, authz_user, autoindex, buffer, cache, cache_disk, cache_socache, cgi, cgid, charset_lite, data, dav, dav_fs, dav_lock, dbd, deflate, dialup, dir, dump_io, echo, env, ext_filter, expires, file_cache, filter, headers, heartbeat, heartmonitor, ident, include, info, lbmethod_bybusyness, lbmethod_byrequests, lbmethod_bytraffic, lbmethod_heartbeat, ldap, log_debug, log_forensic, lua, macro, mime, mime_magic, mpm_event, mpm_prefork, mpm_worker, negotiation, php7, proxy, proxy_ajp, proxy_balancer, proxy_connect, proxy_express, proxy_fcgi, proxy_fdpass, proxy_ftp, proxy_html, proxy_http, proxy_scgi, proxy_wstunnel, ratelimit, reflector, remoteip, reqtimeout, request, rewrite, sed, session, session_cookie, session_crypto, session_dbd, setenvif, slotmem_plain, slotmem_shm, socache_dbm, socache_memcache, socache_shmcb, speling, ssl, status, substitute, suexec, unique_id, userdir, usertrack, vhost_alias, xml2enc
 
  
 ## Debugging
@@ -413,6 +414,21 @@ TZ=Europe/Paris
 CRON_SCHEDULE_1=0 1 * * *
 CRON_COMMAND_1=vendor/bin/console do:stuff
 ```
+
+### Supercronic options
+To specify Supercronic options you can set the `SUPERCRONIC_OPTIONS` environment variable.
+
+This can be used to enable duplicate jobs. Per default, Supercronic will wait for a given job to finish before that job is scheduled again.\
+With the option `-overlapping` Supercronic will run duplicate instances of the jobs instead of waiting for them.
+
+```bash
+SUPERCRONIC_OPTIONS=-overlapping
+
+# Or multiple options
+SUPERCRONIC_OPTIONS=-overlapping -debug
+```
+
+For more options see see the [Supercronic Documentation](https://github.com/aptible/supercronic/blob/master/README.md).
 
 ## Launching commands on container startup
 
@@ -592,6 +608,10 @@ services:
     environment:
         # ...
 ```
+
+## Migrating from v2
+
+Check the [migration notes](MIGRATING.md).
 
 ## Contributing
 

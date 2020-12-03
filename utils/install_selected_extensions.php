@@ -4,7 +4,7 @@
  * The script is run "ONBUILD".
  */
 
-require 'utils.php';
+require __DIR__.'/utils.php';
 
 echo "*** Installing extensions ***\n";
 

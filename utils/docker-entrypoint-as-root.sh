@@ -2,13 +2,13 @@
 
 set -e
 
-# Let's write a file saying the container is started (we are no longer in build mode, useful for composer_proxy.sh)
+# Let's write a file saying the container is started (we are no longer in build mode, useful for composer_proxy.php)
 touch /opt/container_started
 
 # Let's apply the requested php.ini file
 
 if [ ! -f /etc/php/${PHP_VERSION}/cli/php.ini ] || [ -L /etc/php/${PHP_VERSION}/cli/php.ini ]; then
-    ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/cli/php.ini
+    ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI}.cli /etc/php/${PHP_VERSION}/cli/php.ini
 fi
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
@@ -126,7 +126,7 @@ chmod 0644 /tmp/generated_crontab
 
 # If generated_crontab is not empty, start supercronic
 if [[ -s /tmp/generated_crontab ]]; then
-    supercronic /tmp/generated_crontab &
+    supercronic ${SUPERCRONIC_OPTIONS} /tmp/generated_crontab &
 fi
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then

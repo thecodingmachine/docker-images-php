@@ -47,14 +47,13 @@ fi
 
 if [ -n "$EXTENSION" ]; then
     # Let's perform a test
+    phpenmod $EXTENSION
     php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$EXTENSION}}"
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`php -r "echo '';" 2>&1`
     [[ "$OUTPUT" == "" ]]
     # And now, let's disable it!
-    rm -f /etc/php/${PHP_VERSION}/cli/conf.d/*-$EXTENSION.ini
-    rm -f /etc/php/${PHP_VERSION}/apache/conf.d/*-$EXTENSION.ini
-    rm -f /etc/php/${PHP_VERSION}/fpm/conf.d/*-$EXTENSION.ini
+    phpdismod $EXTENSION
 fi
 
 if [ -n "$PECL_EXTENSION" ]; then
