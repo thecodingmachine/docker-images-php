@@ -411,5 +411,3 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     sudo apt-get update && \
     sudo apt-get install -y --no-install-recommends yarn; \
     fi;
-
-RUN rm -f /opt/container_started
