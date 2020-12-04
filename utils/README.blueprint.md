@@ -107,7 +107,7 @@ Below is a list of extensions available in this image:
 
 - *mcrypt* is not available anymore in PHP 7.3+
 - *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
-- *ev*, *event*, *gnupg*, *mongodb*, *rdkafka*, *swoole*, *uploadprogress*, *xmlrpc*, *blackfire* are not available in PHP 8.0+
+- *ev*, *event*, *gnupg*, *mongodb*, *rdkafka*, *swoole*, *uploadprogress*, *xmlrpc*, *blackfire*, *gettext* are not available in PHP 8.0+
 
 ### Enabling/disabling extensions in the fat image
 
