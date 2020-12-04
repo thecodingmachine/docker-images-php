@@ -233,7 +233,7 @@ RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /et
 
 
 
-
+RUN rm /opt/container_started
 USER docker
 
 COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_extensions.php

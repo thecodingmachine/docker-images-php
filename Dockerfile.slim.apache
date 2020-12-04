@@ -328,7 +328,7 @@ RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${P
 
 
 
-
+RUN rm /opt/container_started
 USER docker
 
 COPY utils/install_selected_extensions.php /usr/local/bin/install_selected_extensions.php
