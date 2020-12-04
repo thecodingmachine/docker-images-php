@@ -1,3 +1,12 @@
+# Migrating from v3 to v4 images
+
+Important changes:
+
+- v3 images are based on **Ubuntu 18.04**. v4 images are based on **Ubuntu 20.04**.
+- Internally, the image will attempt to setup extensions / parameters on container startup (in the image entry point),
+  but also when PHP is run. This should help alleviate a part of the problems when the entrypoint is overloaded by the
+  user.
+
 # Migrating from v2 to v3 images
 
 Important changes:

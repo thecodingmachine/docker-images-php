@@ -1,6 +1,6 @@
 {{- $variant := .Orbit.variant -}}
 
-FROM ubuntu:bionic
+FROM ubuntu:20.04
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -23,7 +23,7 @@ ENV PHP_VERSION=$PHP_VERSION
 # Install php an other packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gnupg \
-    && echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu bionic main" > /etc/apt/sources.list.d/ondrej-php.list \
+    && echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu focal main" > /etc/apt/sources.list.d/ondrej-php.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
