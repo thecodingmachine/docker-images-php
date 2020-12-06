@@ -293,6 +293,7 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
+COPY utils/generate_dma.php /usr/local/bin/generate_dma.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
 COPY utils/enable_apache_mods.php /usr/local/bin/enable_apache_mods.php
@@ -385,4 +386,19 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
     sudo apt-get update && \
     sudo apt-get install -y --no-install-recommends yarn; \
+    fi;
+
+# |--------------------------------------------------------------------------
+# | DragonFly Mail Agent
+# |--------------------------------------------------------------------------
+# |
+# | Installs DragonFly Mail Agent, a sendmail-compatible MTA that can be used
+# | to send email from PHP, either using direct delivery or through an SMTP
+# | smarthost.
+# |
+
+ONBUILD ARG INSTALL_DMA
+ONBUILD RUN if [ -n "$INSTALL_DMA" ]; then \
+    sudo apt-get update && \
+    sudo -E apt-get install -y --no-install-recommends dma; \
     fi;

@@ -404,6 +404,34 @@ ENV APACHE_RUN_USER=www-data \
 ```
 
 
+## Sending email
+
+The `sendmail` binary is available through [DragonFly Mail Agent (DMA)](https://wiki.mageia.org/en/Dma_Dragonfly_Mail_Agent) to make the [`mail()`](https://www.php.net/manual/de/function.mail.php) function work. Without configuration, it sends email directly, using `noreply@example.org` as the sender by default - this won't work for various reasons (greylisting, spam blacklists, SPF record of example.org, ...), and email is quite complex to set up correctly with direct delivery.
+
+**Important**: To reliably send email, you thus should specify a smarthost which will be used as an SMTP relay - all you need is an account at any email provider that supports SMTP (ideally suited for mass/transactional mails, according to your usecase - e.g. Mailgun, Postmark, or a self-hosted [Postal](https://github.com/postalhq/postal) instance). Then, to configure DMA, you'll just have to set the following environment variables:
+
+```bash
+# your sender address
+DMA_FROM=noreply@your-domain.example.org
+# your smarthost settings
+DMA_CONF_SMARTHOST=smtp.example.org
+DMA_AUTH_USERNAME=noreply
+DMA_AUTH_PASSWORD=helloworld123
+# further DMA settings, according to the DMA man page, prefixed with DMA_CONF_
+# (see https://manpages.debian.org/unstable/dma/sendmail.8.en.html#dma.conf)
+DMA_CONF_STARTTLS=1
+```
+
+DMA is **installed by default in the fat images**. If you are using the "*slim*" images, you need to install it by passing
+a single argument before the "FROM" clause in your Dockerfile:
+
+```Dockerfile
+ARG INSTALL_DMA=1
+FROM thecodingmachine/php:7.4-v3-slim-apache
+# The build triggers automatically the installation of DragonFly Mail Agent
+```
+
+
 ## Setting up CRON jobs
 
 You can set up CRON jobs using environment variables too.
