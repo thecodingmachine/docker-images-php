@@ -3,6 +3,10 @@
 $phpEnvVarCache = include '/opt/php_env_var_cache.php';
 
 $envVars = getenv();
+
+var_dump($envVars);
+var_dump($phpEnvVarCache);
+
 $shouldGenerateConfig = false;
 $phpEnvVar = [];
 
