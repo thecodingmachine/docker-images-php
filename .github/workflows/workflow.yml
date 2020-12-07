@@ -69,8 +69,13 @@ jobs:
           docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node14
           # Let's also tag PHP patch releases
           PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o`
-          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-slim-${BRANCH_VARIANT} thecodingmachine/php:${PHP_VERSION}-v4-slim-${BRANCH_VARIANT}
-          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT} thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}
-          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node10 thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node10
-          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node12 thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node12
-          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node14 thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node14
+          docker tag thecodingmachine/php:${PHP_VERSION}-v4-slim-${BRANCH_VARIANT} thecodingmachine/php:${PHP_PATCH_VERSION}-v4-slim-${BRANCH_VARIANT}
+          docker tag thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT} thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}
+          docker tag thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node10 thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node10
+          docker tag thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node12 thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node12
+          docker tag thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node14 thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node14
+          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-slim-${BRANCH_VARIANT}
+          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}
+          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node10
+          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node12
+          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node14
