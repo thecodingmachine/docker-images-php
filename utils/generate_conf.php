@@ -26,8 +26,8 @@ foreach ($_SERVER as $key => $value) {
 
 if (enableExtension('xdebug')) {
     //echo "zend_extension=xdebug.so\n";
-    echo "xdebug.remote_host=".getenv('XDEBUG_REMOTE_HOST')."\n";
-    echo "xdebug.remote_enable=on\n";
+    echo "xdebug.client_host=".getenv('XDEBUG_CLIENT_HOST')."\n";
+    echo "xdebug.mode=debug\n";
     //echo "xdebug.remote_autostart=off\n";
     //echo "xdebug.remote_port=9000\n";
     //echo "xdebug.remote_connect_back=0\n";

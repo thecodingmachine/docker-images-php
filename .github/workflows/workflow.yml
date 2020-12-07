@@ -3,12 +3,12 @@ name: Docker PHP Images GitHub workflow
 on:
   pull_request:
     branches:
-      - 'v3'
+      - 'v4'
   push:
     branches:
-      - 'v3'
+      - 'v4'
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '42 3 * * 0'
 
 jobs:
   build_test_maybe_release:
@@ -16,6 +16,12 @@ jobs:
       matrix:
         include:
           - variant: 'cli'
+            php_version: '8.0'
+          - variant: 'apache'
+            php_version: '8.0'
+          - variant: 'fpm'
+            php_version: '8.0'
+          - variant: 'cli'
             php_version: '7.4'
           - variant: 'apache'
             php_version: '7.4'
@@ -33,12 +39,6 @@ jobs:
             php_version: '7.2'
           - variant: 'fpm'
             php_version: '7.2'
-          - variant: 'cli'
-            php_version: '7.1'
-          - variant: 'apache'
-            php_version: '7.1'
-          - variant: 'fpm'
-            php_version: '7.1'
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Build and test
         run: |
-          PHP_VERSION="${{ matrix.php_version }}" BRANCH="v3" VARIANT="${{ matrix.variant }}" ./build-and-test.sh
+          PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-and-test.sh
           docker images | grep thecodingmachine/php
       - name: Login to DockerHub
         # Merge ~ push.
@@ -62,8 +62,15 @@ jobs:
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
           BRANCH_VARIANT=`echo "${{ matrix.variant }}" | sed 's/\./-/g'`
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-slim-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}-node8
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}-node10
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v3-${BRANCH_VARIANT}-node12
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT}
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node8
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node10
+          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node12
+          # Let's also tag PHP patch releases
+          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o`
+          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-slim-${BRANCH_VARIANT} thecodingmachine/php:${PHP_VERSION}-v4-slim-${BRANCH_VARIANT}
+          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT} thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}
+          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node10 thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node10
+          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node12 thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node12
+          docker push -t thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node14 thecodingmachine/php:${PHP_VERSION}-v4-${BRANCH_VARIANT}-node14

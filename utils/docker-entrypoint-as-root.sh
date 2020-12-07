@@ -2,7 +2,7 @@
 
 set -e
 
-# Let's write a file saying the container is started (we are no longer in build mode, useful for composer_proxy.php)
+# Let's write a file saying the container is started (we are no longer in build mode, useful for php_proxy.sh)
 touch /opt/container_started
 
 # Let's apply the requested php.ini file
@@ -81,8 +81,8 @@ set +e
 chown $DOCKER_USER /proc/self/fd/{1,2}
 set -e
 
-if [ -z "$XDEBUG_REMOTE_HOST" ]; then
-    export XDEBUG_REMOTE_HOST=`/sbin/ip route|awk '/default/ { print $3 }'`
+if [ -z "$XDEBUG_CLIENT_HOST" ]; then
+    export XDEBUG_CLIENT_HOST=`/sbin/ip route|awk '/default/ { print $3 }'`
 
     set +e
     # On Windows and MacOS with Docker >= 18.03, check that host.docker.internal exists. it true, use this.
@@ -92,7 +92,7 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
         # The host exists.
         DOCKER_HOST_INTERNAL=`host -t A host.docker.internal | awk '/has address/ { print $4 }'`
         if [ "$DOCKER_HOST_INTERNAL" != "127.0.0.1" ]; then
-            export XDEBUG_REMOTE_HOST=$DOCKER_HOST_INTERNAL
+            export XDEBUG_CLIENT_HOST=$DOCKER_HOST_INTERNAL
             export REMOTE_HOST_FOUND=1
         fi
     fi
@@ -106,7 +106,7 @@ if [ -z "$XDEBUG_REMOTE_HOST" ]; then
           # The host exists.
           DOCKER_FOR_MAC_REMOTE_HOST=`host -t A docker.for.mac.localhost | awk '/has address/ { print $4 }'`
           if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
-              export XDEBUG_REMOTE_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
+              export XDEBUG_CLIENT_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
           fi
       fi
     fi
@@ -116,12 +116,15 @@ fi
 unset DOCKER_FOR_MAC_REMOTE_HOST
 unset REMOTE_HOST_FOUND
 
-php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
-php /usr/local/bin/setup_extensions.php | sudo bash
+sudo chown docker:docker /opt/php_env_var_cache.php
+/usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php &> /dev/null
+
+/usr/bin/real_php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
+/usr/bin/real_php /usr/local/bin/setup_extensions.php | sudo bash
 
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
-php /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
+/usr/bin/real_php /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
 chmod 0644 /tmp/generated_crontab
 
 # If generated_crontab is not empty, start supercronic
@@ -130,13 +133,13 @@ if [[ -s /tmp/generated_crontab ]]; then
 fi
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
-    php /usr/local/bin/enable_apache_mods.php | bash
+    /usr/bin/real_php /usr/local/bin/enable_apache_mods.php | bash
 fi
 
 if [ -e /etc/container/startup.sh ]; then
     sudo -E -u "#$DOCKER_USER_ID" /etc/container/startup.sh
 fi
-sudo -E -u "#$DOCKER_USER_ID" sh -c "php /usr/local/bin/startup_commands.php | bash"
+sudo -E -u "#$DOCKER_USER_ID" sh -c "/usr/bin/real_php /usr/local/bin/startup_commands.php | bash"
 
 if [[ "$APACHE_DOCUMENT_ROOT" == /* ]]; then
   export ABSOLUTE_APACHE_DOCUMENT_ROOT="$APACHE_DOCUMENT_ROOT"

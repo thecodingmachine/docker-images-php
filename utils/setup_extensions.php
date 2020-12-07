@@ -59,6 +59,12 @@ if (enableExtension('mysqli') || enableExtension('pdo_mysql')) {
     unset($toDisable['mysqlnd']);
 }
 
+// curl is a dependency required for blackfire 8 (see https://blog.blackfire.io/php-8-support.html)
+/*if (enableExtension('blackfire')) {
+    $toEnable['curl'] = 'curl';
+    unset($toDisable['curl']);
+}*/
+
 if ($toDisable) {
     echo 'phpdismod '.implode(' ', $toDisable)."\n";
 }

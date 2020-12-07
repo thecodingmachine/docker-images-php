@@ -1,3 +1,20 @@
+# v4
+
+## New features
+
+- Support for PHP 8.0
+- Support for Node 14
+
+## Breaking changes
+
+- Base image is Ubuntu 20.04
+- Dropped Node 8 images
+- Dropped PHP 7.1
+
+# v3
+
+See MIGRATING.md
+
 # v2
 
 ## New features

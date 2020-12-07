@@ -1,6 +1,6 @@
 {{- $variant := .Orbit.variant -}}
 
-FROM ubuntu:bionic
+FROM ubuntu:20.04
 
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
@@ -23,7 +23,7 @@ ENV PHP_VERSION=$PHP_VERSION
 # Install php an other packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gnupg \
-    && echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu bionic main" > /etc/apt/sources.list.d/ondrej-php.list \
+    && echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu focal main" > /etc/apt/sources.list.d/ondrej-php.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -38,12 +38,12 @@ RUN apt-get update \
         curl \
         php${PHP_VERSION}-cli \
         php${PHP_VERSION}-curl \
-        php${PHP_VERSION}-json \
         php${PHP_VERSION}-mbstring \
         php${PHP_VERSION}-opcache \
         php${PHP_VERSION}-readline \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-zip \
+    && if [ "${PHP_VERSION}" = "7.1" ] || [ "${PHP_VERSION}" = "7.2" ] || [ "${PHP_VERSION}" = "7.3" ] || [ "${PHP_VERSION}" = "7.4" ]; then apt-get install -y --no-install-recommends php${PHP_VERSION}-json; fi \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
@@ -88,12 +88,15 @@ RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
 #ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN curl -sS https://getcomposer.org/installer | php -- --1 --install-dir=/usr/local/bin --filename=real_composer &&\
-    chmod +x /usr/local/bin/real_composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
+    chmod +x /usr/local/bin/composer
 
 # TODO: utils.php in /usr/local/bin... bof!
 COPY utils/utils.php /usr/local/bin/utils.php
-COPY utils/composer_proxy.php /usr/local/bin/composer
+RUN mv /usr/bin/php /usr/bin/real_php
+COPY utils/php_proxy.sh /usr/bin/php
+COPY utils/check_php_env_var_changes.php /usr/local/bin/check_php_env_var_changes.php
+COPY utils/php_env_var_cache.php /opt/php_env_var_cache.php
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/setup_extensions.php /usr/local/bin/setup_extensions.php
 
@@ -131,16 +134,8 @@ ENV PHP_EXTENSION_CALENDAR=1 \
     PHP_EXTENSION_XSL=1 \
     PHP_EXTENSION_ZIP=1
 
-# |--------------------------------------------------------------------------
-# | prestissimo
-# |--------------------------------------------------------------------------
-# |
-# | Installs Prestissimo to improve Composer download performance.
-# |
-
 USER docker
-RUN composer global require hirak/prestissimo && \
-    composer global require bamarni/symfony-console-autocomplete && \
+RUN composer global require bamarni/symfony-console-autocomplete && \
     rm -rf ~/.composer/cache
 
 USER root
@@ -361,12 +356,11 @@ RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${P
     sed -i 's/^group = www-data/;group = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i 's#listen = /run/php/php${PHP_VERSION}-fpm.sock#;listen = /run/php/php${PHP_VERSION}-fpm.sock#g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i "s#pid = /run/php/php${PHP_VERSION}-fpm.pid#;pid = /run/php/php${PHP_VERSION}-fpm.pid#g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf && \
-    if [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then \
+    if [ "$PHP_VERSION" = "7.2" ]; then \
         sed -i 's/^log_limit =/;log_limit =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf && \
         sed -i 's/^decorate_workers_output =/;decorate_workers_output =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf; \
     fi
 {{end}}
-
 
 USER docker
 
