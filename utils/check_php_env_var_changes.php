@@ -27,7 +27,7 @@ if ($shouldGenerateConfig === false) {
 
 $cacheFileContent = '<?php' . PHP_EOL . '$phpEnvVarCache = [];' . PHP_EOL;
 foreach ($phpEnvVar as $key => $value) {
-    $cacheFileContent .= '$phpEnvCache["' . $key . '"] = "' . $value . '";' . PHP_EOL;
+    $cacheFileContent .= '$phpEnvVarCache["' . $key . '"] = "' . $value . '";' . PHP_EOL;
 }
 
 $result = file_put_contents('/opt/php_env_var_cache.php', $cacheFileContent);
