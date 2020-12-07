@@ -3,10 +3,6 @@
 $phpEnvVarCache = include '/opt/php_env_var_cache.php';
 
 $envVars = getenv();
-
-var_dump($envVars);
-var_dump($phpEnvVarCache);
-
 $shouldGenerateConfig = false;
 $phpEnvVar = [];
 
@@ -32,6 +28,7 @@ if ($shouldGenerateConfig === false) {
 $cacheFileContent = '<?php' . PHP_EOL . 'return ' . var_export($phpEnvVar, true) . ';' ;
 $result = file_put_contents('/opt/php_env_var_cache.php', $cacheFileContent);
 if ($result === false) {
+    echo "-1";
     exit(1);
 }
 
