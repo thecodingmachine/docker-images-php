@@ -9,6 +9,7 @@
 
 - Base image is Ubuntu 20.04
 - Dropped Node 8 images
+- Dropped PHP 7.1
 
 # v3
 

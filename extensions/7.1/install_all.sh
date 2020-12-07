@@ -1,1 +1,0 @@
-../core/install_all.sh

@@ -356,7 +356,7 @@ RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${P
     sed -i 's/^group = www-data/;group = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i 's#listen = /run/php/php${PHP_VERSION}-fpm.sock#;listen = /run/php/php${PHP_VERSION}-fpm.sock#g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i "s#pid = /run/php/php${PHP_VERSION}-fpm.pid#;pid = /run/php/php${PHP_VERSION}-fpm.pid#g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf && \
-    if [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then \
+    if [ "$PHP_VERSION" = "7.2" ]; then \
         sed -i 's/^log_limit =/;log_limit =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf && \
         sed -i 's/^decorate_workers_output =/;decorate_workers_output =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf; \
     fi

@@ -1,1 +1,0 @@
-../core/docker-install.sh

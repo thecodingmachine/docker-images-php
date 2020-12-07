@@ -16,7 +16,7 @@ This repository contains a set of developer-friendly, general purpose PHP images
 {{ $image := .Orbit.Images }}
 ## Images
 
-{{ $versions := list "7.4" "7.3" "7.2" "7.1" }}
+{{ $versions := list "8.0" "7.4" "7.3" "7.2" }}
 
 | Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
