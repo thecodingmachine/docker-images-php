@@ -4,10 +4,7 @@ sudo chown docker:docker /opt/php_env_var_cache.php
 
 REGENERATE=$(/usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php)
 
-echo "REGENERATE = $REGENERATE"
-
 if [[ "$REGENERATE" != "0" ]] && [[ "$REGENERATE" != "1" ]]; then
-  echo "Something wrong happened in the /usr/local/bin/check_php_env_var_changes.php script."
   exit 1
 fi
 
