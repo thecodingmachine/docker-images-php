@@ -133,6 +133,8 @@ As an alternative, you can use the `PHP_EXTENSIONS` global variable:
 PHP_EXTENSIONS=pgsql gettext imap
 ```
 
+**Note:** Sybase extension is not available on PHP 8.
+
 ### Compiling extensions in the slim image
 
 If you are using the slim image, you can automatically compile the extensions using the `PHP_EXTENSIONS` ARG in your Dockerfile.
