@@ -116,12 +116,15 @@ fi
 unset DOCKER_FOR_MAC_REMOTE_HOST
 unset REMOTE_HOST_FOUND
 
-php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
-php /usr/local/bin/setup_extensions.php | sudo bash
+sudo chown docker:docker /opt/php_env_var_cache.php
+/usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php &> /dev/null
+
+/usr/bin/real_php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
+/usr/bin/real_php /usr/local/bin/setup_extensions.php | sudo bash
 
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
-php /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
+/usr/bin/real_php /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
 chmod 0644 /tmp/generated_crontab
 
 # If generated_crontab is not empty, start supercronic
@@ -130,13 +133,13 @@ if [[ -s /tmp/generated_crontab ]]; then
 fi
 
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
-    php /usr/local/bin/enable_apache_mods.php | bash
+    /usr/bin/real_php /usr/local/bin/enable_apache_mods.php | bash
 fi
 
 if [ -e /etc/container/startup.sh ]; then
     sudo -E -u "#$DOCKER_USER_ID" /etc/container/startup.sh
 fi
-sudo -E -u "#$DOCKER_USER_ID" sh -c "php /usr/local/bin/startup_commands.php | bash"
+sudo -E -u "#$DOCKER_USER_ID" sh -c "/usr/bin/real_php /usr/local/bin/startup_commands.php | bash"
 
 if [[ "$APACHE_DOCUMENT_ROOT" == /* ]]; then
   export ABSOLUTE_APACHE_DOCUMENT_ROOT="$APACHE_DOCUMENT_ROOT"
