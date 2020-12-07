@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#set -e
+
 sudo chown docker:docker /opt/php_env_var_cache.php
 
 REGENERATE=$(/usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php)
