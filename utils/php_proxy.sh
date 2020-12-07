@@ -2,11 +2,10 @@
 
 REGENERATE=$(/usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php)
 
-echo "REGENERATE = $REGENERATE\n\n"
+echo "REGENERATE = $REGENERATE"
 
-cat /opt/php_env_var_cache.php
-
-if [[ "$REGENERATE" == "-1" ]]; then
+if [[ "$REGENERATE" != "0" ]] && [[ "$REGENERATE" != "1" ]]; then
+  echo "Something wrong happened in the /usr/local/bin/check_php_env_var_changes.php script."
   exit 1
 fi
 
