@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/thecodingmachine/docker-images-php.svg?branch=v4)](https://travis-ci.org/thecodingmachine/docker-images-php)
+![Docker PHP Images GitHub workflow](https://github.com/thecodingmachine/docker-images-php/workflows/Docker%20PHP%20Images%20GitHub%20workflow/badge.svg)
 
 # General purpose PHP images for Docker
 
