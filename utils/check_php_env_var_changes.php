@@ -1,7 +1,6 @@
 <?php
 
 $phpEnvVarCache = include '/opt/php_env_var_cache.php';
-
 $envVars = getenv();
 $shouldGenerateConfig = false;
 $phpEnvVar = [];

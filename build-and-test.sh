@@ -19,6 +19,10 @@ docker run --rm test/slim_onbuild php -m | grep pdo_pgsql
 docker run --rm test/slim_onbuild php -m | grep pdo_sqlite
 docker rmi test/slim_onbuild
 
+# Let's check that the extensions are available for composer using "ARG PHP_EXTENSIONS" statement:
+docker build -t test/slim_onbuild_composer --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/slim_onbuild_composer
+docker rmi test/slim_onbuild_composer
+
 # Post build unit tests
 if [[ $VARIANT == cli* ]]; then CONTAINER_CWD=/usr/src/app; else CONTAINER_CWD=/var/www/html; fi
 # Default user is 1000
