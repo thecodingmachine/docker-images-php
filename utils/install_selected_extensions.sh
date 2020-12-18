@@ -8,7 +8,7 @@ mv /etc/apt/apt.conf.d/docker-clean /tmp/docker-clean
 
 apt-get update
 
-php /usr/local/bin/install_selected_extensions.php
+/usr/bin/real_php /usr/local/bin/install_selected_extensions.php
 
 # Let's enable autoclean again
 mv /tmp/docker-clean /etc/apt/apt.conf.d/docker-clean
