@@ -9,5 +9,7 @@ COPY composer.json composer.json
 
 RUN env
 
+RUN php -v
+
 # Let's check that GD is available.
 RUN composer install
