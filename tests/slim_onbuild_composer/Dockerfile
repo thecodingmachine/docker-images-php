@@ -7,5 +7,7 @@ FROM thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
 
 COPY composer.json composer.json
 
+RUN env
+
 # Let's check that GD is available.
 RUN composer install
