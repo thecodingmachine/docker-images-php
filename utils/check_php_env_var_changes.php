@@ -2,7 +2,12 @@
 
 $phpEnvVarCache = include '/opt/php_env_var_cache.php';
 
+error_log(var_export($phpEnvVarCache, true));
+
 $envVars = getenv();
+
+error_log(var_export($envVars, true));
+
 $shouldGenerateConfig = false;
 $phpEnvVar = [];
 
@@ -19,6 +24,8 @@ foreach($envVars as $key => $value) {
         $phpEnvVar[$key] = $value;
     }
 }
+
+error_log(var_export($phpEnvVar, true));
 
 if ($shouldGenerateConfig === false) {
     echo "0";
