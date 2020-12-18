@@ -2,7 +2,11 @@
 
 sudo chown docker:docker /opt/php_env_var_cache.php
 
+echo "IN PROXY"
+
 REGENERATE=$(/usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php)
+
+echo "REGENERATE=$REGENERATE"
 
 if [[ "$REGENERATE" != "0" ]] && [[ "$REGENERATE" != "1" ]]; then
   exit 1
