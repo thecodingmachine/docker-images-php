@@ -292,7 +292,7 @@ Behind the scenes, the image will:
 
 ## NodeJS
 
-The *fat* images come with a Node variant. You can use Node 10, 12 or 14. If you need a Node 8 variant, [use thecodingmachine/php v4 images](https://github.com/thecodingmachine/docker-images-php/tree/v4). If you need a Node 6 variant, [use thecodingmachine/php v1 images](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
+The *fat* images come with a Node variant. You can use Node 10, 12 or 14. If you need a Node 8 variant, [use thecodingmachine/php v3 images](https://github.com/thecodingmachine/docker-images-php/tree/v3). If you need a Node 6 variant, [use thecodingmachine/php v1 images](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
 
 If you use the *slim* images, you can install a NodeJS version with a simple ARG during the build:
 
