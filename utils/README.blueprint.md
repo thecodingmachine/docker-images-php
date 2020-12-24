@@ -611,7 +611,7 @@ services:
         # ...
 ```
 
-## Migrating from v2
+## Migrating from older image versions
 
 Check the [migration notes](MIGRATING.md).
 
