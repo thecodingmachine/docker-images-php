@@ -33,6 +33,7 @@ if [ -n "$PECL_EXTENSION" ]; then
       which pecl
     else
       apt-get install -y --no-install-recommends build-essential php-pear php${PHP_VERSION}-dev pkg-config
+      which pecl
     fi
 
     pecl install $PECL_EXTENSION
