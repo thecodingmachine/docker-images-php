@@ -35,6 +35,8 @@ if [ -n "$PECL_EXTENSION" ]; then
       apt-get install -y --no-install-recommends build-essential php-pear php${PHP_VERSION}-dev pkg-config
       curl https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -L -o /usr/local/bin/pickle
       chmod +x /usr/local/bin/pickle
+      which pickle
+      pickle -v
     fi
 
     pickle install $PECL_EXTENSION
