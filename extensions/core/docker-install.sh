@@ -28,15 +28,16 @@ if [ -n "$PECL_EXTENSION" ]; then
     # if env ready?
 
     # is phpize installed?
-    if which pecl && which phpize; then
-      echo "pecl found"
-      which pecl
+    if which pickle && which phpize; then
+      echo "pickle found"
+      which pickle
     else
       apt-get install -y --no-install-recommends build-essential php-pear php${PHP_VERSION}-dev pkg-config
-      which pecl
+      curl https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /usr/local/bin/pickle
+      chmod +x /usr/local/bin/pickle
     fi
 
-    pecl install $PECL_EXTENSION
+    pickle install $PECL_EXTENSION
     echo "extension=${PHP_EXT_NAME:-${PECL_EXTENSION}}.so" > /etc/php/${PHP_VERSION}/mods-available/${PHP_EXT_NAME:-${PECL_EXTENSION}}.ini
     # Adding this in the list of Ubuntu extensions because we use that list as a base for the modules list.
     # TODO: question: cannot we use /etc/php/mods-available instead???

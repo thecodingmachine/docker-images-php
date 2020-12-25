@@ -23,3 +23,4 @@ apt-get purge -y php-pear build-essential php${PHP_VERSION}-dev pkg-config
 apt-get autoremove -y
 apt-get clean
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+rm -f /usr/local/bin/pickle
