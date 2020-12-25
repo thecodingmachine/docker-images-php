@@ -36,7 +36,7 @@ if [ -n "$PECL_EXTENSION" ]; then
       curl https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -L -o /usr/local/bin/pickle
       chmod +x /usr/local/bin/pickle
       which pickle
-      /usr/local/bin/pickle -v
+      php /usr/local/bin/pickle -v
       pickle -v
     fi
 
