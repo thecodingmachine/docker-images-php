@@ -5,3 +5,6 @@ export EXTENSION=mysqlnd
 export PACKAGE_NAME=mysql
 
 ../docker-install.sh
+
+# Exception for this package that enables both mysql nd and mysqli
+phpdismod mysqli
