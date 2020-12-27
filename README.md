@@ -113,7 +113,7 @@ Example with PHP-FPM:
 $ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:7.4-v4-fpm
 ```
 
-Example with Apache + Node 8.x in a Dockerfile:
+Example with Apache + Node 14.x in a Dockerfile:
 
 **Dockerfile**
 ```Dockerfile
