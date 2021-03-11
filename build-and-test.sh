@@ -183,6 +183,12 @@ set -e
 # Let's check that the "xdebug.client_host" contains a value different from "no value"
 docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.client_host| grep -v "no value"
 
+# Let's check that "xdebug.mode" is set to "debug" by default
+docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.mode| grep "debug"
+
+# Let's check that "xdebug.mode" is properly overridden
+docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_INI_XDEBUG__MODE=debug,coverage thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.mode| grep "debug,coverage"
+
 if [[ "${PHP_VERSION}" != "7.4" ]] && [[ "${PHP_VERSION}" != "8.0" ]]; then
   # Tests that blackfire + xdebug will output an error
   RESULT=`docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.'`
