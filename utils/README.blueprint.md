@@ -147,15 +147,12 @@ FROM thecodingmachine/php:{{ $image.php_version }}-v4-slim-apache
 
 Beware! The `ARG PHP_EXTENSIONS` command must be written before the `FROM`. This is not a typo.
 
-Note: the slim image comes with literally no extensions. Not even "opcache" which is definitely useful performance-wise.
-We highly recommend to install at least the "opcache" extension.
-
 **Heads up**: if you are using multistage builds, the "ARG" variable must be put at the very top of the file (before the 
 first FROM):
 
 ```Dockerfile
 # The PHP_EXTENSIONS ARG will apply to the "slim" image
-ARG PHP_EXTENSIONS="apcu mysqli opcache pdo_mysql zip soap"
+ARG PHP_EXTENSIONS="apcu mysqli pdo_mysql soap"
 
 FROM thecodingmachine/php:7.2-v4-apache-node10 AS builder
 
