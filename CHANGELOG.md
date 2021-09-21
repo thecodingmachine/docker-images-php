@@ -1,37 +1,57 @@
-# v4
+# Change Log
 
-## New features
+## Version 4
+
+### Minor changes
+
+- **2021-09-21 |** Enhance builder | Use BuildKit, add header to blueprint exported files and start a Makefile for common build usages.
+
+### Initial
+
+#### New features
 
 - Support for PHP 8.0
 - Support for Node 14
 
-## Breaking changes
+#### Breaking changes
 
 - Base image is Ubuntu 20.04
 - Dropped Node 8 images
 - Dropped PHP 7.1
 
-# v3
+### Version 3
 
-See MIGRATING.md
+### Initial
 
-# v2
+#### Important changes
 
-## New features
+v2 images are based on a Debian Stretch. v3 images are based on Ubuntu 18.04.
+Interally, v3 images are built from the Ondrej PPA. This is a radical change from v2 that was built from the official PHP Docker image. As a result, the v3 image do not have PECL installed, nor a build environment. This makes the v3 images ~200MB lighter.
+
+#### Changes in extensions
+
+The following extensions are now enabled by default: calendar exif pcntl shmop sockets sysvmsg sysvsem sysvshm wddx zip
+The sqlite3 extension was previously enabled by default, but must now be enabled manually
+
+### Version 2
+
+### Initial
+
+#### New features
 
 - thecodingmachine/php image now has a "slim" variant that does not contain any extension but that can be used
   to [build the extensions very easily](https://github.com/thecodingmachine/docker-images-php/blob/dfdaa984f0fcc3d66a1b9fef5a6643582deb4d0d/README.md#compiling-extensions-in-the-slim-image).
 
-## Breaking changes
+#### Breaking changes
 
 - PHP 7.1 base image is now **Debian Stretch**
 - Dropped Node 6 images
 
-## New extensions
+#### New extensions
 
 - Imagick
 
-## Organization
+#### Organization
 
 The project layout has been deeply changed. There is now only one branch for all the PHP versions.
 Each extension now has its own installation script in the `/extensions/core` directory with symlinks for the 
