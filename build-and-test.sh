@@ -191,7 +191,7 @@ RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="wh
 #[[ "$?" = "1" ]]
 #set -e
 
-if [[ "${PHP_VERSION}" != "8.0" ]] && [[ "${PHP_VERSION}" != "8.1" ]]; then
+if [[ "${PHP_VERSION}" != "8.1" ]]; then
   # Let's check that the "xdebug.client_host" contains a value different from "no value"
   docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.client_host| grep -v "no value"
 
