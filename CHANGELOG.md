@@ -5,6 +5,7 @@
 ### Minor changes
 
 * **2021-09-22** 
+  * Support more PHP 8.0 extensions | Added : mongodb, swoole, zip and blackfire.
   * Enhance builder | Use BuildKit, add header to blueprint exported files and start a Makefile for common build usages.
 
 ### Initial
