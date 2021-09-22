@@ -16,6 +16,12 @@ jobs:
       matrix:
         include:
           - variant: 'cli'
+            php_version: '8.1'
+          - variant: 'apache'
+            php_version: '8.1'
+          - variant: 'fpm'
+            php_version: '8.1'
+          - variant: 'cli'
             php_version: '8.0'
           - variant: 'apache'
             php_version: '8.0'
