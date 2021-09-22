@@ -7,28 +7,28 @@
 
 require __DIR__.'/utils.php';
 
-$compiledExtensions = [
-    /*'ftp', 'mysqlnd', 'mbstring'*/
-];
+//$compiledExtensions = [
+//    'ftp', 'mysqlnd', 'mbstring'
+//];
 
 $availableExtensions = getAvailableExtensions();
 
 $phpExtensions = getPhpExtensionsEnvVar();
 
-foreach ($compiledExtensions as $phpExtension) {
-    $envName = 'PHP_EXTENSION_'.strtoupper($phpExtension);
-
-    $env = strtolower(trim(getenv($envName)));
-
-    if ($env === '0' || $env === 'false' || $env === 'no' || $env === 'off') {
-        file_put_contents('php://stderr', "You cannot disable extension '$phpExtension'. It is compiled in the PHP binary.\n");
-        exit(1);
-    }
-    if (enableExtension($phpExtension)) {
-        file_put_contents('php://stderr', "You cannot explicitly enable extension '$phpExtension'. It is compiled in the PHP binary and therefore always available.\n");
-        exit(1);
-    }
-}
+//foreach ($compiledExtensions as $phpExtension) {
+//    $envName = 'PHP_EXTENSION_'.strtoupper($phpExtension);
+//
+//    $env = strtolower(trim(getenv($envName)));
+//
+//    if ($env === '0' || $env === 'false' || $env === 'no' || $env === 'off') {
+//        file_put_contents('php://stderr', "You cannot disable extension '$phpExtension'. It is compiled in the PHP binary.\n");
+//        exit(1);
+//    }
+//    if (enableExtension($phpExtension)) {
+//        file_put_contents('php://stderr', "You cannot explicitly enable extension '$phpExtension'. It is compiled in the PHP binary and therefore always available.\n");
+//        exit(1);
+//    }
+//}
 
 // Validate the content of PHP_EXTENSIONS
 foreach ($phpExtensions as $phpExtension) {

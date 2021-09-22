@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
 
-set -xe
+set -eE -o functrace
+
+failure() {
+  local lineno=$1
+  local msg=$2
+  echo "Failed at $lineno: $msg"
+}
+trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 # Let's replace the "." by a "-" with some bash magic
 export BRANCH_VARIANT=`echo "$VARIANT" | sed 's/\./-/g'`
+
+# Build with BuildKit https://docs.docker.com/develop/develop-images/build_enhancements/
+export DOCKER_BUILDKIT=1 # Force use of BuildKit
+export BUILDKIT_STEP_LOG_MAX_SIZE=10485760 # outpout log limit fixed to 10MiB
 
 # Let's build the "slim" image.
 docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} --build-arg PHP_VERSION=${PHP_VERSION} --build-arg GLOBAL_VERSION=${BRANCH} -f Dockerfile.slim.${VARIANT} .
@@ -14,7 +25,6 @@ docker build -t thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARI
 docker build -t test/slim_onbuild --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/slim_onbuild
 # This should run ok (the sudo disable environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/slim_onbuild php -m | grep sockets
-docker run --rm test/slim_onbuild php -m | grep xdebug
 docker run --rm test/slim_onbuild php -m | grep pdo_pgsql
 docker run --rm test/slim_onbuild php -m | grep pdo_sqlite
 docker rmi test/slim_onbuild
@@ -30,25 +40,25 @@ RESULT=`docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRA
 [[ "$RESULT" = "1000" ]]
 
 # If mounted, default user has the id of the mount directory
-mkdir user1999 && sudo chown 1999:1999 user1999
+mkdir user1999 && docker run --rm -v "$(pwd)":/mnt busybox chown 1999:1999 /mnt/user1999
 ls -al user1999
-RESULT=`docker run --rm -v $(pwd)/user1999:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} id -ur`
+RESULT=`docker run --rm -v "$(pwd)"/user1999:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} id -ur`
 [[ "$RESULT" = "1999" ]]
 
 # Also, the default user can write on stdout and stderr
-docker run --rm -v $(pwd)/user1999:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} bash -c "echo TEST > /proc/self/fd/2"
+docker run --rm -v "$(pwd)"/user1999:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} bash -c "echo TEST > /proc/self/fd/2"
 
-sudo rm -rf user1999
+rm -rf user1999
 
 # and it also works for users with existing IDs in the container
-sudo mkdir -p user33
-sudo cp tests/apache/composer.json user33/
-sudo chown -R 33:33 user33
+mkdir -p user33
+cp tests/apache/composer.json user33/
+docker run --rm -v "$(pwd)":/mnt busybox chown -R 33:33 /mnt/user33
 ls -al user33
-RESULT=`docker run --rm -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} id -ur`
+RESULT=`docker run --rm -v "$(pwd)"/user33:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} id -ur`
 [[ "$RESULT" = "33" ]]
-RESULT=`docker run --rm -v $(pwd)/user33:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} composer update -vvv`
-sudo rm -rf user33
+RESULT=`docker run --rm -v "$(pwd)"/user33:$CONTAINER_CWD thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} composer update -vvv`
+docker run --rm -v "$(pwd)":/mnt busybox rm -rf /mnt/user33
 
 # Let's check that mbstring is enabled by default (they are compiled in PHP)
 docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep mbstring
@@ -57,7 +67,7 @@ docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARI
 
 if [[ $VARIANT == apache* ]]; then
     # Test if environment variables are passed to PHP
-    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v "$(pwd)":/var/www/html thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
 
     # Let's wait for Apache to start
     sleep 5
@@ -68,7 +78,7 @@ if [[ $VARIANT == apache* ]]; then
 
 
     # Test Apache document root (relative)
-    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html -e APACHE_DOCUMENT_ROOT=tests thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v "$(pwd)":/var/www/html -e APACHE_DOCUMENT_ROOT=tests thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
     # Let's wait for Apache to start
     sleep 5
     RESULT=`curl http://localhost:81/test.php`
@@ -76,7 +86,7 @@ if [[ $VARIANT == apache* ]]; then
     docker stop $DOCKER_CID
 
     # Test Apache document root (absolute)
-    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/foo -e APACHE_DOCUMENT_ROOT=/var/www/foo/tests thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v "$(pwd)":/var/www/foo -e APACHE_DOCUMENT_ROOT=/var/www/foo/tests thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
     # Let's wait for Apache to start
     sleep 5
     RESULT=`curl http://localhost:81/test.php`
@@ -84,7 +94,7 @@ if [[ $VARIANT == apache* ]]; then
     docker stop $DOCKER_CID
 
     # Test Apache HtAccess
-    DOCKER_CID=`docker run --rm -p "81:80" -d -v $(pwd)/tests/testHtAccess:/foo -e APACHE_DOCUMENT_ROOT=/foo thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    DOCKER_CID=`docker run --rm -p "81:80" -d -v "$(pwd)"/tests/testHtAccess:/foo -e APACHE_DOCUMENT_ROOT=/foo thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
     # Let's wait for Apache to start
     sleep 5
     RESULT=`curl http://localhost:81/`
@@ -92,7 +102,7 @@ if [[ $VARIANT == apache* ]]; then
     docker stop $DOCKER_CID
 
     # Test PHP_INI_... variables are correctly handled by apache
-    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v $(pwd):/var/www/html -e PHP_INI_MEMORY_LIMIT=2G thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    DOCKER_CID=`docker run --rm -e MYVAR=foo -p "81:80" -d -v "$(pwd)":/var/www/html -e PHP_INI_MEMORY_LIMIT=2G thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
     # Let's wait for Apache to start
     sleep 5
     RESULT=`curl http://localhost:81/tests/apache/echo_memory_limit.php`
@@ -102,7 +112,7 @@ fi
 
 if [[ $VARIANT == fpm* ]]; then
     # Test if environment starts without errors
-    DOCKER_CID=`docker run --rm -p "9000:9000" -d -v $(pwd):/var/www/html thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
+    DOCKER_CID=`docker run --rm -p "9000:9000" -d -v "$(pwd)":/var/www/html thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}`
 
     # Let's wait for FPM to start
     sleep 5
@@ -124,7 +134,7 @@ RESULT=`docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRA
 RESULT=`docker run --rm -e TEMPLATE_PHP_INI=production thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
 [[ "$RESULT" = "error_reporting => 22527 => 22527" ]]
 
-RESULT=`docker run --rm -v $(pwd)/tests/php.ini:/etc/php/${PHP_VERSION}/cli/php.ini thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
+RESULT=`docker run --rm -v "$(pwd)"/tests/php.ini:/etc/php/${PHP_VERSION}/cli/php.ini thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
 [[ "$RESULT" = "error_reporting => 24575 => 24575" ]]
 
 RESULT=`docker run --rm -e PHP_INI_ERROR_REPORTING="E_ERROR | E_WARNING" thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep error_reporting`
@@ -147,7 +157,7 @@ RESULT=`docker run --rm -e STARTUP_COMMAND_1="cd / && whoami" -e UID=0 thecoding
 [[ "$RESULT" = "root" ]]
 
 # Tests that startup.sh is correctly executed
-docker run --rm -v $PWD/tests/startup.sh:/etc/container/startup.sh thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep "startup.sh executed"
+docker run --rm -v "$(pwd)"/tests/startup.sh:/etc/container/startup.sh thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -m | grep "startup.sh executed"
 
 # Tests that disable_functions is commented in php.ini cli
 RESULT=`docker run --rm thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT} php -i | grep "disable_functions"`
@@ -175,21 +185,22 @@ RESULT=`docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="wh
 
 
 # Let's check that mbstring cannot extension cannot be disabled
-set +e
-docker run --rm -e PHP_EXTENSION_MBSTRING=0 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i
-[[ "$?" = "1" ]]
-set -e
+# Disabled because no more used in setup_extensions.php
+#set +e
+#docker run --rm -e PHP_EXTENSION_MBSTRING=0 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i
+#[[ "$?" = "1" ]]
+#set -e
 
-# Let's check that the "xdebug.client_host" contains a value different from "no value"
-docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.client_host| grep -v "no value"
+if [[ "${PHP_VERSION}" != "8.0" ]] && [[ "${PHP_VERSION}" != "8.1" ]]; then
+  # Let's check that the "xdebug.client_host" contains a value different from "no value"
+  docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.client_host| grep -v "no value"
 
-# Let's check that "xdebug.mode" is set to "debug" by default
-docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.mode| grep "debug"
+  # Let's check that "xdebug.mode" is set to "debug" by default
+  docker run --rm -e PHP_EXTENSION_XDEBUG=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.mode| grep "debug"
 
-# Let's check that "xdebug.mode" is properly overridden
-docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_INI_XDEBUG__MODE=debug,coverage thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.mode| grep "debug,coverage"
+  # Let's check that "xdebug.mode" is properly overridden
+  docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_INI_XDEBUG__MODE=debug,coverage thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -i | grep xdebug.mode| grep "debug,coverage"
 
-if [[ "${PHP_VERSION}" != "7.4" ]] && [[ "${PHP_VERSION}" != "8.0" ]]; then
   # Tests that blackfire + xdebug will output an error
   RESULT=`docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT} php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.'`
   [[ "$RESULT" = "WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire." ]]
