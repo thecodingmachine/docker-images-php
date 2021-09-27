@@ -17,26 +17,23 @@ This repository contains a set of developer-friendly, general purpose PHP images
 ## Images
 
 {{ $versions := list "8.0" "7.4" "7.3" "7.2" }}
+{{ $nodeVersions := list "10" "12" "14" }}
 
 | Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
-{{range $versions}}| [thecodingmachine/php:{{ . }}-v4-apache](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache)             | `{{ . }}.x` | fat | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-apache)
-| [thecodingmachine/php:{{ . }}-v4-apache-node10](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache.node10) | `{{ . }}.x` | fat | apache  | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-apache-node10.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-apache-node10)
-| [thecodingmachine/php:{{ . }}-v4-apache-node12](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache.node12) | `{{ . }}.x` | fat | apache  | `12.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-apache-node12.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-apache-node12)
-| [thecodingmachine/php:{{ . }}-v4-apache-node14](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache.node14) | `{{ . }}.x` | fat | apache  | `14.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-apache-node14.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-apache-node14)
-| [thecodingmachine/php:{{ . }}-v4-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm)                   | `{{ . }}.x` | fat | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-fpm)
-| [thecodingmachine/php:{{ . }}-v4-fpm-node10](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm.node10)       | `{{ . }}.x` | fat | fpm     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-fpm-node10.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-fpm-node10)
-| [thecodingmachine/php:{{ . }}-v4-fpm-node12](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm.node12)       | `{{ . }}.x` | fat | fpm     | `12.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-fpm-node12.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-fpm-node12)
-| [thecodingmachine/php:{{ . }}-v4-fpm-node14](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm.node14)       | `{{ . }}.x` | fat | fpm     | `14.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-fpm-node14.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-fpm-node14)
-| [thecodingmachine/php:{{ . }}-v4-cli](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli)                   | `{{ . }}.x` | fat | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-cli)
-| [thecodingmachine/php:{{ . }}-v4-cli-node10](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli.node10)       | `{{ . }}.x` | fat | cli     | `10.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-cli-node10.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-cli-node10)
-| [thecodingmachine/php:{{ . }}-v4-cli-node12](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli.node12)       | `{{ . }}.x` | fat | cli     | `12.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-cli-node12.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-cli-node12)
-| [thecodingmachine/php:{{ . }}-v4-cli-node14](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli.node14)       | `{{ . }}.x` | fat | cli     | `14.x`           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-cli-node14.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-cli-node14)
-| [thecodingmachine/php:{{ . }}-v4-slim-apache](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.apache)             | `{{ . }}.x` | slim | apache  | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-slim-apache)
-| [thecodingmachine/php:{{ . }}-v4-slim-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.fpm)                   | `{{ . }}.x` | slim | fpm     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-slim-fpm)
-| [thecodingmachine/php:{{ . }}-v4-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.cli)                   | `{{ . }}.x` | slim | cli     | *N/A*           | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ . }}-v4-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ . }}-v4-slim-cli)
+{{range $phpV := $versions}}| [thecodingmachine/php:{{ $phpV }}-v4-apache](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache)                                        | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | fat  | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-apache)
+{{range $nodeV := $nodeVersions}}| [thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache.node{{ $nodeV }}) | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | fat  | apache   | `{{ $nodeV }}.x`{{ if eq $nodeV "10" }}(2){{ end }}  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }})
+{{ end }}| [thecodingmachine/php:{{ $phpV }}-v4-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm)                                                                 | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | fat  | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-fpm)
+{{range $nodeV := $nodeVersions}}| [thecodingmachine/php:{{ $phpV }}-v4-fpm-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm.node{{ $nodeV }})       | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | fat  | fpm      | `{{ $nodeV }}.x`{{ if eq $nodeV "10" }}(2){{ end }}  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-fpm-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-fpm-node{{ $nodeV }})
+{{ end }}| [thecodingmachine/php:{{ $phpV }}-v4-cli](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli)                                                                 | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | fat  | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-cli)
+{{range $nodeV := $nodeVersions}}| [thecodingmachine/php:{{ $phpV }}-v4-cli-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli.node{{ $nodeV }})       | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | fat  | cli      | `{{ $nodeV }}.x`{{ if eq $nodeV "10" }}(2){{ end }}  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-cli-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-cli-node{{ $nodeV }})
+{{ end }}| [thecodingmachine/php:{{ $phpV }}-v4-slim-apache](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.apache)                                                 | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | slim | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-slim-apache)
+| [thecodingmachine/php:{{ $phpV }}-v4-slim-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.fpm)                                                                | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | slim | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-slim-fpm)
+| [thecodingmachine/php:{{ $phpV }}-v4-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.cli)                                                                | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }}{{ if eq $phpV "8.1" }}rc2{{end}} | slim | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-slim-cli)
 {{end}}
 
+* (1) [PHP 7.2 and 7.3 are end of life](https://www.php.net/supported-versions.php)
+* (2) [Node 10 is end of life](https://nodejs.org/en/about/releases/)  
 
 Note: we also tag patch releases of PHP versions. So you can specify a specific patch release using thecodingmachine/php:**8.0.2**-v4-cli for instance.
 However, unless you have a **very specific need** (for instance if the latest patch release of PHP introduced regressions), believe you have no valid reason to ask explicitly for 8.0.2 for instance.
@@ -86,7 +83,7 @@ This image comes with 2 "types": the *slim* and the **fat** image.
 
 The slim image contains only a set a base PHP extensions.
 
-Only these extensions are available in the slim image: `calendar ctype curl dom exif fileinfo ftp gettext iconv json mbstring opcache pcntl pdo phar posix readline shmop simplexml sockets sysvmsg sysvsem sysvshm tokenizer wddx xml xmlreader xmlwriter xsl zip`
+Only these extensions are available in the slim image: `calendar` `ctype` `curl` `dom` `exif` `fileinfo` `ftp` `gettext` `iconv` `json` `mbstring` `opcache` `pcntl` `pdo` `phar` `posix` `readline` `shmop` `simplexml` `sockets` `sysvmsg` `sysvsem` `sysvshm` `tokenizer` `wddx` `xml` `xmlreader` `xmlwriter` `xsl` `zip`
 
 These extensions are enabled by default.
 
@@ -101,7 +98,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** apcu mysqli pdo_mysql igbinary redis soap
 
-**Available (can be enabled using environment variables):** amqp ast bcmath blackfire bz2 dba ds enchant ev event exif mailparse msgpack gd gettext gmp gnupg grpc igbinary imagick imap intl ldap mcrypt memcached mongodb pcov pdo_dblib pdo_pgsql pdo_sqlite pgsql pspell shmop snmp sockets sqlite3 swoole tidy uploadprogress uuid weakref(-beta) xdebug xmlrpc xsl yaml
+**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `ds` `enchant` `ev` `event` `exif` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `intl` `ldap` `mcrypt` `memcached` `mongodb` `pcov` `pdo_dblib` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `weakref(-beta)` `xdebug` `xmlrpc` `xsl` `yaml`
 
 **Note**:
 
@@ -120,7 +117,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node14
+    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node16
     environment:
       # Enable the PostgreSQL extension
       PHP_EXTENSION_PGSQL: 1
@@ -130,7 +127,7 @@ services:
 
 As an alternative, you can use the `PHP_EXTENSIONS` global variable:
 
-```
+```bash
 PHP_EXTENSIONS=pgsql gettext imap
 ```
 
@@ -154,7 +151,7 @@ first FROM):
 # The PHP_EXTENSIONS ARG will apply to the "slim" image
 ARG PHP_EXTENSIONS="apcu mysqli pdo_mysql soap"
 
-FROM thecodingmachine/php:7.2-v4-apache-node10 AS builder
+FROM thecodingmachine/php:{{ $image.php_version }}-v4-apache-node16 AS builder
 
 COPY --chown=docker:docker sources/web .
 RUN composer install &&\
@@ -179,7 +176,7 @@ By default, the base `php.ini` file used is the [*development* php.ini](https://
 
 You can use the production `php.ini` file using the `TEMPLATE_PHP_INI` environment variable:
 
-```
+```bash
 # Use the production php.ini file as a base
 TEMPLATE_PHP_INI=production
 ```
@@ -190,7 +187,7 @@ You can override parameters in `php.ini` using the PHP_INI_XXX environment varia
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node14
+    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node16
     environment:
       # set the parameter memory_limit=1g
       PHP_INI_MEMORY_LIMIT: 1g
@@ -206,7 +203,7 @@ If your `php.ini` parameter contains a dot ("."), you can replace it with a doub
 
 For instance:
 
-```
+```bash
 # Will set the parameter xdebug.remote_autostart=1
 PHP_INI_XDEBUG__REMOTE_AUTOSTART=1
 ```
@@ -228,7 +225,7 @@ you are using:
 For the *apache* variant, you can change the document root of Apache (i.e. your "public" directory) by using the 
 `APACHE_DOCUMENT_ROOT` variable:
 
-```
+```bash
 # The root of your website is in the "public" directory:
 APACHE_DOCUMENT_ROOT=public/
 ```
@@ -236,7 +233,7 @@ APACHE_DOCUMENT_ROOT=public/
 If the APACHE_DOCUMENT_ROOT starts with a "/", it will be considered an absolute path.
 If the APACHE_DOCUMENT_ROOT does not starts with a "/", it will be a path relative to "/var/www/html".
 
-```
+```bash
 # These 2 variables are identical
 APACHE_DOCUMENT_ROOT=public/
 APACHE_DOCUMENT_ROOT=/var/www/html/public
@@ -252,7 +249,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node14
+    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node16
     environment:
       # Enable the DAV extension for Apache
       APACHE_EXTENSION_DAV: 1
@@ -262,18 +259,18 @@ services:
 
 As an alternative, you can use the `APACHE_EXTENSIONS` global variable:
 
-```
+```bash
 APACHE_EXTENSIONS="dav ssl"
 ```
 
-**Apache modules enabled by default:** access_compat, alias, auth_basic, authn_core, authn_file, authz_core, authz_host, authz_user, autoindex, deflate, dir, env, expires, filter, mime, mpm_prefork, negotiation, php7, reqtimeout, rewrite, setenvif, status
+**Apache modules enabled by default:** `access_compat` `alias` `auth_basic` `authn_core` `authn_file` `authz_core` `authz_host` `authz_user` `autoindex` `deflate` `dir` `env` `expires` `filter` `mime` `mpm_prefork` `negotiation` `php7` `reqtimeout` `rewrite` `setenvif` `status`
 
-**Apache modules available:** access_compat, actions, alias, allowmethods, asis, auth_basic, auth_digest, auth_form, authn_anon, authn_core, authn_dbd, authn_dbm, authn_file, authn_socache, authnz_fcgi, authnz_ldap, authz_core, authz_dbd, authz_dbm, authz_groupfile, authz_host, authz_owner, authz_user, autoindex, buffer, cache, cache_disk, cache_socache, cgi, cgid, charset_lite, data, dav, dav_fs, dav_lock, dbd, deflate, dialup, dir, dump_io, echo, env, ext_filter, expires, file_cache, filter, headers, heartbeat, heartmonitor, ident, include, info, lbmethod_bybusyness, lbmethod_byrequests, lbmethod_bytraffic, lbmethod_heartbeat, ldap, log_debug, log_forensic, lua, macro, mime, mime_magic, mpm_event, mpm_prefork, mpm_worker, negotiation, php7, proxy, proxy_ajp, proxy_balancer, proxy_connect, proxy_express, proxy_fcgi, proxy_fdpass, proxy_ftp, proxy_html, proxy_http, proxy_scgi, proxy_wstunnel, ratelimit, reflector, remoteip, reqtimeout, request, rewrite, sed, session, session_cookie, session_crypto, session_dbd, setenvif, slotmem_plain, slotmem_shm, socache_dbm, socache_memcache, socache_shmcb, speling, ssl, status, substitute, suexec, unique_id, userdir, usertrack, vhost_alias, xml2enc
+**Apache modules available:** `access_compat` `actions` `alias` `allowmethods` `asis` `auth_basic` `auth_digest` `auth_form` `authn_anon` `authn_core` `authn_dbd` `authn_dbm` `authn_file` `authn_socache` `authnz_fcgi` `authnz_ldap` `authz_core` `authz_dbd` `authz_dbm` `authz_groupfile` `authz_host` `authz_owner` `authz_user` `autoindex` `buffer` `cache` `cache_disk` `cache_socache` `cgi` `cgid` `charset_lite` `data` `dav` `dav_fs` `dav_lock` `dbd` `deflate` `dialup` `dir` `dump_io` `echo` `env` `ext_filter` `expires` `file_cache` `filter` `headers` `heartbeat` `heartmonitor` `ident` `include` `info` `lbmethod_bybusyness` `lbmethod_byrequests` `lbmethod_bytraffic` `lbmethod_heartbeat` `ldap` `log_debug` `log_forensic` `lua` `macro` `mime` `mime_magic` `mpm_event` `mpm_prefork` `mpm_worker` `negotiation` `php7` `proxy` `proxy_ajp` `proxy_balancer` `proxy_connect` `proxy_express` `proxy_fcgi` `proxy_fdpass` `proxy_ftp` `proxy_html` `proxy_http` `proxy_scgi` `proxy_wstunnel` `ratelimit` `reflector` `remoteip` `reqtimeout` `request` `rewrite` `sed` `session` `session_cookie` `session_crypto` `session_dbd` `setenvif` `slotmem_plain` `slotmem_shm` `socache_dbm` `socache_memcache` `socache_shmcb` `speling` `ssl` `status` `substitute` `suexec` `unique_id` `userdir` `usertrack` `vhost_alias` `xml2enc`
 
  
 ## Debugging
 
-To enable XDebug, you simply have to set the environment variable:
+To enable XDebug` `you simply have to set the environment variable:
 
 ```bash
 PHP_EXTENSION_XDEBUG=1
@@ -289,14 +286,14 @@ Behind the scenes, the image will:
 
 ## NodeJS
 
-The *fat* images come with a Node variant. You can use Node 10, 12 or 14. If you need a Node 8 variant, [use thecodingmachine/php v3 images](https://github.com/thecodingmachine/docker-images-php/tree/v3). If you need a Node 6 variant, [use thecodingmachine/php v1 images](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
+The *fat* images come with a Node variant. You can use Node 10, 12, 14 or 16. If you need a Node 8 variant, [use thecodingmachine/php v3 images](https://github.com/thecodingmachine/docker-images-php/tree/v3). If you need a Node 6 variant, [use thecodingmachine/php v1 images](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
 
 If you use the *slim* images, you can install a NodeJS version with a simple ARG during the build:
 
 ```Dockerfile
 ARG NODE_VERSION=14
 FROM thecodingmachine/php:{{ $image.php_version }}-v4-slim-apache
-# The build will automatically trigger the download of Node 10
+# The build will automatically trigger the download of Node 14
 # (thanks to a ONBUILD hook in the slim image)
 ```
 
@@ -347,7 +344,7 @@ In production, you want to change back the Apache user to www-data.
 This can be done easily:
 
 **Dockerfile**
-```
+```Dockerfile
 FROM thecodingmachine/php:{{ $image.php_version }}-v4-apache
 
 # ...
@@ -490,7 +487,7 @@ This option is the easiest way to go if you are using the image on a development
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node14
+    image: thecodingmachine/php:{{ $image.php_version }}-v4-apache-node16
     volumes:
       - ~/.ssh:/home/docker/.ssh
 ```
@@ -501,7 +498,7 @@ Look at this option if you are building a Dockerfile from this image.
 
 The first thing to do is to get the signature of the server you want to connect to.
 
-``` bash
+```bash
 $ ssh-keyscan myserver.com
 ```
 
