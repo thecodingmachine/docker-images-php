@@ -5,6 +5,7 @@
 ### Minor changes
 
 * **2021-09-22** 
+  * Preview for PHP 8.1 | PHP 8.1 in release candidate 2 (miss many extensions)
   * Support for Node v16 | Version LTS
   * Support more PHP 8.0 extensions | Added : mongodb, swoole, zip and blackfire.
   * Enhance builder | Use BuildKit, add header to blueprint exported files and start a Makefile for common build usages.
