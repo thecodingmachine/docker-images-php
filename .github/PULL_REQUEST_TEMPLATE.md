@@ -9,12 +9,10 @@ For more information, see the [CONTRIBUTING](CONTRIBUTING.md) guide.
 
 <!-- Summary of the PR -->
 
-This PR fixes/implements the following **bugs/features**
+This PR fixes/implements :
 
-* [ ] Bug 1
-* [ ] Bug 2
-* [ ] Feature 1
-* [ ] Feature 2
+* [ ] Bug  <!-- Put `closes #XXXX` in your comment to auto-close the issue -->
+* [ ] Feature 
 * [ ] Breaking changes
 
 <!-- You can skip this if you're fixing a typo or adding an app to the Showcase. -->
@@ -27,13 +25,8 @@ Explain the **motivation** for making this change. What existing problem does th
 
 Demonstrate the code is solid. Example: The exact commands you ran and their output.
 
-**Closing issues**
-
-<!-- Put `closes #XXXX` in your comment to auto-close the issue that your PR fixes (if such). -->
-Fixes #
-
 **Checklist**
 
-- [ ] Have you followed the guidelines in our [CONTRIBUTING](CONTRIBUTING.md) guide?
+- [ ] I followed the guidelines in [CONTRIBUTING](CONTRIBUTING.md) guide
 - [ ] I have squashed any insignificant commits
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code
