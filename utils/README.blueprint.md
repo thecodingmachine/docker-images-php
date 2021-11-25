@@ -285,6 +285,14 @@ Behind the scenes, the image will:
 - if you are using a Linux machine, the `xdebug.client_host` IP will point to your Docker gateway
 - if you are using a Windows or MaxOS machine, the `xdebug.client_host` IP will point to [`host.docker.internal`](https://docs.docker.com/docker-for-mac/networking/#use-cases-and-workarounds) or [`docker.for.mac.localhost`](https://docs.docker.com/docker-for-mac/networking/#use-cases-and-workarounds)
 
+If you want to debug directly inside your container (for example if you're using [VSCode devcontainers](https://code.visualstudio.com/docs/remote/containers)) you can overwrite the [`xdebug.client_host`](https://xdebug.org/docs/all_settings#client_host) value by setting the following environment variable:
+
+```bash
+XDEBUG_CLIENT_HOST=127.0.0.1
+```
+
+In that case the manually set value takes precedence over the mentioned ones above.
+
 ## NodeJS
 
 The *fat* images come with a Node variant. You can use Node 10, 12, 14 or 16. If you need a Node 8 variant, [use thecodingmachine/php v3 images](https://github.com/thecodingmachine/docker-images-php/tree/v3). If you need a Node 6 variant, [use thecodingmachine/php v1 images](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
