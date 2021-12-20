@@ -15,4 +15,4 @@ if [[ "$REGENERATE" == "1" ]]; then
   /usr/bin/real_php /usr/local/bin/setup_extensions.php | sudo bash
 fi
 
-/usr/bin/real_php "$@"
+exec /usr/bin/real_php "$@"
