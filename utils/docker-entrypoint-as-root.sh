@@ -122,6 +122,11 @@ if [ -e /usr/sbin/dma ]; then
         DMA_FROM=noreply@example.org
     fi
     export PHP_INI_SENDMAIL_PATH="/usr/sbin/sendmail -t -i -f'$DMA_FROM'"
+    if [[ "$DMA_BLOCKING" == "1" ]]; then
+        # run in foreground & block until the email really has been sent
+        # only documented here as it should not normally be used in production; it's mostly used for testing
+        export PHP_INI_SENDMAIL_PATH="${PHP_INI_SENDMAIL_PATH} -D"
+    fi
 
     # generate DMA config based on DMA_CONF_... environment variables
     php /usr/local/bin/generate_dma.php > /etc/dma/dma.conf
@@ -132,6 +137,7 @@ if [ -e /usr/sbin/dma ]; then
             echo "DMA_AUTH_USERNAME and DMA_AUTH_PASSWORD are set, but DMA_CONF_SMARTHOST is empty - not attempting authentication" >&2
         else
             echo "$DMA_AUTH_USERNAME|$DMA_CONF_SMARTHOST:$DMA_AUTH_PASSWORD" > /etc/dma/auth.conf
+            echo "AUTHPATH /etc/dma/auth.conf" >> /etc/dma/dma.conf
         fi
     fi
 
