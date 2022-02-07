@@ -399,5 +399,5 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
 ONBUILD ARG INSTALL_DMA
 ONBUILD RUN if [ -n "$INSTALL_DMA" ]; then \
     sudo apt-get update && \
-    sudo -E apt-get install -y --no-install-recommends dma; \
+    sudo -E apt-get install -y --no-install-recommends dma busybox-syslogd; \
     fi;

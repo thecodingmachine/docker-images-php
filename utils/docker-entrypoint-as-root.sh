@@ -125,8 +125,8 @@ if [ -e /usr/sbin/dma ]; then
 
     # generate DMA config based on DMA_CONF_... environment variables
     php /usr/local/bin/generate_dma.php > /etc/dma/dma.conf
-	
-	# generate DMA authentication file based on DMA_AUTH_... environment variables
+
+    # generate DMA authentication file based on DMA_AUTH_... environment variables
     if [ -n "$DMA_AUTH_USERNAME" ] && [ -n "$DMA_AUTH_PASSWORD" ]; then
         if [ -z "$DMA_CONF_SMARTHOST" ]; then
             echo "DMA_AUTH_USERNAME and DMA_AUTH_PASSWORD are set, but DMA_CONF_SMARTHOST is empty - not attempting authentication" >&2
@@ -134,6 +134,11 @@ if [ -e /usr/sbin/dma ]; then
             echo "$DMA_AUTH_USERNAME|$DMA_CONF_SMARTHOST:$DMA_AUTH_PASSWORD" > /etc/dma/auth.conf
         fi
     fi
+
+    # start BusyBox syslogd to log DMA errors to STDERR
+    # unfortunately DMA doesn't support any other way of logging
+    # tini will luckily make sure that syslogd will be killed together with any other processes
+    syslogd -n -O - -l 6 | grep --color=never -E '\bmail\.\S+\s+dma\b' >&2 &
 fi
 
 sudo chown docker:docker /opt/php_env_var_cache.php

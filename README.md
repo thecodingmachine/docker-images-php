@@ -472,7 +472,7 @@ a single argument before the "FROM" clause in your Dockerfile:
 
 ```Dockerfile
 ARG INSTALL_DMA=1
-FROM thecodingmachine/php:7.4-v3-slim-apache
+FROM thecodingmachine/php:8.0-v3-slim-apache
 # The build triggers automatically the installation of DragonFly Mail Agent
 ```
 
