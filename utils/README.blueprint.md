@@ -381,8 +381,11 @@ DMA_CONF_SMARTHOST=smtp.example.org
 DMA_AUTH_USERNAME=noreply
 DMA_AUTH_PASSWORD=helloworld123
 # further DMA settings, according to the DMA man page, prefixed with DMA_CONF_
-# (see https://manpages.debian.org/unstable/dma/sendmail.8.en.html#dma.conf)
-DMA_CONF_STARTTLS=1
+# (see https://dspinellis.github.io/manview/?src=https://raw.githubusercontent.com/corecode/dma/v0.12/dma.8)
+# important for boolean settings: a specified but empty variable corresponds
+#                                 to true, an unspecified one to false!
+DMA_CONF_SECURETRANSFER=
+DMA_CONF_STARTTLS=
 ```
 
 DMA is **installed by default in the fat images**. If you are using the "*slim*" images, you need to install it by passing

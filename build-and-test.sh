@@ -213,6 +213,24 @@ docker build -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" -
 docker run --rm test/composer_with_gd sudo composer update
 docker rmi test/composer_with_gd
 
+# Let's check that we can send mail directly
+TESTMAIL_ID_DIRECT=$RANDOM
+docker run --rm -e DMA_BLOCKING=1 "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -r "mail('lemuel.ratke46@ethereal.email', 'Hello World ${TESTMAIL_ID_DIRECT}', 'This is an automatic test email, using a direct connection.');"
+
+# Let's check that we can send mail through a smarthost with credentials
+# Sending to an MCAST-TEST-NET IP address as that must not appear on the public internet according to RFC 5771, and will thus be unreachable for direct sending.
+TESTMAIL_ID_SMARTHOST=$RANDOM
+docker run --rm -e DMA_BLOCKING=1 -e DMA_CONF_SMARTHOST=smtp.ethereal.email -e DMA_CONF_PORT=587 -e DMA_CONF_SECURETRANSFER= -e DMA_CONF_STARTTLS= -e DMA_AUTH_USERNAME=lemuel.ratke46@ethereal.email -e DMA_AUTH_PASSWORD=pjxG3kc3VR31jQUvHz "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -r "mail('lemuel.ratke46@233.252.0.0', 'Hello World ${TESTMAIL_ID_SMARTHOST}', 'This is an automatic test email, using a smarthost.');"
+
+# Let's check that the mails came through
+ETHEREAL_COOKIEJAR=$(mktemp --tmpdir ethereal-cookies.XXXXXXXXXX)
+ETHEREAL_CSRF=$(curl https://ethereal.email/login -s --fail -c "${ETHEREAL_COOKIEJAR}" | grep -Pom1 '\bname="_csrf" value="\K[^"]+')
+curl https://ethereal.email/login -s --fail -X POST --data-urlencode "address=lemuel.ratke46@ethereal.email" --data-urlencode "password=pjxG3kc3VR31jQUvHz" --data-urlencode "_csrf=${ETHEREAL_CSRF}" -b "${ETHEREAL_COOKIEJAR}" -c "${ETHEREAL_COOKIEJAR}" >/dev/null
+ETHEREAL_INBOX=$(curl https://ethereal.email/messages -s --fail -b "${ETHEREAL_COOKIEJAR}")
+rm "${ETHEREAL_COOKIEJAR}"
+echo "${ETHEREAL_INBOX}" | grep -F ">Hello World ${TESTMAIL_ID_DIRECT}<"
+echo "${ETHEREAL_INBOX}" | grep -F ">Hello World ${TESTMAIL_ID_SMARTHOST}<"
+
 #################################
 # Let's build the "node" images
 #################################
