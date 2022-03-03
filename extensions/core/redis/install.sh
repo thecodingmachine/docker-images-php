@@ -4,9 +4,9 @@ set -e
 export EXTENSION=redis
 
 # we need to do some weird stuff to get memcached working
-phpdismod igbinary
-phpenmod igbinary
+phpdismod -v $PHP_VERSION igbinary
+phpenmod -v $PHP_VERSION igbinary
 
 ../docker-install.sh
 
-phpdismod igbinary
+phpdismod -v $PHP_VERSION igbinary

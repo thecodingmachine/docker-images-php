@@ -120,7 +120,7 @@ sudo chown docker:docker /opt/php_env_var_cache.php
 /usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php &> /dev/null
 
 /usr/bin/real_php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
-/usr/bin/real_php /usr/local/bin/setup_extensions.php | sudo bash
+PHP_VERSION="${PHP_VERSION}" /usr/bin/real_php /usr/local/bin/setup_extensions.php | sudo bash
 
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`

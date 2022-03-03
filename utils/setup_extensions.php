@@ -15,6 +15,8 @@ $availableExtensions = getAvailableExtensions();
 
 $phpExtensions = getPhpExtensionsEnvVar();
 
+$phpVersion = getPhpVersionEnvVar();
+
 //foreach ($compiledExtensions as $phpExtension) {
 //    $envName = 'PHP_EXTENSION_'.strtoupper($phpExtension);
 //
@@ -66,8 +68,8 @@ if (enableExtension('mysqli') || enableExtension('pdo_mysql')) {
 }*/
 
 if ($toDisable) {
-    echo 'phpdismod '.implode(' ', $toDisable)."\n";
+    echo 'phpdismod -v ' . $phpVersion . ' ' . implode(' ', $toDisable)."\n";
 }
 if ($toEnable) {
-    echo 'phpenmod '.implode(' ', $toEnable)."\n";
+    echo 'phpenmod -v ' . $phpVersion . ' ' . implode(' ', $toEnable)."\n";
 }

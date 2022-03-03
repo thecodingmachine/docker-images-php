@@ -8,6 +8,6 @@ for ext in */; do \
     if compgen -G "/etc/php/${PHP_VERSION}/cli/conf.d/*-$ext_no_slash.ini" > /dev/null; then
         echo "***************** Disabling $ext_no_slash ******************"
         #rm -f /etc/php/${PHP_VERSION}/cli/conf.d/*-$ext_no_slash.ini
-        phpdismod $ext_no_slash
+        phpdismod -v $PHP_VERSION $ext_no_slash
     fi
 done
