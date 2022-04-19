@@ -73,6 +73,19 @@ function getPhpExtensionsEnvVar(): array
     return $phpExtensions;
 }
 
+function getPhpVersionEnvVar()
+{
+    static $phpVersion = null;
+    if ($phpVersion !== null) {
+        return $phpVersion;
+    }
+
+    $phpVersion = getenv('PHP_VERSION');
+
+    return $phpVersion;
+}
+
+
 function enableExtension(string $extensionName): bool {
     $phpExtensions = getPhpExtensionsEnvVar();
 

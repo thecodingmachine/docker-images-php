@@ -54,24 +54,24 @@ fi
 
 if [ -n "$EXTENSION" ]; then
     # Let's perform a test
-    phpenmod $EXTENSION
+    phpenmod -v $PHP_VERSION $EXTENSION
     /usr/bin/real_php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$EXTENSION}}"
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`/usr/bin/real_php -r "echo '';" 2>&1`
     [[ "$OUTPUT" == "" ]]
     # And now, let's disable it!
-    phpdismod $EXTENSION
+    phpdismod -v $PHP_VERSION $EXTENSION
 fi
 
 if [ -n "$PECL_EXTENSION" ]; then
     # Let's perform a test
-    PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" /usr/bin/real_php /usr/local/bin/setup_extensions.php | bash
+    PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" PHP_VERSION="${PHP_VERSION}" /usr/bin/real_php /usr/local/bin/setup_extensions.php | bash
     PHP_EXTENSIONS="${PHP_EXT_NAME:-$PECL_EXTENSION}" /usr/bin/real_php /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/cli/conf.d/testextension.ini
 
     /usr/bin/real_php -m | grep "${PHP_EXT_PHP_NAME:-${PHP_EXT_NAME:-$PECL_EXTENSION}}"
     # Check that there is no output on STDERR when starting php:
     OUTPUT=`/usr/bin/real_php -r "echo '';" 2>&1`
     [[ "$OUTPUT" == "" ]]
-    PHP_EXTENSIONS="" /usr/bin/real_php /usr/local/bin/setup_extensions.php | bash
+    PHP_EXTENSIONS="" PHP_VERSION="${PHP_VERSION}" /usr/bin/real_php /usr/local/bin/setup_extensions.php | bash
     rm /etc/php/${PHP_VERSION}/cli/conf.d/testextension.ini
 fi
