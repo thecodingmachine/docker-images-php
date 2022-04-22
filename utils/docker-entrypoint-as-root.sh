@@ -116,6 +116,37 @@ fi
 unset DOCKER_FOR_MAC_REMOTE_HOST
 unset REMOTE_HOST_FOUND
 
+if [ -e /usr/sbin/dma ]; then
+    # set sendmail path for PHP
+    if [ "$DMA_FROM" = "" ]; then
+        DMA_FROM=noreply@example.org
+    fi
+    export PHP_INI_SENDMAIL_PATH="/usr/sbin/sendmail -t -i -f'$DMA_FROM'"
+    if [[ "$DMA_BLOCKING" == "1" ]]; then
+        # run in foreground & block until the email really has been sent
+        # only documented here as it should not normally be used in production; it's mostly used for testing
+        export PHP_INI_SENDMAIL_PATH="${PHP_INI_SENDMAIL_PATH} -D"
+    fi
+
+    # generate DMA config based on DMA_CONF_... environment variables
+    php /usr/local/bin/generate_dma.php > /etc/dma/dma.conf
+
+    # generate DMA authentication file based on DMA_AUTH_... environment variables
+    if [ -n "$DMA_AUTH_USERNAME" ] && [ -n "$DMA_AUTH_PASSWORD" ]; then
+        if [ -z "$DMA_CONF_SMARTHOST" ]; then
+            echo "DMA_AUTH_USERNAME and DMA_AUTH_PASSWORD are set, but DMA_CONF_SMARTHOST is empty - not attempting authentication" >&2
+        else
+            echo "$DMA_AUTH_USERNAME|$DMA_CONF_SMARTHOST:$DMA_AUTH_PASSWORD" > /etc/dma/auth.conf
+            echo "AUTHPATH /etc/dma/auth.conf" >> /etc/dma/dma.conf
+        fi
+    fi
+
+    # start BusyBox syslogd to log DMA errors to STDERR
+    # unfortunately DMA doesn't support any other way of logging
+    # tini will luckily make sure that syslogd will be killed together with any other processes
+    syslogd -n -O - -l 6 | grep --color=never -E '\bmail\.\S+\s+dma\b' >&2 &
+fi
+
 sudo chown docker:docker /opt/php_env_var_cache.php
 /usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php &> /dev/null
 
