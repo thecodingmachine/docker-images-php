@@ -25,6 +25,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends gnupg \
     && echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu focal main" > /etc/apt/sources.list.d/ondrej-php.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
+    && echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu focal main" > /etc/apt/sources.list.d/git.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A1715D88E1DF1F24 \
     && apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
