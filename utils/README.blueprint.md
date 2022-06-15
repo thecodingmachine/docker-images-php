@@ -644,6 +644,24 @@ You can then test your changes using the `build-and-test.sh` command:
 PHP_VERSION={{ $image.php_version }} BRANCH=v4 VARIANT=apache ./build-and-test.sh
 ```
 
+### Additional environment in build-and-test.sh
+
+- BUILDER: either build or buildx depending on your configuration.
+Defaults to build
+- BLACKFIRE_VERSION: defaults to 1. You can install v2 if you're feeling adventurous by specifying 2 as a value.
+- PLATFORM: Docker will default to your architecture for building images. However, if you have QEMU set up in your machine, you can try building for another architecture like linux/arm64
+
+Only one platform at a time is supported during the build and test script execution.
+
+*APPLE SILICON CONSIDERATIONS*
+
+Filesystem management works differently in Apple's macOS, so, if you're trying to build a linux/arm64 image (that is best suited for using in a M1/M2 Mac than a linux/amd64 one), there's a high likelihood that the filesystem user and permissions with busybox are going to fail.
+
+Although the test fails, when using the built image, everything works as expected.
+
+Run a virtual machine with linux/arm64 with Docker installed in it and, then, build and test the image. You'll take advantage of the ARM speed and will also be able to run the unit tests properly.
+
+
 ### Adding additional images
 
 To add a new version (php, node, apache, ...), please edit the following files :

@@ -9,6 +9,9 @@ failure() {
 }
 trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
+# Use either docker's 'build' command or 'buildx '
+export BUILDTOOL="build"
+
 # Let's replace the "." by a "-" with some bash magic
 export BRANCH_VARIANT="${VARIANT//./-}"
 
@@ -17,12 +20,10 @@ export DOCKER_BUILDKIT=1                   # Force use of BuildKit
 export BUILDKIT_STEP_LOG_MAX_SIZE=10485760 # output log limit fixed to 10MiB
 
 # Let's build the "slim" image.
-docker build -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.slim.${VARIANT}" .
-
-# Post build unit tests
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" --build-arg BLACKFIRE_VERSION="${BLACKFIRE_VERSION}" -f "Dockerfile.slim.${VARIANT}" --platform=${PLATFORM} .
 
 # Let's check that the extensions can be built using the "ONBUILD" statement
-docker build -t test/slim_onbuild --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/slim_onbuild
+docker $BUILDTOOL -t test/slim_onbuild --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --platform=${PLATFORM} tests/slim_onbuild
 # This should run ok (the sudo disable environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/slim_onbuild php -m | grep sockets
 docker run --rm test/slim_onbuild php -m | grep pdo_pgsql
@@ -30,9 +31,10 @@ docker run --rm test/slim_onbuild php -m | grep pdo_sqlite
 docker rmi test/slim_onbuild
 
 # Let's check that the extensions are available for composer using "ARG PHP_EXTENSIONS" statement:
-docker build -t test/slim_onbuild_composer --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/slim_onbuild_composer
+docker $BUILDTOOL -t test/slim_onbuild_composer --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --platform=${PLATFORM} tests/slim_onbuild_composer
 docker rmi test/slim_onbuild_composer
 
+echo "Running post-build unit tests"
 # Post build unit tests
 if [[ $VARIANT == cli* ]]; then CONTAINER_CWD=/usr/src/app; else CONTAINER_CWD=/var/www/html; fi
 # Default user is 1000
@@ -60,15 +62,15 @@ RESULT="$(docker run --rm -v "$(pwd)"/user33:$CONTAINER_CWD "thecodingmachine/ph
 RESULT="$(docker run --rm -v "$(pwd)"/user33:$CONTAINER_CWD "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" composer update -vvv)"
 docker run --rm -v "$(pwd)":/mnt busybox rm -rf /mnt/user33
 
-# Let's check that mbstring is enabled by default (they are compiled in PHP)
+#Let's check that mbstring is enabled by default (they are compiled in PHP)
 docker run --rm "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | grep mbstring
 docker run --rm "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | grep PDO
-#docker run --rm "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | grep pdo_sqlite
+# SQLite is disabled
+# docker run --rm "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | grep pdo_sqlite
 
 if [[ $VARIANT == apache* ]]; then
   # Test if environment variables are passed to PHP
   DOCKER_CID="$(docker run --rm -e MYVAR=foo -p "81:80" -d -v "$(pwd)":/var/www/html "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}")"
-
   # Let's wait for Apache to start
   sleep 5
 
@@ -165,7 +167,7 @@ RESULT="$(docker run --rm "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${
 #################################
 # Let's build the "fat" image
 #################################
-docker build -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}" .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}" --platform=${PLATFORM} .
 
 # Let's check that the crons are actually sending logs in the right place
 RESULT="$(docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1)"
@@ -202,12 +204,11 @@ if [[ "${PHP_VERSION}" != "8.1" ]]; then
   # Tests that blackfire + xdebug will output an error
   RESULT="$(docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.')"
   [[ "$RESULT" == "WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire." ]]
-
   # Check that blackfire can be enabled
   docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -m | grep blackfire
 fi
 # Let's check that the extensions are enabled when composer is run
-docker build -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
+docker $BUILDTOOL -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --platform=${PLATFORM} tests/composer
 
 # This should run ok (the sudo disables environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/composer_with_gd sudo composer update
@@ -216,9 +217,9 @@ docker rmi test/composer_with_gd
 #################################
 # Let's build the "node" images
 #################################
-docker build -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node10" .
-docker build -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node12" .
-docker build -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node14" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node14" .
-docker build -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node16" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node16" .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node10" --platform=${PLATFORM} .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node12" --platform=${PLATFORM} .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node14" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node14" --platform=${PLATFORM} .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node16" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node16" --platform=${PLATFORM} .
 
 echo "Tests passed with success"
