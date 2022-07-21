@@ -54,7 +54,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Build and test
         run: |
-          PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-and-test.sh
+          PLATFORM="linux/amd64" PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-and-test.sh
+          PUSH=0 PLATFORM="linux/arm64" PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-load-or-push.sh
           docker images | grep thecodingmachine/php
       - name: Login to DockerHub
         # Merge ~ push.
@@ -68,12 +69,7 @@ jobs:
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
           BRANCH_VARIANT=`echo "${{ matrix.variant }}" | sed 's/\./-/g'`
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node10
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node12
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node14
-          docker push thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node16
+          PUSH=1 PLATFORM="linux/amd64,linux/arm64" PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-load-or-push.sh
           # Let's also tag PHP patch releases
           PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
           echo "Tagging patch release $PHP_PATCH_VERSION"

@@ -10,7 +10,7 @@ failure() {
 trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 # Use either docker's 'build' command or 'buildx '
-export BUILDTOOL="build"
+export BUILDTOOL="buildx build --load --platform=${PLATFORM:-linux/amd64}"
 
 # Let's replace the "." by a "-" with some bash magic
 export BRANCH_VARIANT="${VARIANT//./-}"
@@ -20,10 +20,10 @@ export DOCKER_BUILDKIT=1                   # Force use of BuildKit
 export BUILDKIT_STEP_LOG_MAX_SIZE=10485760 # output log limit fixed to 10MiB
 
 # Let's build the "slim" image.
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" --build-arg BLACKFIRE_VERSION="${BLACKFIRE_VERSION}" -f "Dockerfile.slim.${VARIANT}" --platform=${PLATFORM} .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" --build-arg BLACKFIRE_VERSION="${BLACKFIRE_VERSION}" -f "Dockerfile.slim.${VARIANT}" .
 
 # Let's check that the extensions can be built using the "ONBUILD" statement
-docker $BUILDTOOL -t test/slim_onbuild --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --platform=${PLATFORM} tests/slim_onbuild
+docker $BUILDTOOL -t test/slim_onbuild --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/slim_onbuild
 # This should run ok (the sudo disable environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/slim_onbuild php -m | grep sockets
 docker run --rm test/slim_onbuild php -m | grep pdo_pgsql
@@ -31,7 +31,7 @@ docker run --rm test/slim_onbuild php -m | grep pdo_sqlite
 docker rmi test/slim_onbuild
 
 # Let's check that the extensions are available for composer using "ARG PHP_EXTENSIONS" statement:
-docker $BUILDTOOL -t test/slim_onbuild_composer --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --platform=${PLATFORM} tests/slim_onbuild_composer
+docker $BUILDTOOL -t test/slim_onbuild_composer --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/slim_onbuild_composer
 docker rmi test/slim_onbuild_composer
 
 echo "Running post-build unit tests"
@@ -167,7 +167,7 @@ RESULT="$(docker run --rm "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${
 #################################
 # Let's build the "fat" image
 #################################
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}" --platform=${PLATFORM} .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}" .
 
 # Let's check that the crons are actually sending logs in the right place
 RESULT="$(docker run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1)"
@@ -208,7 +208,7 @@ if [[ "${PHP_VERSION}" != "8.1" ]]; then
   docker run --rm -e PHP_EXTENSION_BLACKFIRE=1 "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -m | grep blackfire
 fi
 # Let's check that the extensions are enabled when composer is run
-docker $BUILDTOOL -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --platform=${PLATFORM} tests/composer
+docker $BUILDTOOL -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/composer
 
 # This should run ok (the sudo disables environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/composer_with_gd sudo composer update
@@ -217,9 +217,9 @@ docker rmi test/composer_with_gd
 #################################
 # Let's build the "node" images
 #################################
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node10" --platform=${PLATFORM} .
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node12" --platform=${PLATFORM} .
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node14" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node14" --platform=${PLATFORM} .
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node16" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node16" --platform=${PLATFORM} .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node10" .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node12" .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node14" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node14" .
+docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node16" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node16" .
 
 echo "Tests passed with success"
