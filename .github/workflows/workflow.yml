@@ -14,49 +14,23 @@ jobs:
   build_test_maybe_release:
     strategy:
       matrix:
-        include:
-          - variant: 'cli'
-            php_version: '8.1'
-          - variant: 'apache'
-            php_version: '8.1'
-          - variant: 'fpm'
-            php_version: '8.1'
-          - variant: 'cli'
-            php_version: '8.0'
-          - variant: 'apache'
-            php_version: '8.0'
-          - variant: 'fpm'
-            php_version: '8.0'
-          - variant: 'cli'
-            php_version: '7.4'
-          - variant: 'apache'
-            php_version: '7.4'
-          - variant: 'fpm'
-            php_version: '7.4'
-          - variant: 'cli'
-            php_version: '7.3'
-          - variant: 'apache'
-            php_version: '7.3'
-          - variant: 'fpm'
-            php_version: '7.3'
-          - variant: 'cli'
-            php_version: '7.2'
-          - variant: 'apache'
-            php_version: '7.2'
-          - variant: 'fpm'
-            php_version: '7.2'
+        variant: ['cli','apache','fpm']
+        php_version: ['8.1','8.0','7.4', '7.3','7.2']
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - uses: actions/checkout@v1
-      - name: Build and test
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build
         run: |
-          PLATFORM="linux/amd64" PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-and-test.sh
-          PUSH=0 PLATFORM="linux/arm64" PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-load-or-push.sh
-          docker images | grep thecodingmachine/php
+          PHP_VERSION="${{ matrix.php_version }}"
+          docker buildx bake --load \
+            --platform=${PLATFORM:$(uname -p)}} \
+            php${PHP_VERSION//.}-${{ matrix.variant }} 
+          docker images --filter=reference=thecodingmachine/php
       - name: Login to DockerHub
         # Merge ~ push.
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
@@ -68,20 +42,10 @@ jobs:
         # Merge ~ push.
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
-          BRANCH_VARIANT=`echo "${{ matrix.variant }}" | sed 's/\./-/g'`
-          PUSH=1 PLATFORM="linux/amd64,linux/arm64" PHP_VERSION="${{ matrix.php_version }}" BRANCH="v4" VARIANT="${{ matrix.variant }}" ./build-load-or-push.sh
-          # Let's also tag PHP patch releases
-          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
-          echo "Tagging patch release $PHP_PATCH_VERSION"
-          docker tag thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT} thecodingmachine/php:${PHP_PATCH_VERSION}-v4-slim-${BRANCH_VARIANT}
-          docker tag thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT} thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}
-          docker tag thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node10 thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node10
-          docker tag thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node12 thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node12
-          docker tag thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node14 thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node14
-          docker tag thecodingmachine/php:${{ matrix.php_version }}-v4-${BRANCH_VARIANT}-node16 thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node16
-          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-slim-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}
-          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node10
-          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node12
-          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node14
-          docker push thecodingmachine/php:${PHP_PATCH_VERSION}-v4-${BRANCH_VARIANT}-node16
+          PHP_VERSION="${{ matrix.php_version }}"
+          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          TAG=${PHP_PATCH_VERSION} docker buildx bake --push \
+            --cache-from=type=local,src=/tmp/buildx-cache \
+            --cache-to=type=local,dest=/tmp/buildx-cache \
+            --platform=${PLATFORM:$(uname -p)}} \
+            php${PHP_VERSION//.}-${{ matrix.variant }} 
