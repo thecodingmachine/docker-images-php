@@ -24,11 +24,11 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Build
+      - name: Build locally
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
           docker buildx bake --load \
-            --platform=${PLATFORM:$(uname -p)}} \
+            --set "*.platform=$(uname -p)" \
             php${PHP_VERSION//.}-${{ matrix.variant }} 
           docker images --filter=reference=thecodingmachine/php
       - name: Login to DockerHub
@@ -38,14 +38,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Release
+      - name: Build and push to repository
         # Merge ~ push.
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
           PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
           TAG=${PHP_PATCH_VERSION} docker buildx bake --push \
-            --cache-from=type=local,src=/tmp/buildx-cache \
-            --cache-to=type=local,dest=/tmp/buildx-cache \
-            --platform=${PLATFORM:$(uname -p)}} \
             php${PHP_VERSION//.}-${{ matrix.variant }} 

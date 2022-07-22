@@ -10,7 +10,7 @@ failure() {
 trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 # Use either docker's 'build' command or 'buildx '
-export BUILDTOOL="buildx build --load --cache-from=type=local,src=/tmp/buildx-cache --cache-to=type=local,dest=/tmp/buildx-cache --platform=${PLATFORM:$(uname -p)}}"
+export BUILDTOOL="buildx build --load --platform=${PLATFORM:-$(uname -p)}"
 
 # Let's replace the "." by a "-" with some bash magic
 export BRANCH_VARIANT="${VARIANT//./-}"
