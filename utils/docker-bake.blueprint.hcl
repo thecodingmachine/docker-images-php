@@ -15,14 +15,14 @@ group "php{{ $phpV | replace "." "" }}" {
 }{{end}}
 
 variable "REPO" {default = "thecodingmachine/php"}
-variable "TAG" {default = "latest"}
+variable "PHP_PATCH_MINOR" {default = ""}
 variable "GLOBAL_VERSION" {default = "v4"}
 
 function "tag" {
-    params = [PHP_VERSION, VARIANT]
+    params = [PHP_VERSION, VARIANT, PHP_MINOR]
     result = [
         "${REPO}:${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}",
-        notequal("latest",TAG) ? "${REPO}:${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}:${TAG}": "",
+        notequal("",PHP_MINOR) ? "${REPO}:${PHP_MINOR}-${GLOBAL_VERSION}-${VARIANT}": "",
     ]
 }
 
@@ -31,10 +31,7 @@ target "default" {
   args = {
     GLOBAL_VERSION = "${GLOBAL_VERSION}"
   }
-  platforms = [
-    "linux/amd64",
-    "linux/arm64"
-  ]
+  platforms = ["linux/amd64"]
   pull = true
   #output = ["customDir"]
   #output = ["type=tar,dest=myimage.tar"]
@@ -50,7 +47,7 @@ target "default" {
 # thecodingmachine/php:{{ $phpV }}-v4-slim-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
   inherits = ["default"]
-  tags = tag("{{ $phpV }}", "slim-{{ $variant }}")
+  tags = tag("{{ $phpV }}", "slim-{{ $variant }}", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.slim.{{ $variant }}"
   args = {
     PHP_VERSION = "{{ $phpV }}"
@@ -61,7 +58,7 @@ target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
 # thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
   inherits = ["default"]
-  tags = tag("{{ $phpV }}", "{{ $variant }}")
+  tags = tag("{{ $phpV }}", "{{ $variant }}", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.{{ $variant }}"
   args = {
     PHP_VERSION = "{{ $phpV }}"
@@ -72,7 +69,7 @@ target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
 # thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}-node{{ $nodeV }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}" {
   inherits = ["default"]
-  tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}")
+  tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.{{ $variant }}.node{{ $nodeV }}"
   args = {
     PHP_VERSION = "{{ $phpV }}"

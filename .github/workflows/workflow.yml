@@ -27,8 +27,8 @@ jobs:
       - name: Build locally
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          docker buildx bake --load \
-            --set "*.platform=$(uname -p)" \
+          docker buildx bake --pull --load \
+            --set "*.platform=linux/amd64" \
             php${PHP_VERSION//.}-${{ matrix.variant }} 
           docker images --filter=reference=thecodingmachine/php
       - name: Login to DockerHub
@@ -43,6 +43,8 @@ jobs:
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${BRANCH_VARIANT} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
-          TAG=${PHP_PATCH_VERSION} docker buildx bake --push \
+          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          PHP_MINOR="${PHP_PATCH_VERSION}" docker buildx bake --pull \
+            --set "*.platform=linux/amd64,linux/arm64" \
+            --set=*.output=type=registry \
             php${PHP_VERSION//.}-${{ matrix.variant }} 
