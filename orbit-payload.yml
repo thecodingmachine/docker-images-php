@@ -1,4 +1,4 @@
 payload:
 
   - key: Images
-    value: images.yml
+    value: orbit-images.yml
