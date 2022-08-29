@@ -110,6 +110,9 @@ target "php81-slim-apache" {
 
 # thecodingmachine/php:8.1-v4-apache
 target "php81-apache" {
+  contexts = {
+    baseapp = "target:php81-slim-apache"
+  }
   inherits = ["default"]
   tags = tag("8.1", "apache", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache"
@@ -121,6 +124,9 @@ target "php81-apache" {
 
 # thecodingmachine/php:8.1-v4-apache-node16
 target "php81-apache-node16" {
+  contexts = {
+    baseapp = "target:php81-apache"
+  }
   inherits = ["default"]
   tags = tag("8.1", "apache-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node16"
@@ -132,6 +138,9 @@ target "php81-apache-node16" {
 
 # thecodingmachine/php:8.1-v4-apache-node14
 target "php81-apache-node14" {
+  contexts = {
+    baseapp = "target:php81-apache"
+  }
   inherits = ["default"]
   tags = tag("8.1", "apache-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node14"
@@ -143,6 +152,9 @@ target "php81-apache-node14" {
 
 # thecodingmachine/php:8.1-v4-apache-node12
 target "php81-apache-node12" {
+  contexts = {
+    baseapp = "target:php81-apache"
+  }
   inherits = ["default"]
   tags = tag("8.1", "apache-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node12"
@@ -154,6 +166,9 @@ target "php81-apache-node12" {
 
 # thecodingmachine/php:8.1-v4-apache-node10
 target "php81-apache-node10" {
+  contexts = {
+    baseapp = "target:php81-apache"
+  }
   inherits = ["default"]
   tags = tag("8.1", "apache-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node10"
@@ -179,6 +194,9 @@ target "php81-slim-fpm" {
 
 # thecodingmachine/php:8.1-v4-fpm
 target "php81-fpm" {
+  contexts = {
+    baseapp = "target:php81-slim-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.1", "fpm", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm"
@@ -190,6 +208,9 @@ target "php81-fpm" {
 
 # thecodingmachine/php:8.1-v4-fpm-node16
 target "php81-fpm-node16" {
+  contexts = {
+    baseapp = "target:php81-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.1", "fpm-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node16"
@@ -201,6 +222,9 @@ target "php81-fpm-node16" {
 
 # thecodingmachine/php:8.1-v4-fpm-node14
 target "php81-fpm-node14" {
+  contexts = {
+    baseapp = "target:php81-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.1", "fpm-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node14"
@@ -212,6 +236,9 @@ target "php81-fpm-node14" {
 
 # thecodingmachine/php:8.1-v4-fpm-node12
 target "php81-fpm-node12" {
+  contexts = {
+    baseapp = "target:php81-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.1", "fpm-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node12"
@@ -223,6 +250,9 @@ target "php81-fpm-node12" {
 
 # thecodingmachine/php:8.1-v4-fpm-node10
 target "php81-fpm-node10" {
+  contexts = {
+    baseapp = "target:php81-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.1", "fpm-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node10"
@@ -248,6 +278,9 @@ target "php81-slim-cli" {
 
 # thecodingmachine/php:8.1-v4-cli
 target "php81-cli" {
+  contexts = {
+    baseapp = "target:php81-slim-cli"
+  }
   inherits = ["default"]
   tags = tag("8.1", "cli", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli"
@@ -259,6 +292,9 @@ target "php81-cli" {
 
 # thecodingmachine/php:8.1-v4-cli-node16
 target "php81-cli-node16" {
+  contexts = {
+    baseapp = "target:php81-cli"
+  }
   inherits = ["default"]
   tags = tag("8.1", "cli-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node16"
@@ -270,6 +306,9 @@ target "php81-cli-node16" {
 
 # thecodingmachine/php:8.1-v4-cli-node14
 target "php81-cli-node14" {
+  contexts = {
+    baseapp = "target:php81-cli"
+  }
   inherits = ["default"]
   tags = tag("8.1", "cli-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node14"
@@ -281,6 +320,9 @@ target "php81-cli-node14" {
 
 # thecodingmachine/php:8.1-v4-cli-node12
 target "php81-cli-node12" {
+  contexts = {
+    baseapp = "target:php81-cli"
+  }
   inherits = ["default"]
   tags = tag("8.1", "cli-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node12"
@@ -292,6 +334,9 @@ target "php81-cli-node12" {
 
 # thecodingmachine/php:8.1-v4-cli-node10
 target "php81-cli-node10" {
+  contexts = {
+    baseapp = "target:php81-cli"
+  }
   inherits = ["default"]
   tags = tag("8.1", "cli-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node10"
@@ -317,6 +362,9 @@ target "php80-slim-apache" {
 
 # thecodingmachine/php:8.0-v4-apache
 target "php80-apache" {
+  contexts = {
+    baseapp = "target:php80-slim-apache"
+  }
   inherits = ["default"]
   tags = tag("8.0", "apache", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache"
@@ -328,6 +376,9 @@ target "php80-apache" {
 
 # thecodingmachine/php:8.0-v4-apache-node16
 target "php80-apache-node16" {
+  contexts = {
+    baseapp = "target:php80-apache"
+  }
   inherits = ["default"]
   tags = tag("8.0", "apache-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node16"
@@ -339,6 +390,9 @@ target "php80-apache-node16" {
 
 # thecodingmachine/php:8.0-v4-apache-node14
 target "php80-apache-node14" {
+  contexts = {
+    baseapp = "target:php80-apache"
+  }
   inherits = ["default"]
   tags = tag("8.0", "apache-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node14"
@@ -350,6 +404,9 @@ target "php80-apache-node14" {
 
 # thecodingmachine/php:8.0-v4-apache-node12
 target "php80-apache-node12" {
+  contexts = {
+    baseapp = "target:php80-apache"
+  }
   inherits = ["default"]
   tags = tag("8.0", "apache-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node12"
@@ -361,6 +418,9 @@ target "php80-apache-node12" {
 
 # thecodingmachine/php:8.0-v4-apache-node10
 target "php80-apache-node10" {
+  contexts = {
+    baseapp = "target:php80-apache"
+  }
   inherits = ["default"]
   tags = tag("8.0", "apache-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node10"
@@ -386,6 +446,9 @@ target "php80-slim-fpm" {
 
 # thecodingmachine/php:8.0-v4-fpm
 target "php80-fpm" {
+  contexts = {
+    baseapp = "target:php80-slim-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.0", "fpm", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm"
@@ -397,6 +460,9 @@ target "php80-fpm" {
 
 # thecodingmachine/php:8.0-v4-fpm-node16
 target "php80-fpm-node16" {
+  contexts = {
+    baseapp = "target:php80-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.0", "fpm-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node16"
@@ -408,6 +474,9 @@ target "php80-fpm-node16" {
 
 # thecodingmachine/php:8.0-v4-fpm-node14
 target "php80-fpm-node14" {
+  contexts = {
+    baseapp = "target:php80-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.0", "fpm-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node14"
@@ -419,6 +488,9 @@ target "php80-fpm-node14" {
 
 # thecodingmachine/php:8.0-v4-fpm-node12
 target "php80-fpm-node12" {
+  contexts = {
+    baseapp = "target:php80-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.0", "fpm-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node12"
@@ -430,6 +502,9 @@ target "php80-fpm-node12" {
 
 # thecodingmachine/php:8.0-v4-fpm-node10
 target "php80-fpm-node10" {
+  contexts = {
+    baseapp = "target:php80-fpm"
+  }
   inherits = ["default"]
   tags = tag("8.0", "fpm-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node10"
@@ -455,6 +530,9 @@ target "php80-slim-cli" {
 
 # thecodingmachine/php:8.0-v4-cli
 target "php80-cli" {
+  contexts = {
+    baseapp = "target:php80-slim-cli"
+  }
   inherits = ["default"]
   tags = tag("8.0", "cli", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli"
@@ -466,6 +544,9 @@ target "php80-cli" {
 
 # thecodingmachine/php:8.0-v4-cli-node16
 target "php80-cli-node16" {
+  contexts = {
+    baseapp = "target:php80-cli"
+  }
   inherits = ["default"]
   tags = tag("8.0", "cli-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node16"
@@ -477,6 +558,9 @@ target "php80-cli-node16" {
 
 # thecodingmachine/php:8.0-v4-cli-node14
 target "php80-cli-node14" {
+  contexts = {
+    baseapp = "target:php80-cli"
+  }
   inherits = ["default"]
   tags = tag("8.0", "cli-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node14"
@@ -488,6 +572,9 @@ target "php80-cli-node14" {
 
 # thecodingmachine/php:8.0-v4-cli-node12
 target "php80-cli-node12" {
+  contexts = {
+    baseapp = "target:php80-cli"
+  }
   inherits = ["default"]
   tags = tag("8.0", "cli-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node12"
@@ -499,6 +586,9 @@ target "php80-cli-node12" {
 
 # thecodingmachine/php:8.0-v4-cli-node10
 target "php80-cli-node10" {
+  contexts = {
+    baseapp = "target:php80-cli"
+  }
   inherits = ["default"]
   tags = tag("8.0", "cli-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node10"
@@ -524,6 +614,9 @@ target "php74-slim-apache" {
 
 # thecodingmachine/php:7.4-v4-apache
 target "php74-apache" {
+  contexts = {
+    baseapp = "target:php74-slim-apache"
+  }
   inherits = ["default"]
   tags = tag("7.4", "apache", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache"
@@ -535,6 +628,9 @@ target "php74-apache" {
 
 # thecodingmachine/php:7.4-v4-apache-node16
 target "php74-apache-node16" {
+  contexts = {
+    baseapp = "target:php74-apache"
+  }
   inherits = ["default"]
   tags = tag("7.4", "apache-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node16"
@@ -546,6 +642,9 @@ target "php74-apache-node16" {
 
 # thecodingmachine/php:7.4-v4-apache-node14
 target "php74-apache-node14" {
+  contexts = {
+    baseapp = "target:php74-apache"
+  }
   inherits = ["default"]
   tags = tag("7.4", "apache-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node14"
@@ -557,6 +656,9 @@ target "php74-apache-node14" {
 
 # thecodingmachine/php:7.4-v4-apache-node12
 target "php74-apache-node12" {
+  contexts = {
+    baseapp = "target:php74-apache"
+  }
   inherits = ["default"]
   tags = tag("7.4", "apache-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node12"
@@ -568,6 +670,9 @@ target "php74-apache-node12" {
 
 # thecodingmachine/php:7.4-v4-apache-node10
 target "php74-apache-node10" {
+  contexts = {
+    baseapp = "target:php74-apache"
+  }
   inherits = ["default"]
   tags = tag("7.4", "apache-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node10"
@@ -593,6 +698,9 @@ target "php74-slim-fpm" {
 
 # thecodingmachine/php:7.4-v4-fpm
 target "php74-fpm" {
+  contexts = {
+    baseapp = "target:php74-slim-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.4", "fpm", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm"
@@ -604,6 +712,9 @@ target "php74-fpm" {
 
 # thecodingmachine/php:7.4-v4-fpm-node16
 target "php74-fpm-node16" {
+  contexts = {
+    baseapp = "target:php74-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.4", "fpm-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node16"
@@ -615,6 +726,9 @@ target "php74-fpm-node16" {
 
 # thecodingmachine/php:7.4-v4-fpm-node14
 target "php74-fpm-node14" {
+  contexts = {
+    baseapp = "target:php74-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.4", "fpm-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node14"
@@ -626,6 +740,9 @@ target "php74-fpm-node14" {
 
 # thecodingmachine/php:7.4-v4-fpm-node12
 target "php74-fpm-node12" {
+  contexts = {
+    baseapp = "target:php74-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.4", "fpm-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node12"
@@ -637,6 +754,9 @@ target "php74-fpm-node12" {
 
 # thecodingmachine/php:7.4-v4-fpm-node10
 target "php74-fpm-node10" {
+  contexts = {
+    baseapp = "target:php74-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.4", "fpm-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node10"
@@ -662,6 +782,9 @@ target "php74-slim-cli" {
 
 # thecodingmachine/php:7.4-v4-cli
 target "php74-cli" {
+  contexts = {
+    baseapp = "target:php74-slim-cli"
+  }
   inherits = ["default"]
   tags = tag("7.4", "cli", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli"
@@ -673,6 +796,9 @@ target "php74-cli" {
 
 # thecodingmachine/php:7.4-v4-cli-node16
 target "php74-cli-node16" {
+  contexts = {
+    baseapp = "target:php74-cli"
+  }
   inherits = ["default"]
   tags = tag("7.4", "cli-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node16"
@@ -684,6 +810,9 @@ target "php74-cli-node16" {
 
 # thecodingmachine/php:7.4-v4-cli-node14
 target "php74-cli-node14" {
+  contexts = {
+    baseapp = "target:php74-cli"
+  }
   inherits = ["default"]
   tags = tag("7.4", "cli-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node14"
@@ -695,6 +824,9 @@ target "php74-cli-node14" {
 
 # thecodingmachine/php:7.4-v4-cli-node12
 target "php74-cli-node12" {
+  contexts = {
+    baseapp = "target:php74-cli"
+  }
   inherits = ["default"]
   tags = tag("7.4", "cli-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node12"
@@ -706,6 +838,9 @@ target "php74-cli-node12" {
 
 # thecodingmachine/php:7.4-v4-cli-node10
 target "php74-cli-node10" {
+  contexts = {
+    baseapp = "target:php74-cli"
+  }
   inherits = ["default"]
   tags = tag("7.4", "cli-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node10"
@@ -731,6 +866,9 @@ target "php73-slim-apache" {
 
 # thecodingmachine/php:7.3-v4-apache
 target "php73-apache" {
+  contexts = {
+    baseapp = "target:php73-slim-apache"
+  }
   inherits = ["default"]
   tags = tag("7.3", "apache", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache"
@@ -742,6 +880,9 @@ target "php73-apache" {
 
 # thecodingmachine/php:7.3-v4-apache-node16
 target "php73-apache-node16" {
+  contexts = {
+    baseapp = "target:php73-apache"
+  }
   inherits = ["default"]
   tags = tag("7.3", "apache-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node16"
@@ -753,6 +894,9 @@ target "php73-apache-node16" {
 
 # thecodingmachine/php:7.3-v4-apache-node14
 target "php73-apache-node14" {
+  contexts = {
+    baseapp = "target:php73-apache"
+  }
   inherits = ["default"]
   tags = tag("7.3", "apache-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node14"
@@ -764,6 +908,9 @@ target "php73-apache-node14" {
 
 # thecodingmachine/php:7.3-v4-apache-node12
 target "php73-apache-node12" {
+  contexts = {
+    baseapp = "target:php73-apache"
+  }
   inherits = ["default"]
   tags = tag("7.3", "apache-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node12"
@@ -775,6 +922,9 @@ target "php73-apache-node12" {
 
 # thecodingmachine/php:7.3-v4-apache-node10
 target "php73-apache-node10" {
+  contexts = {
+    baseapp = "target:php73-apache"
+  }
   inherits = ["default"]
   tags = tag("7.3", "apache-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node10"
@@ -800,6 +950,9 @@ target "php73-slim-fpm" {
 
 # thecodingmachine/php:7.3-v4-fpm
 target "php73-fpm" {
+  contexts = {
+    baseapp = "target:php73-slim-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.3", "fpm", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm"
@@ -811,6 +964,9 @@ target "php73-fpm" {
 
 # thecodingmachine/php:7.3-v4-fpm-node16
 target "php73-fpm-node16" {
+  contexts = {
+    baseapp = "target:php73-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.3", "fpm-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node16"
@@ -822,6 +978,9 @@ target "php73-fpm-node16" {
 
 # thecodingmachine/php:7.3-v4-fpm-node14
 target "php73-fpm-node14" {
+  contexts = {
+    baseapp = "target:php73-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.3", "fpm-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node14"
@@ -833,6 +992,9 @@ target "php73-fpm-node14" {
 
 # thecodingmachine/php:7.3-v4-fpm-node12
 target "php73-fpm-node12" {
+  contexts = {
+    baseapp = "target:php73-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.3", "fpm-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node12"
@@ -844,6 +1006,9 @@ target "php73-fpm-node12" {
 
 # thecodingmachine/php:7.3-v4-fpm-node10
 target "php73-fpm-node10" {
+  contexts = {
+    baseapp = "target:php73-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.3", "fpm-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node10"
@@ -869,6 +1034,9 @@ target "php73-slim-cli" {
 
 # thecodingmachine/php:7.3-v4-cli
 target "php73-cli" {
+  contexts = {
+    baseapp = "target:php73-slim-cli"
+  }
   inherits = ["default"]
   tags = tag("7.3", "cli", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli"
@@ -880,6 +1048,9 @@ target "php73-cli" {
 
 # thecodingmachine/php:7.3-v4-cli-node16
 target "php73-cli-node16" {
+  contexts = {
+    baseapp = "target:php73-cli"
+  }
   inherits = ["default"]
   tags = tag("7.3", "cli-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node16"
@@ -891,6 +1062,9 @@ target "php73-cli-node16" {
 
 # thecodingmachine/php:7.3-v4-cli-node14
 target "php73-cli-node14" {
+  contexts = {
+    baseapp = "target:php73-cli"
+  }
   inherits = ["default"]
   tags = tag("7.3", "cli-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node14"
@@ -902,6 +1076,9 @@ target "php73-cli-node14" {
 
 # thecodingmachine/php:7.3-v4-cli-node12
 target "php73-cli-node12" {
+  contexts = {
+    baseapp = "target:php73-cli"
+  }
   inherits = ["default"]
   tags = tag("7.3", "cli-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node12"
@@ -913,6 +1090,9 @@ target "php73-cli-node12" {
 
 # thecodingmachine/php:7.3-v4-cli-node10
 target "php73-cli-node10" {
+  contexts = {
+    baseapp = "target:php73-cli"
+  }
   inherits = ["default"]
   tags = tag("7.3", "cli-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node10"
@@ -938,6 +1118,9 @@ target "php72-slim-apache" {
 
 # thecodingmachine/php:7.2-v4-apache
 target "php72-apache" {
+  contexts = {
+    baseapp = "target:php72-slim-apache"
+  }
   inherits = ["default"]
   tags = tag("7.2", "apache", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache"
@@ -949,6 +1132,9 @@ target "php72-apache" {
 
 # thecodingmachine/php:7.2-v4-apache-node16
 target "php72-apache-node16" {
+  contexts = {
+    baseapp = "target:php72-apache"
+  }
   inherits = ["default"]
   tags = tag("7.2", "apache-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node16"
@@ -960,6 +1146,9 @@ target "php72-apache-node16" {
 
 # thecodingmachine/php:7.2-v4-apache-node14
 target "php72-apache-node14" {
+  contexts = {
+    baseapp = "target:php72-apache"
+  }
   inherits = ["default"]
   tags = tag("7.2", "apache-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node14"
@@ -971,6 +1160,9 @@ target "php72-apache-node14" {
 
 # thecodingmachine/php:7.2-v4-apache-node12
 target "php72-apache-node12" {
+  contexts = {
+    baseapp = "target:php72-apache"
+  }
   inherits = ["default"]
   tags = tag("7.2", "apache-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node12"
@@ -982,6 +1174,9 @@ target "php72-apache-node12" {
 
 # thecodingmachine/php:7.2-v4-apache-node10
 target "php72-apache-node10" {
+  contexts = {
+    baseapp = "target:php72-apache"
+  }
   inherits = ["default"]
   tags = tag("7.2", "apache-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.apache.node10"
@@ -1007,6 +1202,9 @@ target "php72-slim-fpm" {
 
 # thecodingmachine/php:7.2-v4-fpm
 target "php72-fpm" {
+  contexts = {
+    baseapp = "target:php72-slim-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.2", "fpm", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm"
@@ -1018,6 +1216,9 @@ target "php72-fpm" {
 
 # thecodingmachine/php:7.2-v4-fpm-node16
 target "php72-fpm-node16" {
+  contexts = {
+    baseapp = "target:php72-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.2", "fpm-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node16"
@@ -1029,6 +1230,9 @@ target "php72-fpm-node16" {
 
 # thecodingmachine/php:7.2-v4-fpm-node14
 target "php72-fpm-node14" {
+  contexts = {
+    baseapp = "target:php72-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.2", "fpm-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node14"
@@ -1040,6 +1244,9 @@ target "php72-fpm-node14" {
 
 # thecodingmachine/php:7.2-v4-fpm-node12
 target "php72-fpm-node12" {
+  contexts = {
+    baseapp = "target:php72-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.2", "fpm-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node12"
@@ -1051,6 +1258,9 @@ target "php72-fpm-node12" {
 
 # thecodingmachine/php:7.2-v4-fpm-node10
 target "php72-fpm-node10" {
+  contexts = {
+    baseapp = "target:php72-fpm"
+  }
   inherits = ["default"]
   tags = tag("7.2", "fpm-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.fpm.node10"
@@ -1076,6 +1286,9 @@ target "php72-slim-cli" {
 
 # thecodingmachine/php:7.2-v4-cli
 target "php72-cli" {
+  contexts = {
+    baseapp = "target:php72-slim-cli"
+  }
   inherits = ["default"]
   tags = tag("7.2", "cli", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli"
@@ -1087,6 +1300,9 @@ target "php72-cli" {
 
 # thecodingmachine/php:7.2-v4-cli-node16
 target "php72-cli-node16" {
+  contexts = {
+    baseapp = "target:php72-cli"
+  }
   inherits = ["default"]
   tags = tag("7.2", "cli-node16", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node16"
@@ -1098,6 +1314,9 @@ target "php72-cli-node16" {
 
 # thecodingmachine/php:7.2-v4-cli-node14
 target "php72-cli-node14" {
+  contexts = {
+    baseapp = "target:php72-cli"
+  }
   inherits = ["default"]
   tags = tag("7.2", "cli-node14", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node14"
@@ -1109,6 +1328,9 @@ target "php72-cli-node14" {
 
 # thecodingmachine/php:7.2-v4-cli-node12
 target "php72-cli-node12" {
+  contexts = {
+    baseapp = "target:php72-cli"
+  }
   inherits = ["default"]
   tags = tag("7.2", "cli-node12", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node12"
@@ -1120,6 +1342,9 @@ target "php72-cli-node12" {
 
 # thecodingmachine/php:7.2-v4-cli-node10
 target "php72-cli-node10" {
+  contexts = {
+    baseapp = "target:php72-cli"
+  }
   inherits = ["default"]
   tags = tag("7.2", "cli-node10", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.cli.node10"
