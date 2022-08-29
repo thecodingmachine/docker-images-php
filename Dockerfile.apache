@@ -4,17 +4,12 @@ ARG INSTALL_COMPOSER=1
 ARG PHP_VERSION
 ARG GLOBAL_VERSION
 
-FROM --platform=$BUILDPLATFORM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-slim-apache
-
-ONBUILD ARG TARGETOS
-ONBUILD ARG TARGETARCH
-ONBUILD ARG BLACKFIRE_VERSION=1
-ENV CONTAINER_OS=${TARGETOS}
-ENV CONTAINER_ARCH=${TARGETARCH}
-ENV BLACKFIRE_VERSION=${BLACKFIRE_VERSION}
-
-
+FROM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-slim-apache
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG BLACKFIRE_VERSION=1
 
 # |--------------------------------------------------------------------------
 # | Main PHP extensions

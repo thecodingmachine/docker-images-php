@@ -42,9 +42,10 @@ jobs:
         # Merge ~ push.
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
-          PHP_PATCH_MINOR="${PHP_PATCH_VERSION}" docker buildx bake --pull \
+          PHP_VERSION="${{ matrix.php_version }}" \
+          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1` \
+          PHP_PATCH_MINOR="${PHP_PATCH_VERSION}" \ 
+          docker buildx bake \
             --set "*.platform=linux/amd64,linux/arm64" \
-            --set=*.output=type=registry \
+            --set "*.output=type=registry" \
             php${PHP_VERSION//.}-${{ matrix.variant }} 

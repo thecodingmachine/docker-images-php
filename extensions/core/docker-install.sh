@@ -38,6 +38,7 @@ if [ -n "$PECL_EXTENSION" ]; then
     fi
 
     if [ -n "$USE_PECL" ]; then
+      pecl channel-update pecl.php.net && pecl channel-update pear.php.net
       pecl install $PECL_EXTENSION
     else
       pickle install $PECL_EXTENSION
