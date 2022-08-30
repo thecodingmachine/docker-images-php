@@ -11,60 +11,127 @@ group "default" {
    ]
 }
 
-group "php81" {
+group "php81-apache-all" {
    targets = [
      "php81-slim-apache",
      "php81-apache",
-     "php81-apache-node16","php81-apache-node14","php81-apache-node12","php81-apache-node10","php81-slim-fpm",
+     "php81-apache-node16","php81-apache-node14","php81-apache-node12","php81-apache-node10",
+   ]
+}
+group "php81-fpm-all" {
+   targets = [
+     "php81-slim-fpm",
      "php81-fpm",
-     "php81-fpm-node16","php81-fpm-node14","php81-fpm-node12","php81-fpm-node10","php81-slim-cli",
+     "php81-fpm-node16","php81-fpm-node14","php81-fpm-node12","php81-fpm-node10",
+   ]
+}
+group "php81-cli-all" {
+   targets = [
+     "php81-slim-cli",
      "php81-cli",
      "php81-cli-node16","php81-cli-node14","php81-cli-node12","php81-cli-node10",
    ]
 }
-group "php80" {
+group "php80-apache-all" {
    targets = [
      "php80-slim-apache",
      "php80-apache",
-     "php80-apache-node16","php80-apache-node14","php80-apache-node12","php80-apache-node10","php80-slim-fpm",
+     "php80-apache-node16","php80-apache-node14","php80-apache-node12","php80-apache-node10",
+   ]
+}
+group "php80-fpm-all" {
+   targets = [
+     "php80-slim-fpm",
      "php80-fpm",
-     "php80-fpm-node16","php80-fpm-node14","php80-fpm-node12","php80-fpm-node10","php80-slim-cli",
+     "php80-fpm-node16","php80-fpm-node14","php80-fpm-node12","php80-fpm-node10",
+   ]
+}
+group "php80-cli-all" {
+   targets = [
+     "php80-slim-cli",
      "php80-cli",
      "php80-cli-node16","php80-cli-node14","php80-cli-node12","php80-cli-node10",
    ]
 }
-group "php74" {
+group "php74-apache-all" {
    targets = [
      "php74-slim-apache",
      "php74-apache",
-     "php74-apache-node16","php74-apache-node14","php74-apache-node12","php74-apache-node10","php74-slim-fpm",
+     "php74-apache-node16","php74-apache-node14","php74-apache-node12","php74-apache-node10",
+   ]
+}
+group "php74-fpm-all" {
+   targets = [
+     "php74-slim-fpm",
      "php74-fpm",
-     "php74-fpm-node16","php74-fpm-node14","php74-fpm-node12","php74-fpm-node10","php74-slim-cli",
+     "php74-fpm-node16","php74-fpm-node14","php74-fpm-node12","php74-fpm-node10",
+   ]
+}
+group "php74-cli-all" {
+   targets = [
+     "php74-slim-cli",
      "php74-cli",
      "php74-cli-node16","php74-cli-node14","php74-cli-node12","php74-cli-node10",
    ]
 }
-group "php73" {
+group "php73-apache-all" {
    targets = [
      "php73-slim-apache",
      "php73-apache",
-     "php73-apache-node16","php73-apache-node14","php73-apache-node12","php73-apache-node10","php73-slim-fpm",
+     "php73-apache-node16","php73-apache-node14","php73-apache-node12","php73-apache-node10",
+   ]
+}
+group "php73-fpm-all" {
+   targets = [
+     "php73-slim-fpm",
      "php73-fpm",
-     "php73-fpm-node16","php73-fpm-node14","php73-fpm-node12","php73-fpm-node10","php73-slim-cli",
+     "php73-fpm-node16","php73-fpm-node14","php73-fpm-node12","php73-fpm-node10",
+   ]
+}
+group "php73-cli-all" {
+   targets = [
+     "php73-slim-cli",
      "php73-cli",
      "php73-cli-node16","php73-cli-node14","php73-cli-node12","php73-cli-node10",
    ]
 }
-group "php72" {
+group "php72-apache-all" {
    targets = [
      "php72-slim-apache",
      "php72-apache",
-     "php72-apache-node16","php72-apache-node14","php72-apache-node12","php72-apache-node10","php72-slim-fpm",
+     "php72-apache-node16","php72-apache-node14","php72-apache-node12","php72-apache-node10",
+   ]
+}
+group "php72-fpm-all" {
+   targets = [
+     "php72-slim-fpm",
      "php72-fpm",
-     "php72-fpm-node16","php72-fpm-node14","php72-fpm-node12","php72-fpm-node10","php72-slim-cli",
+     "php72-fpm-node16","php72-fpm-node14","php72-fpm-node12","php72-fpm-node10",
+   ]
+}
+group "php72-cli-all" {
+   targets = [
+     "php72-slim-cli",
      "php72-cli",
      "php72-cli-node16","php72-cli-node14","php72-cli-node12","php72-cli-node10",
    ]
+}
+
+
+group "php81" {
+   targets = ["php81-apache-all","php81-fpm-all","php81-cli-all",]
+}
+group "php80" {
+   targets = ["php80-apache-all","php80-fpm-all","php80-cli-all",]
+}
+group "php74" {
+   targets = ["php74-apache-all","php74-fpm-all","php74-cli-all",]
+}
+group "php73" {
+   targets = ["php73-apache-all","php73-fpm-all","php73-cli-all",]
+}
+group "php72" {
+   targets = ["php72-apache-all","php72-fpm-all","php72-cli-all",]
 }
 
 variable "REPO" {default = "thecodingmachine/php"}

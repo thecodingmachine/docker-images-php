@@ -14,8 +14,8 @@ jobs:
   build_test_maybe_release:
     strategy:
       matrix:
-        variant: ['cli','apache','fpm']
         php_version: ['8.1','8.0','7.4', '7.3','7.2']
+        variant: ['apache','cli','fpm']
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -24,13 +24,23 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Build locally
-        run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-          docker buildx bake --load \
-            --set "*.platform=linux/amd64" \
-            php${PHP_VERSION//.}-${{ matrix.variant }} 
-          docker images --filter=reference=thecodingmachine/php
+#      - name: Build locally
+#        run: |
+#          PHP_VERSION="${{ matrix.php_version }}"
+#          docker buildx bake --load \
+#            --set "*.platform=linux/amd64" \
+#            php${PHP_VERSION//.}-slim-${{ matrix.variant }}
+#          docker buildx bake --load \
+#            --set "*.platform=linux/amd64" \
+#            php${PHP_VERSION//.}-${{ matrix.variant }}-all
+#          PHP_VERSION_MINOR=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-cli php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+#          echo "PHP_VERSION_MINOR=${PHP_VERSION_MINOR}" >> $GITHUB_ENV
+#          echo "PHP Version : ${PHP_VERSION_MINOR}" >> $GITHUB_STEP_SUMMARY
+#          docker images --filter=reference=thecodingmachine/php >> $GITHUB_STEP_SUMMARY
+#      - name: Test ${{ matrix.variant }}
+#        run:  |
+#          PHP_VERSION="${{ matrix.php_version }}" BRANCH=v4 VARIANT=${{ matrix.variant }} ./test-image.sh
+#          echo "${{ matrix.variant }} variant OK" >> $GITHUB_STEP_SUMMARY
       - name: Login to DockerHub
         # Merge ~ push.
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
@@ -42,10 +52,14 @@ jobs:
         # Merge ~ push.
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
-          PHP_VERSION="${{ matrix.php_version }}" \
-          PHP_PATCH_VERSION=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1` \
-          PHP_PATCH_MINOR="${PHP_PATCH_VERSION}" \ 
+          PHP_VERSION="${{ matrix.php_version }}"
           docker buildx bake \
             --set "*.platform=linux/amd64,linux/arm64" \
             --set "*.output=type=registry" \
-            php${PHP_VERSION//.}-${{ matrix.variant }} 
+            php${PHP_VERSION//.}-slim-${{ matrix.variant }}
+          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-cli php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1` \
+          docker buildx bake \
+            --set "*.platform=linux/amd64,linux/arm64" \
+            --set "*.output=type=registry" \
+            php${PHP_VERSION//.}-${{ matrix.variant }}-all
+          docker images --filter=reference=thecodingmachine/php >> $GITHUB_STEP_SUMMARY

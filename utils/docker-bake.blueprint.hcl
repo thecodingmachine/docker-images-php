@@ -5,13 +5,18 @@ group "default" {
      "php{{ $phpV | replace "." "" }}",{{end}}
    ]
 }
+{{range $phpV := $versions}}{{range $variant := $variants}}
+group "php{{ $phpV | replace "." "" }}-{{ $variant }}-all" {
+   targets = [
+     "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}",
+     "php{{ $phpV | replace "." "" }}-{{ $variant }}",
+     {{range $nodeV := $nodeVersions}}"php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}",{{end}}
+   ]
+}{{end}}{{end}}
+
 {{range $phpV := $versions}}
 group "php{{ $phpV | replace "." "" }}" {
-   targets = [
-     {{range $variant := $variants}}"php{{ $phpV | replace "." "" }}-slim-{{ $variant }}",
-     "php{{ $phpV | replace "." "" }}-{{ $variant }}",
-     {{range $nodeV := $nodeVersions}}"php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}",{{end}}{{end}}
-   ]
+   targets = [{{range $variant := $variants}}"php{{ $phpV | replace "." "" }}-{{ $variant }}-all",{{end}}]
 }{{end}}
 
 variable "REPO" {default = "thecodingmachine/php"}
