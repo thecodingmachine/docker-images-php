@@ -58,14 +58,12 @@ jobs:
           docker images | grep thecodingmachine/php
       - name: Login to DockerHub
         # Merge ~ push.
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Release
         # Merge ~ push.
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
           BRANCH_VARIANT=`echo "${{ matrix.variant }}" | sed 's/\./-/g'`
           docker push thecodingmachine/php:${{ matrix.php_version }}-v4-slim-${BRANCH_VARIANT}
