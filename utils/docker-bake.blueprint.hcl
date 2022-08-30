@@ -57,6 +57,9 @@ target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
 
 # thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
+  contexts = {
+    baseapp = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}"
+  }
   inherits = ["default"]
   tags = tag("{{ $phpV }}", "{{ $variant }}", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.{{ $variant }}"
@@ -68,6 +71,9 @@ target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
 {{range $nodeV := $nodeVersions}}
 # thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}-node{{ $nodeV }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}" {
+  contexts = {
+    baseapp = "target:php{{ $phpV | replace "." "" }}-{{ $variant }}"
+  }
   inherits = ["default"]
   tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}", "${PHP_PATCH_MINOR}")
   dockerfile = "Dockerfile.{{ $variant }}.node{{ $nodeV }}"
