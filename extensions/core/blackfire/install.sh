@@ -16,20 +16,18 @@ fi
 
 mkdir /tmp/blackfire
 
-# Todo: Maybe version the Blackfire version by environment variable? :)
-
 if [ $BLACKFIRE_VERSION == "1" ]; then
     echo "Installing Blackfire version 1"
     # curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v2/releases/probe/php/linux/amd64/$version
-    curl -o /tmp/blackfire/blackfire.so "https://packages.blackfire.io/binaries/blackfire-php/1.78.0/blackfire-php-$CONTAINER_OS"_"$CONTAINER_ARCH-php-$version.so"
+    curl -o /tmp/blackfire/blackfire.so "https://packages.blackfire.io/binaries/blackfire-php/1.78.0/blackfire-php-${TARGETOS}"_"${TARGETARCH}-php-${version}.so"
     mv /tmp/blackfire/blackfire.so $(php -r "echo ini_get('extension_dir');")/blackfire.so
-    echo "extension=blackfire.so" > /etc/php/${PHP_VERSION}/mods-available/blackfire.ini
+    echo "extension=blackfire" > /etc/php/${PHP_VERSION}/mods-available/blackfire.ini
 
     # Adding this in the list of Ubuntu extensions because we use that list as a base for the modules list.
     # TODO: question: cannot we use /etc/php/mods-available instead???
     touch /var/lib/php/modules/${PHP_VERSION}/registry/blackfire
     # curl -A "Docker" -L https://blackfire.io/api/v1/releases/client/linux_static/amd64 | tar zxp -C /tmp/blackfire
-    curl -o /tmp/blackfire/blackfire "https://packages.blackfire.io/binaries/blackfire-agent/1.50.0/blackfire-cli-$CONTAINER_OS"_"$CONTAINER_ARCH"
+    curl -o /tmp/blackfire/blackfire "https://packages.blackfire.io/binaries/blackfire-agent/1.50.0/blackfire-cli-${TARGETOS}"_"${TARGETARCH}"
     chmod +x /tmp/blackfire/blackfire
     mv /tmp/blackfire/blackfire /usr/bin/blackfire
     rm -Rf /tmp/blackfire
@@ -37,11 +35,11 @@ if [ $BLACKFIRE_VERSION == "1" ]; then
 elif [ $BLACKFIRE_VERSION == "2" ]; then
     echo "Installing Blackfire version 2..."
    
-    curl -o /tmp/blackfire/blackfire.so "https://packages.blackfire.io/binaries/blackfire-php/1.78.0/blackfire-php-$CONTAINER_OS"_"$CONTAINER_ARCH-php-$version.so"
+    curl -o /tmp/blackfire/blackfire.so "https://packages.blackfire.io/binaries/blackfire-php/1.78.0/blackfire-php-${TARGETOS}"_"${TARGETARCH}-php-${version}.so"
     mv /tmp/blackfire/blackfire.so $(php -r "echo ini_get('extension_dir');")/blackfire.so
     echo "extension=blackfire.so" > /etc/php/${PHP_VERSION}/mods-available/blackfire.ini
     touch /var/lib/php/modules/${PHP_VERSION}/registry/blackfire
-    curl -o /tmp/blackfire-cli.tar.gz "https://packages.blackfire.io/binaries/blackfire/2.10.0/blackfire-"$CONTAINER_OS"_"$CONTAINER_ARCH".tar.gz"
+    curl -o /tmp/blackfire-cli.tar.gz "https://packages.blackfire.io/binaries/blackfire/2.10.0/blackfire-"${TARGETOS}"_"${TARGETARCH}".tar.gz"
     tar zxpf /tmp/blackfire-cli.tar.gz -C /tmp/blackfire
     mv /tmp/blackfire/blackfire /usr/bin/blackfire
 
