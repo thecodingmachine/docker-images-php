@@ -4,7 +4,8 @@ ARG INSTALL_COMPOSER=1
 ARG PHP_VERSION
 ARG GLOBAL_VERSION
 
-FROM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-slim-cli as baseapp
+ARG FROM_IMAGE="thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-slim-cli"
+FROM $FROM_IMAGE
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
 ARG TARGETOS

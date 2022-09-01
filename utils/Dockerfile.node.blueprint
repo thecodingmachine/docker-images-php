@@ -1,4 +1,5 @@
-FROM thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-{{ .Orbit.variant }} as baseapp
+ARG FROM_IMAGE="thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-{{ .Orbit.variant }}"
+FROM $FROM_IMAGE
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 
 ARG TARGETOS
