@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -eE -o functrace
 
 failure() {
@@ -8,6 +7,9 @@ failure() {
   echo "Failed at $lineno: $msg"
 }
 trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
+
+echo "This testing suite is deprecated : use instead bash_unit in tests-suite directory"
+sleep 5
 
 # Use either docker's 'build' command or 'buildx '
 export BUILDTOOL="buildx build --load --platform=${PLATFORM:-$(uname -p)}"
@@ -18,9 +20,6 @@ export BRANCH_VARIANT="${VARIANT//./-}"
 # Build with BuildKit https://docs.docker.com/develop/develop-images/build_enhancements/
 export DOCKER_BUILDKIT=1                   # Force use of BuildKit
 export BUILDKIT_STEP_LOG_MAX_SIZE=10485760 # output log limit fixed to 10MiB
-
-# Let's build the "slim" image.
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" --build-arg BLACKFIRE_VERSION="${BLACKFIRE_VERSION}" -f "Dockerfile.slim.${VARIANT}" .
 
 # Let's check that the extensions can be built using the "ONBUILD" statement
 docker $BUILDTOOL -t test/slim_onbuild --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" tests/slim_onbuild
@@ -200,6 +199,8 @@ docker run --rm -e PHP_EXTENSION_XDEBUG=1 "thecodingmachine/php:${PHP_VERSION}-$
 # Let's check that "xdebug.mode" is properly overridden
 docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_INI_XDEBUG__MODE=debug,coverage "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -i | grep xdebug.mode | grep "debug,coverage"
 
+# TODO
+
 if [[ "${PHP_VERSION}" != "8.1" ]]; then
   # Tests that blackfire + xdebug will output an error
   RESULT="$(docker run --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -v 2>&1 | grep 'WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.')"
@@ -213,13 +214,5 @@ docker $BUILDTOOL -t test/composer_with_gd --build-arg PHP_VERSION="${PHP_VERSIO
 # This should run ok (the sudo disables environment variables but call to composer proxy does not trigger PHP ini file regeneration)
 docker run --rm test/composer_with_gd sudo composer update
 docker rmi test/composer_with_gd
-
-#################################
-# Let's build the "node" images
-#################################
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node10" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node10" .
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node12" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node12" .
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node14" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node14" .
-docker $BUILDTOOL -t "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}-node16" --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg GLOBAL_VERSION="${BRANCH}" -f "Dockerfile.${VARIANT}.node16" .
 
 echo "Tests passed with success"
