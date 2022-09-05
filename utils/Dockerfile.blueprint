@@ -2,10 +2,13 @@ ARG INSTALL_CRON=1
 ARG INSTALL_COMPOSER=1
 ARG PHP_VERSION
 ARG GLOBAL_VERSION
+ARG REPO="phareal/php"
+ARG TAG_PREFIX=""
 
-ARG FROM_IMAGE="thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-slim-{{ .Orbit.variant }}"
+ARG FROM_IMAGE="${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-slim-{{ .Orbit.variant }}"
 FROM $FROM_IMAGE
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG TARGETOS
 ARG TARGETARCH

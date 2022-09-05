@@ -7,16 +7,17 @@ on:
   push:
     branches:
       - 'v4'
-  schedule:
-    - cron: '42 3 * * 0'
 
 jobs:
-  build_test_maybe_release:
-    strategy:
-      matrix:
-        php_version: ['8.1','8.0','7.4', '7.3','7.2']
-        variant: ['apache','cli','fpm']
+  publish:
+    # push ~ schedule
     runs-on: ubuntu-latest
+    name: Publish multi-arch to dockerhub
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: ['8.0'] #,'8.0','7.4', '7.3','7.2']
+        variant: ['apache'] #,'cli','fpm']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -24,36 +25,22 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Build locally (amd64)
-        run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-          docker buildx bake --load \
-            --set "*.platform=linux/amd64" \
-            php${PHP_VERSION//.}-${{ matrix.variant }}-all
-          # Fetch minor version
-          PHP_VERSION_MINOR=`docker run --rm thecodingmachine/php:${PHP_VERSION}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
-          echo "PHP_VERSION_MINOR=${PHP_VERSION_MINOR}" >> $GITHUB_ENV
-          # Summary
-          echo "PHP Version : ${PHP_VERSION_MINOR}" >> $GITHUB_STEP_SUMMARY
-          docker images --filter=reference=thecodingmachine/php >> $GITHUB_STEP_SUMMARY   
-          docker images --filter=reference=thecodingmachine/php
-      - name: Test variant '${{ matrix.variant }}' (amd64)
-        run:  |
-          PHP_VERSION="${{ matrix.php_version }}" BRANCH=v4 VARIANT=${{ matrix.variant }} ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
+      - name: Expose GitHub Runtime for docker cache
+        uses: crazy-max/ghaction-github-runtime@v2
       - name: Login to DockerHub
-        # Merge ~ push.
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push to repository (both amd64 and arm64)
-        # Merge ~ push.
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+      - name: Build and push ${{ matrix.php_version }}-${{ matrix.variant }} as  arm64
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-          PHP_PATCH_MINOR="${{ env.PHP_VERSION_MINOR }}" \
+          TAG_PREFIX="rc-${{ env.GITHUB_SHA_SHORT }}-" \
           docker buildx bake \
-            --set "*.platform=linux/amd64,linux/arm64" \
+            --set "*.cache-from=type=gha" \
+            --set "*.platform=linux/arm64" \
+            --set "*.output=type=registry" \
+          docker buildx bake \
+            --set "*.cache-from=gha" \
+            --set "*.platform=linux/arm64" \
             --set "*.output=type=registry" \
             php${PHP_VERSION//.}-${{ matrix.variant }}-all

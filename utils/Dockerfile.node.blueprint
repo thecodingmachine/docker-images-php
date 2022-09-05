@@ -1,10 +1,15 @@
-ARG FROM_IMAGE="thecodingmachine/php:${PHP_VERSION}-${GLOBAL_VERSION}-{{ .Orbit.variant }}"
+
+ARG REPO="phareal/php"
+ARG TAG_PREFIX=""
+ARG FROM_IMAGE="${REPO}:${TAG_PREFIX}:${PHP_VERSION}-${GLOBAL_VERSION}-{{ .Orbit.variant }}"
 FROM $FROM_IMAGE
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG TARGETOS
 ARG TARGETARCH
 ARG BLACKFIRE_VERSION=1
+ARG NODE_VERSION=16
 
 USER root
 
@@ -12,14 +17,14 @@ ENV BLACKFIRE_VERSION=${BLACKFIRE_VERSION}
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gnupg && \
-    curl -sL https://deb.nodesource.com/setup_{{ .Orbit.node_version }}.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     apt-get update && \
     apt-get install -y --no-install-recommends nodejs && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends yarn && \
-    npm install -g npm{{ if eq "10" .Orbit.node_version }}@^6.14{{end}} && \
+    if [[ "${NODE_VERSION}" == "10" ]]; then npm install -g npm@^6.14; else npm install -g npm; fi && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 

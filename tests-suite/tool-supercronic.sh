@@ -5,7 +5,7 @@
 ## Let's check that the access to cron will fail with a message
 ############################################################
 test_displayErrorWhenMissing() {
-  RESULT=$(docker ${RUN_OPTIONS} run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" \
+  RESULT=$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" \
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -o 'Cron is not available in this image')
   assert_equals "Cron is not available in this image" "$RESULT"
 }
@@ -13,10 +13,10 @@ test_displayErrorWhenMissing() {
 ## Let's check that the crons are actually sending logs in the right place
 ############################################################
 test_errorLog() {
-  RESULT="$(docker ${RUN_OPTIONS} run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" \
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" \
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1)"
   assert_equals "msg=foobar" "$RESULT" "std1"
-  RESULT="$(docker ${RUN_OPTIONS} run --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&2 echo 'error')" \
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&2 echo 'error')" \
    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=error' | head -n1)"
   assert_equals "msg=error" "$RESULT" "std2"
 }
