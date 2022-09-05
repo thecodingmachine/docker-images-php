@@ -43,16 +43,16 @@ test_changeMemoryLimit() {
 
 setup_suite() {
   # SETUP apache1
-  docker run --name test-apache1 --rm -e MYVAR=foo -e PHP_INI_MEMORY_LIMIT=2G -p "81:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
-    "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
+  docker run --name test-apache1 ${RUN_OPTIONS} --rm -e MYVAR=foo -e PHP_INI_MEMORY_LIMIT=2G -p "81:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
   # SETUP apache2
-  docker run --name test-apache2 --rm -e MYVAR=foo -e APACHE_DOCUMENT_ROOT=apache -p "82:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
-    "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
+  docker run --name test-apache2 ${RUN_OPTIONS} --rm -e MYVAR=foo -e APACHE_DOCUMENT_ROOT=apache -p "82:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
   # SETUP apache3
-  docker run --name test-apache3 --rm -e MYVAR=foo -e APACHE_DOCUMENT_ROOT=/var/www/foo/apache -p "83:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/foo  \
-    "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
+  docker run --name test-apache3 ${RUN_OPTIONS} --rm -e MYVAR=foo -e APACHE_DOCUMENT_ROOT=/var/www/foo/apache -p "83:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/foo  \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
   sleep 5 # Let's wait for Apache to start
 }

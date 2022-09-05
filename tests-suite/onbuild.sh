@@ -15,12 +15,12 @@ test_onbluidBase() {
 onbluidBase() {
   docker ${BUILDTOOL} -t test/slim_onbuild - <<EOF
   ARG PHP_EXTENSIONS="pdo_pgsql pdo_sqlite"
-  FROM thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
+  FROM ${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
 EOF
   return $?
 }
 onbluidBaseExtensionIsPresent() {
-  docker run --rm test/slim_onbuild php -m | grep -q ${1}
+  docker run ${RUN_OPTIONS} --rm test/slim_onbuild php -m | grep -q ${1}
   return $?
 }
 
@@ -41,7 +41,7 @@ composer() {
 EOF
   cat <<EOF > "${TMP_DIR}/Dockerfile"
   ARG PHP_EXTENSIONS="gd"
-  FROM thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
+  FROM ${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
 
   COPY composer.json composer.json
 
@@ -59,5 +59,5 @@ setup_suite() {
 teardown_suite() {
   docker rmi test/slim_onbuild > /dev/null
   docker rmi test/slim_onbuild_composer > /dev/null
-  if [[ "" != ${TMP_DIR} ]]; then docker run --rm -v "/tmp":/tmp busybox rm -rf "${TMP_DIR}" > /dev/null 2>&1; fi
+  if [[ "" != ${TMP_DIR} ]]; then docker run ${RUN_OPTIONS} --rm -v "/tmp":/tmp busybox rm -rf "${TMP_DIR}" > /dev/null 2>&1; fi
 }

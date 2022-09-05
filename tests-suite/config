@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 export BUILDTOOL="build --platform=${PLATFORM:-$(uname -p)}"
+export RUN_OPTIONS="--platform=${PLATFORM:-$(uname -p)}"
 export PHP_VERSION=${PHP_VERSION:-8.1}
 export BRANCH=${BRANCH:-v4}
 export VARIANT=${VARIANT:-apache}
 export BRANCH_VARIANT="${VARIANT//./-}"
+export REPO="${REPO:-thecodingmachine/php}"
+export TAG_PREFIX=""
 export SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

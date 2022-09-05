@@ -5,7 +5,7 @@
 ## Default user is 1000
 ############################################################
 test_defaultUserUidIs1000() {
-  RESULT="$(docker run --rm "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
+  RESULT="$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
     id -ur)"
   assert_equals "0" "$?" "Docker run failed"
   assert_equals "1000" "${RESULT}" "Default user UID missmatch"
@@ -17,8 +17,8 @@ test_defaultUserUidIs1000() {
 ############################################################
 test_defaultUserHasUidOfMountedDirectory() {
   mkdir -p "${TMP_DIR}/user1999"
-  docker run --rm -v /tmp:/tmp busybox chown 1999:1999 "${TMP_DIR}/user1999" > /dev/null 2>&1
-  RESULT="$(docker run --rm -v "${TMP_DIR}/user1999":"${CONTAINER_CWD}" "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
+  docker run ${RUN_OPTIONS} --rm -v /tmp:/tmp busybox chown 1999:1999 "${TMP_DIR}/user1999" > /dev/null 2>&1
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -v "${TMP_DIR}/user1999":"${CONTAINER_CWD}" "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
     id -ur)"
   assert_equals "0" "$?" "Docker run failed"
   assert_equals "1999" "${RESULT}" "Default user UID missmatch with mounted directory"
@@ -28,7 +28,7 @@ test_defaultUserHasUidOfMountedDirectory() {
 ## The default user can write on stdout and stderr
 ############################################################
 test_defaultUserCanWriteOnStdoutAndStderr() {
-  docker run --rm -v "${TMP_DIR}/user1999":"${CONTAINER_CWD}" "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
+  docker run ${RUN_OPTIONS} --rm -v "${TMP_DIR}/user1999":"${CONTAINER_CWD}" "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
     bash -c "echo TEST > /proc/self/fd/2" >> /dev/null
   assert_equals "0" "$?" "Docker run failed"
 }
@@ -47,12 +47,12 @@ test_defaultUserCanWriteOnStdoutAndStderr() {
     }
   }
 EOF
-  docker run --rm -v /tmp:/tmp busybox chown -R 33:33 "${TMP_DIR}/user33" > /dev/null 2>&1
-  RESULT="$(docker run --rm -v "${TMP_DIR}/user33":"${CONTAINER_CWD}" "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
+  docker run ${RUN_OPTIONS} --rm -v /tmp:/tmp busybox chown -R 33:33 "${TMP_DIR}/user33" > /dev/null 2>&1
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -v "${TMP_DIR}/user33":"${CONTAINER_CWD}" "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
     id -ur)"
   assert_equals "0" "$?" "Docker run 1 failed"
   assert_equals "33" "${RESULT}" "Default user UID missmatch"
-  docker run --rm -v "${TMP_DIR}/user33":"${CONTAINER_CWD}" "thecodingmachine/php:${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
+  docker run ${RUN_OPTIONS} --rm -v "${TMP_DIR}/user33":"${CONTAINER_CWD}" "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" \
     composer update -vvv > /dev/null 2>&1
   assert_equals "0" "$?" "Docker run 2 failed"
 }
@@ -64,5 +64,5 @@ setup_suite() {
 }
 
 teardown_suite() {
-  if [[ "" != ${TMP_DIR} ]]; then docker run --rm -v "/tmp":/tmp busybox rm -rf "${TMP_DIR}" > /dev/null 2>&1; fi
+  if [[ "" != ${TMP_DIR} ]]; then docker run ${RUN_OPTIONS} --rm -v "/tmp":/tmp busybox rm -rf "${TMP_DIR}" > /dev/null 2>&1; fi
 }
