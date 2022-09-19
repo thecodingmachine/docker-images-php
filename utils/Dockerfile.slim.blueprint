@@ -1,5 +1,7 @@
+#syntax=docker/dockerfile-upstream:1
 FROM ubuntu:20.04
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Fixes some weird terminal issues such as broken clear / CTRL+L
 #ENV TERM=linux
@@ -52,7 +54,6 @@ RUN apt-get update \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-zip \
     && if [[ "${PHP_VERSION}" =~ ^7 ]]; then apt-get install -y --no-install-recommends php${PHP_VERSION}-json; fi \
-    && if [[ "${PHP_VERSION}" =~ ^8 ]]; then apt-get install -y --no-install-recommends php${PHP_VERSION}-json; fi \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
@@ -209,8 +210,8 @@ EXPOSE 80
 
 ENV APACHE_DOCUMENT_ROOT=
 
-RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
+    sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
@@ -232,8 +233,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 # Let's remove the default PHP-FPM php.ini file (it will be copied from TEMPLATE_PHP_INI)
-RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini
-RUN ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
+RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini &&  \
+    ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
 COPY utils/fpm-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf
 COPY utils/fpm-zz-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker.conf
 {{end}}
@@ -269,7 +270,7 @@ USER docker
 # | We create an empty known_host file and we launch the ssh-agent
 # |
 
-RUN mkdir ~/.ssh && touch ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts && eval $(ssh-agent -s)
+RUN mkdir ~/.ssh && touch ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts && eval "$(ssh-agent -s)"
 
 
 # |--------------------------------------------------------------------------
@@ -310,7 +311,8 @@ ENV IMAGE_VARIANT={{ .Orbit.variant }}
 
 # Add Tini (to be able to stop the container with ctrl-c).
 # See: https://github.com/krallin/tini
-ENV TINI_VERSION v0.16.1
+# FIX https://github.com/krallin/tini/pull/67
+ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${TARGETARCH} /tini
 RUN chmod +x /tini
 
@@ -330,8 +332,8 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 {{if eq .Orbit.variant "apache" }}
 # Let's register a servername to remove the message "apache2: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message"
-RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
-RUN a2enconf servername
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf && \
+    a2enconf servername
 
 CMD ["apache2-foreground"]
 
@@ -365,7 +367,7 @@ RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${P
     sed -i 's/^group = www-data/;group = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i 's#listen = /run/php/php${PHP_VERSION}-fpm.sock#;listen = /run/php/php${PHP_VERSION}-fpm.sock#g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i "s#pid = /run/php/php${PHP_VERSION}-fpm.pid#;pid = /run/php/php${PHP_VERSION}-fpm.pid#g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf && \
-    if [ "$PHP_VERSION" = "7.2" ]; then \
+    if [[ "$PHP_VERSION" = "7.2" ]]; then \
         sed -i 's/^log_limit =/;log_limit =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf && \
         sed -i 's/^decorate_workers_output =/;decorate_workers_output =/g' /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf; \
     fi
@@ -386,22 +388,21 @@ ONBUILD RUN sudo -E PHP_EXTENSIONS="$PHP_EXTENSIONS" /usr/local/bin/install_sele
 # |
 # | Supercronic is a drop-in replacement for cron (for containers).
 # |
-ENV SUPERCRONIC_OPTIONS=
+ENV SUPERCRONIC_OPTIONS=""
 ONBUILD ARG INSTALL_CRON
 ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
- SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.9/supercronic-$TARGETOS-$TARGETARCH \
- && echo $SUPERCRONIC_URL \
- && SUPERCRONIC=supercronic-linux-${TARGETARCH} \
- && SUPERCRONIC_SHA1SUM=5ddf8ea26b56d4a7ff6faecdd8966610d5cb9d85 \
- && if [ "$TARGETARCH" == "arm64" ]; then SUPERCRONIC_SHA1SUM=e2714c43e7781bf1579c85aa61259245f56dbba1; \
-    elif [ "$TARGETARCH" == "amd64" ]; then SUPERCRONIC_SHA1SUM=5ddf8ea26b56d4a7ff6faecdd8966610d5cb9d85; \
-    else echo "Target arch '$TARGETARCH' is not supported"; fi; \
- && curl -fsSLO "$SUPERCRONIC_URL" \
- && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
- && chmod +x "$SUPERCRONIC" \
- && sudo mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
- && sudo ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic; \
- fi;
+     SUPERCRONIC="supercronic-${TARGETOS}-${TARGETARCH}" \
+     && SUPERCRONIC_URL="https://github.com/aptible/supercronic/releases/download/v0.1.9/${SUPERCRONIC}" \
+     && echo ${SUPERCRONIC_URL} \
+     && if [ "$TARGETARCH" = "arm64" ]; then SUPERCRONIC_SHA1SUM=e2714c43e7781bf1579c85aa61259245f56dbba1; \
+        elif [ "$TARGETARCH" = "amd64" ]; then SUPERCRONIC_SHA1SUM=5ddf8ea26b56d4a7ff6faecdd8966610d5cb9d85; \
+        else echo "Target arch '${TARGETARCH}' is not supported"; exit 1; fi \
+     && curl -fsSLO "${SUPERCRONIC_URL}" \
+     && echo "${SUPERCRONIC_SHA1SUM} ${SUPERCRONIC}" | sha1sum -c - \
+     && chmod +x "${SUPERCRONIC}" \
+     && sudo mv "${SUPERCRONIC}" "/usr/local/bin/${SUPERCRONIC}" \
+     && sudo ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic; \
+ fi
 
 
 # |--------------------------------------------------------------------------
@@ -423,6 +424,7 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
     sudo apt-get update && \
     sudo apt-get install -y --no-install-recommends yarn && \
+    if [[ "${NODE_VERSION}" == "10" ]]; then npm install -g npm@^6.14; else npm install -g npm; fi && \
     sudo apt-get clean && \
     sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*; \
     fi;

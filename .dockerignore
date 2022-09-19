@@ -1,0 +1,10 @@
+/.git*
+/docker-bake.hcl
+/Dockerfile.*
+/Makefile
+/*.md
+/LICENSE
+/orbit*
+/test*
+/utils/*.blueprint.*
+/utils/*.blueprint
