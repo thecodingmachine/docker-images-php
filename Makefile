@@ -16,16 +16,18 @@ test-quick:  ## Test 8.0 and 8.1 quickly
 test-8.1:  ## Test php8.1 build only
 	VERSION=8.1 VARIANT=cli $(MAKE) _test-version
 	VERSION=8.1 VARIANT=apache $(MAKE) _test-version
+	VERSION=8.1 VARIANT=fpm $(MAKE) _test-version
 
 test-8.0:  ## Test php8.0 build only
 	VERSION=8.0 VARIANT=cli $(MAKE) _test-version
 	VERSION=8.0 VARIANT=apache $(MAKE) _test-version
+	VERSION=8.0 VARIANT=fpm $(MAKE) _test-version
 
 _test-version: _test-prerequisites ## Test php build for VERSION="" and VARIANT=""
 	docker buildx bake --load \
 	    --set "*.platform=$$(uname -p)" \
-		php$${VERSION//.}-cli
-	PHP_VERSION="$(VERSION)" BRANCH=v4 VARIANT=cli ./test-image.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
+		php$${VERSION//.}-$(VARIANT)-all
+	PHP_VERSION="$(VERSION)" BRANCH=v4 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT))"
 
 clean: ## Clean dangles image after build
