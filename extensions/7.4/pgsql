@@ -1,1 +1,1 @@
-../core/pgsql
+../core/pdo_pgsql
