@@ -185,7 +185,6 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 
 - *mcrypt* is not available anymore in PHP 7.3+
 - *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
-- *sybase* extension is not available in v4 (use v3)
 - *event*, *gnupg* are not available in PHP 8.0+
 - *gettext*, *ev*, *rdkafka*, *swoole* are not available in PHP 8.1+
 
