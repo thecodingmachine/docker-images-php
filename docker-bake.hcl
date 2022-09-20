@@ -192,7 +192,7 @@ target "php81-apache" {
 target "php81-apache-node16" {
   inherits = ["default"]
   tags = tag("8.1", "apache-node16")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "apache-node16"
@@ -208,7 +208,7 @@ target "php81-apache-node16" {
 target "php81-apache-node14" {
   inherits = ["default"]
   tags = tag("8.1", "apache-node14")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "apache-node14"
@@ -224,7 +224,7 @@ target "php81-apache-node14" {
 target "php81-apache-node12" {
   inherits = ["default"]
   tags = tag("8.1", "apache-node12")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "apache-node12"
@@ -240,7 +240,7 @@ target "php81-apache-node12" {
 target "php81-apache-node10" {
   inherits = ["default"]
   tags = tag("8.1", "apache-node10")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "apache-node10"
@@ -285,7 +285,7 @@ target "php81-fpm" {
 target "php81-fpm-node16" {
   inherits = ["default"]
   tags = tag("8.1", "fpm-node16")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "fpm-node16"
@@ -301,7 +301,7 @@ target "php81-fpm-node16" {
 target "php81-fpm-node14" {
   inherits = ["default"]
   tags = tag("8.1", "fpm-node14")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "fpm-node14"
@@ -317,7 +317,7 @@ target "php81-fpm-node14" {
 target "php81-fpm-node12" {
   inherits = ["default"]
   tags = tag("8.1", "fpm-node12")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "fpm-node12"
@@ -333,7 +333,7 @@ target "php81-fpm-node12" {
 target "php81-fpm-node10" {
   inherits = ["default"]
   tags = tag("8.1", "fpm-node10")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "fpm-node10"
@@ -378,7 +378,7 @@ target "php81-cli" {
 target "php81-cli-node16" {
   inherits = ["default"]
   tags = tag("8.1", "cli-node16")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "cli-node16"
@@ -394,7 +394,7 @@ target "php81-cli-node16" {
 target "php81-cli-node14" {
   inherits = ["default"]
   tags = tag("8.1", "cli-node14")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "cli-node14"
@@ -410,7 +410,7 @@ target "php81-cli-node14" {
 target "php81-cli-node12" {
   inherits = ["default"]
   tags = tag("8.1", "cli-node12")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "cli-node12"
@@ -426,7 +426,7 @@ target "php81-cli-node12" {
 target "php81-cli-node10" {
   inherits = ["default"]
   tags = tag("8.1", "cli-node10")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.1"
     VARIANT = "cli-node10"
@@ -471,7 +471,7 @@ target "php80-apache" {
 target "php80-apache-node16" {
   inherits = ["default"]
   tags = tag("8.0", "apache-node16")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "apache-node16"
@@ -487,7 +487,7 @@ target "php80-apache-node16" {
 target "php80-apache-node14" {
   inherits = ["default"]
   tags = tag("8.0", "apache-node14")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "apache-node14"
@@ -503,7 +503,7 @@ target "php80-apache-node14" {
 target "php80-apache-node12" {
   inherits = ["default"]
   tags = tag("8.0", "apache-node12")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "apache-node12"
@@ -519,7 +519,7 @@ target "php80-apache-node12" {
 target "php80-apache-node10" {
   inherits = ["default"]
   tags = tag("8.0", "apache-node10")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "apache-node10"
@@ -564,7 +564,7 @@ target "php80-fpm" {
 target "php80-fpm-node16" {
   inherits = ["default"]
   tags = tag("8.0", "fpm-node16")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "fpm-node16"
@@ -580,7 +580,7 @@ target "php80-fpm-node16" {
 target "php80-fpm-node14" {
   inherits = ["default"]
   tags = tag("8.0", "fpm-node14")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "fpm-node14"
@@ -596,7 +596,7 @@ target "php80-fpm-node14" {
 target "php80-fpm-node12" {
   inherits = ["default"]
   tags = tag("8.0", "fpm-node12")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "fpm-node12"
@@ -612,7 +612,7 @@ target "php80-fpm-node12" {
 target "php80-fpm-node10" {
   inherits = ["default"]
   tags = tag("8.0", "fpm-node10")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "fpm-node10"
@@ -657,7 +657,7 @@ target "php80-cli" {
 target "php80-cli-node16" {
   inherits = ["default"]
   tags = tag("8.0", "cli-node16")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "cli-node16"
@@ -673,7 +673,7 @@ target "php80-cli-node16" {
 target "php80-cli-node14" {
   inherits = ["default"]
   tags = tag("8.0", "cli-node14")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "cli-node14"
@@ -689,7 +689,7 @@ target "php80-cli-node14" {
 target "php80-cli-node12" {
   inherits = ["default"]
   tags = tag("8.0", "cli-node12")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "cli-node12"
@@ -705,7 +705,7 @@ target "php80-cli-node12" {
 target "php80-cli-node10" {
   inherits = ["default"]
   tags = tag("8.0", "cli-node10")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "8.0"
     VARIANT = "cli-node10"
@@ -750,7 +750,7 @@ target "php74-apache" {
 target "php74-apache-node16" {
   inherits = ["default"]
   tags = tag("7.4", "apache-node16")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "apache-node16"
@@ -766,7 +766,7 @@ target "php74-apache-node16" {
 target "php74-apache-node14" {
   inherits = ["default"]
   tags = tag("7.4", "apache-node14")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "apache-node14"
@@ -782,7 +782,7 @@ target "php74-apache-node14" {
 target "php74-apache-node12" {
   inherits = ["default"]
   tags = tag("7.4", "apache-node12")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "apache-node12"
@@ -798,7 +798,7 @@ target "php74-apache-node12" {
 target "php74-apache-node10" {
   inherits = ["default"]
   tags = tag("7.4", "apache-node10")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "apache-node10"
@@ -843,7 +843,7 @@ target "php74-fpm" {
 target "php74-fpm-node16" {
   inherits = ["default"]
   tags = tag("7.4", "fpm-node16")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "fpm-node16"
@@ -859,7 +859,7 @@ target "php74-fpm-node16" {
 target "php74-fpm-node14" {
   inherits = ["default"]
   tags = tag("7.4", "fpm-node14")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "fpm-node14"
@@ -875,7 +875,7 @@ target "php74-fpm-node14" {
 target "php74-fpm-node12" {
   inherits = ["default"]
   tags = tag("7.4", "fpm-node12")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "fpm-node12"
@@ -891,7 +891,7 @@ target "php74-fpm-node12" {
 target "php74-fpm-node10" {
   inherits = ["default"]
   tags = tag("7.4", "fpm-node10")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "fpm-node10"
@@ -936,7 +936,7 @@ target "php74-cli" {
 target "php74-cli-node16" {
   inherits = ["default"]
   tags = tag("7.4", "cli-node16")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "cli-node16"
@@ -952,7 +952,7 @@ target "php74-cli-node16" {
 target "php74-cli-node14" {
   inherits = ["default"]
   tags = tag("7.4", "cli-node14")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "cli-node14"
@@ -968,7 +968,7 @@ target "php74-cli-node14" {
 target "php74-cli-node12" {
   inherits = ["default"]
   tags = tag("7.4", "cli-node12")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "cli-node12"
@@ -984,7 +984,7 @@ target "php74-cli-node12" {
 target "php74-cli-node10" {
   inherits = ["default"]
   tags = tag("7.4", "cli-node10")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.4"
     VARIANT = "cli-node10"
@@ -1029,7 +1029,7 @@ target "php73-apache" {
 target "php73-apache-node16" {
   inherits = ["default"]
   tags = tag("7.3", "apache-node16")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "apache-node16"
@@ -1045,7 +1045,7 @@ target "php73-apache-node16" {
 target "php73-apache-node14" {
   inherits = ["default"]
   tags = tag("7.3", "apache-node14")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "apache-node14"
@@ -1061,7 +1061,7 @@ target "php73-apache-node14" {
 target "php73-apache-node12" {
   inherits = ["default"]
   tags = tag("7.3", "apache-node12")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "apache-node12"
@@ -1077,7 +1077,7 @@ target "php73-apache-node12" {
 target "php73-apache-node10" {
   inherits = ["default"]
   tags = tag("7.3", "apache-node10")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "apache-node10"
@@ -1122,7 +1122,7 @@ target "php73-fpm" {
 target "php73-fpm-node16" {
   inherits = ["default"]
   tags = tag("7.3", "fpm-node16")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "fpm-node16"
@@ -1138,7 +1138,7 @@ target "php73-fpm-node16" {
 target "php73-fpm-node14" {
   inherits = ["default"]
   tags = tag("7.3", "fpm-node14")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "fpm-node14"
@@ -1154,7 +1154,7 @@ target "php73-fpm-node14" {
 target "php73-fpm-node12" {
   inherits = ["default"]
   tags = tag("7.3", "fpm-node12")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "fpm-node12"
@@ -1170,7 +1170,7 @@ target "php73-fpm-node12" {
 target "php73-fpm-node10" {
   inherits = ["default"]
   tags = tag("7.3", "fpm-node10")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "fpm-node10"
@@ -1215,7 +1215,7 @@ target "php73-cli" {
 target "php73-cli-node16" {
   inherits = ["default"]
   tags = tag("7.3", "cli-node16")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "cli-node16"
@@ -1231,7 +1231,7 @@ target "php73-cli-node16" {
 target "php73-cli-node14" {
   inherits = ["default"]
   tags = tag("7.3", "cli-node14")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "cli-node14"
@@ -1247,7 +1247,7 @@ target "php73-cli-node14" {
 target "php73-cli-node12" {
   inherits = ["default"]
   tags = tag("7.3", "cli-node12")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "cli-node12"
@@ -1263,7 +1263,7 @@ target "php73-cli-node12" {
 target "php73-cli-node10" {
   inherits = ["default"]
   tags = tag("7.3", "cli-node10")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.3"
     VARIANT = "cli-node10"
@@ -1308,7 +1308,7 @@ target "php72-apache" {
 target "php72-apache-node16" {
   inherits = ["default"]
   tags = tag("7.2", "apache-node16")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "apache-node16"
@@ -1324,7 +1324,7 @@ target "php72-apache-node16" {
 target "php72-apache-node14" {
   inherits = ["default"]
   tags = tag("7.2", "apache-node14")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "apache-node14"
@@ -1340,7 +1340,7 @@ target "php72-apache-node14" {
 target "php72-apache-node12" {
   inherits = ["default"]
   tags = tag("7.2", "apache-node12")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "apache-node12"
@@ -1356,7 +1356,7 @@ target "php72-apache-node12" {
 target "php72-apache-node10" {
   inherits = ["default"]
   tags = tag("7.2", "apache-node10")
-  dockerfile = "Dockerfile.apache"
+  dockerfile = "Dockerfile.apache.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "apache-node10"
@@ -1401,7 +1401,7 @@ target "php72-fpm" {
 target "php72-fpm-node16" {
   inherits = ["default"]
   tags = tag("7.2", "fpm-node16")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "fpm-node16"
@@ -1417,7 +1417,7 @@ target "php72-fpm-node16" {
 target "php72-fpm-node14" {
   inherits = ["default"]
   tags = tag("7.2", "fpm-node14")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "fpm-node14"
@@ -1433,7 +1433,7 @@ target "php72-fpm-node14" {
 target "php72-fpm-node12" {
   inherits = ["default"]
   tags = tag("7.2", "fpm-node12")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "fpm-node12"
@@ -1449,7 +1449,7 @@ target "php72-fpm-node12" {
 target "php72-fpm-node10" {
   inherits = ["default"]
   tags = tag("7.2", "fpm-node10")
-  dockerfile = "Dockerfile.fpm"
+  dockerfile = "Dockerfile.fpm.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "fpm-node10"
@@ -1494,7 +1494,7 @@ target "php72-cli" {
 target "php72-cli-node16" {
   inherits = ["default"]
   tags = tag("7.2", "cli-node16")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "cli-node16"
@@ -1510,7 +1510,7 @@ target "php72-cli-node16" {
 target "php72-cli-node14" {
   inherits = ["default"]
   tags = tag("7.2", "cli-node14")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "cli-node14"
@@ -1526,7 +1526,7 @@ target "php72-cli-node14" {
 target "php72-cli-node12" {
   inherits = ["default"]
   tags = tag("7.2", "cli-node12")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "cli-node12"
@@ -1542,7 +1542,7 @@ target "php72-cli-node12" {
 target "php72-cli-node10" {
   inherits = ["default"]
   tags = tag("7.2", "cli-node10")
-  dockerfile = "Dockerfile.cli"
+  dockerfile = "Dockerfile.cli.node"
   args = {
     PHP_VERSION = "7.2"
     VARIANT = "cli-node10"

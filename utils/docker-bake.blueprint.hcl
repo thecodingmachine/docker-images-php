@@ -77,7 +77,7 @@ target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}" {
   inherits = ["default"]
   tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}")
-  dockerfile = "Dockerfile.{{ $variant }}"
+  dockerfile = "Dockerfile.{{ $variant }}.node"
   args = {
     PHP_VERSION = "{{ $phpV }}"
     VARIANT = "{{ $variant }}-node{{ $nodeV }}"

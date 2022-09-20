@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - 'v4'
+# FIXME : re-enable after testing
 #  schedule:
 #    - cron: '42 3 * * 0'
 
