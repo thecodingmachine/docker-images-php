@@ -22,13 +22,15 @@ group "php{{ $phpV | replace "." "" }}" {
 variable "REPO" {default = "thecodingmachine/php"}
 variable "TAG_PREFIX" {default = ""}
 variable "PHP_PATCH_MINOR" {default = ""}
+variable "IS_RELEASE" {default = "0"}
 variable "GLOBAL_VERSION" {default = "v4"}
 
 function "tag" {
     params = [PHP_VERSION, VARIANT]
     result = [
-        "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}",
-        notequal("",PHP_PATCH_MINOR) ? "${REPO}:${TAG_PREFIX}${PHP_PATCH_MINOR}-${GLOBAL_VERSION}-${VARIANT}": "",
+      equal("1",IS_RELEASE) ? "${REPO}:${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}" : "",
+      equal("1",IS_RELEASE) ? (notequal("",PHP_PATCH_MINOR) ? "${REPO}:${PHP_PATCH_MINOR}-${GLOBAL_VERSION}-${VARIANT}": "") : "",
+      "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}",
     ]
 }
 

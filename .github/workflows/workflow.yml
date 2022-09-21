@@ -36,7 +36,7 @@ jobs:
       - name: Build
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          TAG_PREFIX="rc${GITHUB_SHA::7}-" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
             --set "*.output=type=docker" \
@@ -47,7 +47,7 @@ jobs:
           docker image ls --filter="reference=thecodingmachine/php"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
       - name: Test
         run: |
-          TAG_PREFIX="rc${GITHUB_SHA::7}-" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           PHP_VERSION="${{ matrix.php_version }}" \
           BRANCH="v4" \
           VARIANT="${{ matrix.variant }}" \
@@ -78,45 +78,40 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push ${{ matrix.php_version }}-${{ matrix.variant }} with tagged prefix
-        run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-          mkdir -p /tmp/build-cache
-          TAG_PREFIX="rc${GITHUB_SHA::7}-" \
-          docker buildx bake \
-            --set "*.platform=linux/amd64,linux/arm64" \
-            --cache-to "type=local,mode=max,dest=/tmp/build-cache" \
-            --set "*.output=type=registry" \
-            php${PHP_VERSION//.}-${{ matrix.variant }}-all
       - name: Fetch minor version of php
         run: |
-          # Retrieve minor version
-          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_SHA::7}-${{ matrix.php_version }}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          # Build slim one
+          PHP_VERSION="${{ matrix.php_version }}"
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          docker buildx bake \
+            --set "*.platform=linux/amd64" \
+            --set "*.output=type=docker" \
+            --load \
+            php${PHP_VERSION//.}-slim-${{ matrix.variant }}
+          # Retrieve minor
+          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
           echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}" >> $GITHUB_ENV
-      - name: Build and push ${{ matrix.php_version }}-${{ matrix.variant }} with releases tags (major and minor)
+      - name: Display tags to build
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          PHP_PATCH_MINOR="${PHP_VERSION_MINOR}" \
+          PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          IS_RELEASE="1" \
+          docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --print --progress plain | jq ".target[].tags | join(\" \")" -r > "/tmp/tags.log"
+          cat "/tmp/tags.log"
+      - name: Build and push ${{ matrix.php_version }}-${{ matrix.variant }}
+        run: |
+          PHP_VERSION="${{ matrix.php_version }}"
+          PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          IS_RELEASE="1" \
           docker buildx bake \
             --set "*.platform=linux/amd64,linux/arm64" \
             --set "*.output=type=registry" \
-            --cache-to "type=local,mode=max,dest=/tmp/build-cache" \
-            --cache-from "type=local,mode=max,dest=/tmp/build-cache" \
-            --metadata-file "/tmp/digests.log"
             php${PHP_VERSION//.}-${{ matrix.variant }}-all
-      - name: Display tags built
-        run: |
-          echo "With prefix :" > "/tmp/tags.log"
-          TAG_PREFIX="rc${GITHUB_SHA::7}-" \
-          docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --print --progress plain | jq ".target[].tags | join(\" \")" -r >> "/tmp/tags.log"
-          echo "-----" >> "/tmp/tags.log"
-          echo "Regular :" >> "/tmp/tags.log"
-          PHP_PATCH_MINOR="${PHP_VERSION_MINOR}" \
-          docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --print --progress plain | jq ".target[].tags | join(\" \")" -r >> "/tmp/tags.log"
-          cat "/tmp/tags.log"
-      - name: Artifacts
+      - name: Push artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.php_version }}-${{ matrix.variant }}-logs
-          path: /tmp/{digests,tag}.log
+          name: ${{ matrix.php_version }}-${{ matrix.variant }}
+          path: /tmp/tags.log
           retention-days: 60
