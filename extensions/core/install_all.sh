@@ -8,11 +8,17 @@ mv /etc/apt/apt.conf.d/docker-clean /tmp/docker-clean
 
 apt-get update
 
+mkdir -p /var/log/ext-php/
+
 for ext in */; do \
     cd $ext
     ext_no_slash=${ext%/}
     echo "***************** Installing $ext_no_slash ******************"
-    ./install.sh
+    LOG="/var/log/ext-php/install-${ext_no_slash}"
+    start=$(date +%s)
+    ./install.sh 2>&1 | tee -a "${LOG}.log"
+    end=$(date +%s)
+    echo "$(($end-$start)) seconds to execute ${ext_no_slash}" > "${LOG}.time"
     cd ..
 done
 

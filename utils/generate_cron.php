@@ -4,8 +4,6 @@
  * The script is run on each start of the container.
  */
 
-$tiniPid = $argv[1];
-
 $found = false;
 
 foreach ($_SERVER as $key => $command) {

@@ -20,14 +20,15 @@ group "php{{ $phpV | replace "." "" }}" {
 }{{end}}
 
 variable "REPO" {default = "thecodingmachine/php"}
+variable "TAG_PREFIX" {default = ""}
 variable "PHP_PATCH_MINOR" {default = ""}
 variable "GLOBAL_VERSION" {default = "v4"}
 
 function "tag" {
-    params = [PHP_VERSION, VARIANT, PHP_MINOR]
+    params = [PHP_VERSION, VARIANT]
     result = [
-        "${REPO}:${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}",
-        notequal("",PHP_MINOR) ? "${REPO}:${PHP_MINOR}-${GLOBAL_VERSION}-${VARIANT}": "",
+        "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}",
+        notequal("",PHP_PATCH_MINOR) ? "${REPO}:${TAG_PREFIX}${PHP_PATCH_MINOR}-${GLOBAL_VERSION}-${VARIANT}": "",
     ]
 }
 
@@ -36,13 +37,10 @@ target "default" {
   args = {
     GLOBAL_VERSION = "${GLOBAL_VERSION}"
   }
-  platforms = ["linux/amd64"]
+  #platforms = ["linux/amd64", "linux/arm64"]
+  platforms = [BAKE_LOCAL_PLATFORM]
   pull = true
-  #output = ["customDir"]
-  #output = ["type=tar,dest=myimage.tar"]
-  output = ["type=docker"] # load in local docker
-  #output = ["type=registry"] # push
-  #output = ["type=image"] # push also ?
+  output = ["type=docker"] # export in local docker
 }
 
 {{range $phpV := $versions}}{{range $variant := $variants}}
@@ -52,7 +50,7 @@ target "default" {
 # thecodingmachine/php:{{ $phpV }}-v4-slim-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
   inherits = ["default"]
-  tags = tag("{{ $phpV }}", "slim-{{ $variant }}", "${PHP_PATCH_MINOR}")
+  tags = tag("{{ $phpV }}", "slim-{{ $variant }}")
   dockerfile = "Dockerfile.slim.{{ $variant }}"
   args = {
     PHP_VERSION = "{{ $phpV }}"
@@ -62,29 +60,32 @@ target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
 
 # thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
-  contexts = {
-    baseapp = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}"
-  }
   inherits = ["default"]
-  tags = tag("{{ $phpV }}", "{{ $variant }}", "${PHP_PATCH_MINOR}")
+  tags = tag("{{ $phpV }}", "{{ $variant }}")
   dockerfile = "Dockerfile.{{ $variant }}"
   args = {
     PHP_VERSION = "{{ $phpV }}"
     VARIANT = "{{ $variant }}"
+    FROM_IMAGE = "slim"
+  }
+  contexts = {
+    slim = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}"
   }
 }
 {{range $nodeV := $nodeVersions}}
 # thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}-node{{ $nodeV }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}" {
-  contexts = {
-    baseapp = "target:php{{ $phpV | replace "." "" }}-{{ $variant }}"
-  }
   inherits = ["default"]
-  tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}", "${PHP_PATCH_MINOR}")
-  dockerfile = "Dockerfile.{{ $variant }}.node{{ $nodeV }}"
+  tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}")
+  dockerfile = "Dockerfile.{{ $variant }}.node"
   args = {
     PHP_VERSION = "{{ $phpV }}"
     VARIANT = "{{ $variant }}-node{{ $nodeV }}"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "{{ $nodeV }}"
+  }
+  contexts = {
+    fat = "target:php{{ $phpV | replace "." "" }}-{{ $variant }}"
   }
 }
 {{ end }}{{ end }}{{ end }}

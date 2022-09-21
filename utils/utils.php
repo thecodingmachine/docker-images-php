@@ -10,7 +10,8 @@ define('EXTENSIONS_INSTALL_DIR', '/usr/local/lib/thecodingmachine-php/extensions
  */
 function getAvailableExtensions(): array
 {
-    return array_map(function(string $fileName) { return basename($fileName);}, glob('/var/lib/php/modules/'.getenv('PHP_VERSION').'/registry/*'));
+    //return array_map(function(string $fileName) { return basename($fileName);}, glob('/var/lib/php/modules/'.getenv('PHP_VERSION').'/registry/*'));
+    return array_map(function(string $fileName) { return preg_replace('/\.ini$/i', '', basename($fileName));}, glob('/etc/php/'.getenv('PHP_VERSION').'/mods-available/*.ini'));
 }
 
 /**
