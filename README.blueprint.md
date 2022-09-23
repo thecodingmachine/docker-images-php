@@ -8,44 +8,32 @@ This repository contains a set of developer-friendly, general purpose PHP images
  - You can also modify the `php.ini` settings using environment variables.
  - 2 types available: `slim` (no extensions preloaded) or `fat` (most common PHP extensions are built-in)
  - 3 variants available: `CLI`, `apache` and `fpm`
+ - Support of platform: `linux/amd64` and `linux/arm64` (some [limitation exist for arm build](./docs/PLATFORM.md#arm))
  - Fat images are bundled with [Supercronic](https://github.com/aptible/supercronic) which is a Cron compatible task runner. Cron jobs can be configured using environment variables
  - Fat images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
  - Everything is done to limit file permission issues that often arise when using Docker. The image is actively tested on Linux, Windows and MacOS
 
 {{ $image := .Orbit.Images }}
-## Images
+## Images tag
 
-{{ $versions := list "8.1" "8.0" "7.4" "7.3" "7.2" }}
-{{ $nodeVersions := list "10" "12" "14" "16" }}
+Most commons fat version are (easier to use in local development) :
+* `thecodingmachine/php:${php_version}-v4-cli` : php cli only
+* `thecodingmachine/php:${php_version}-v4-fpm` : php fpm preconfigured
+* `thecodingmachine/php:${php_version}-v4-apache` : php with apache server included
+* `thecodingmachine/php:${php_version}-v4-apache-node16` : php with apache server included and node at version 16
+* `thecodingmachine/php:${php_version}-v4-fpm-node16` : php fpm preconfigured and node at version 16
+* `thecodingmachine/php:${php_version}-v4-cli-node16` : php only and node at version 16
 
-| Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
-|-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
-{{range $phpV := $versions}}| [thecodingmachine/php:{{ $phpV }}-v4-apache](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache)                                        | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-apache)
-{{range $nodeV := $nodeVersions}}| [thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache.node) | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | apache   | `{{ $nodeV }}.x`{{ if eq $nodeV "10" }}(2){{ end }}  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }})
-{{ end }}| [thecodingmachine/php:{{ $phpV }}-v4-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm)                                                                 | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-fpm)
-{{range $nodeV := $nodeVersions}}| [thecodingmachine/php:{{ $phpV }}-v4-fpm-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.fpm.node)       | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | fpm      | `{{ $nodeV }}.x`{{ if eq $nodeV "10" }}(2){{ end }}  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-fpm-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-fpm-node{{ $nodeV }})
-{{ end }}| [thecodingmachine/php:{{ $phpV }}-v4-cli](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli)                                                                 | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-cli)
-{{range $nodeV := $nodeVersions}}| [thecodingmachine/php:{{ $phpV }}-v4-cli-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.cli.node)       | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | cli      | `{{ $nodeV }}.x`{{ if eq $nodeV "10" }}(2){{ end }}  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-cli-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-cli-node{{ $nodeV }})
-{{ end }}| [thecodingmachine/php:{{ $phpV }}-v4-slim-apache](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.apache)                                                 | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | slim | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-slim-apache)
-| [thecodingmachine/php:{{ $phpV }}-v4-slim-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.fpm)                                                                | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | slim | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-slim-fpm)
-| [thecodingmachine/php:{{ $phpV }}-v4-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.slim.cli)                                                                | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | slim | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-slim-cli)
-{{end}}
+And you have same for slim one (useful to build yours own images lighter than fat one) :
+* `thecodingmachine/php:${php_version}-v4-slim-cli` : php cli only
+* `thecodingmachine/php:${php_version}-v4-slim-fpm` : php fpm preconfigured
+* `thecodingmachine/php:${php_version}-v4-slim-apache` : php with apache server included
+* There are no slim version for NODE (but you can build them with `ARG NODE_VERSION=any.version.you.need`)
 
-* (1) [PHP 7.2 and 7.3 are end of life](https://www.php.net/supported-versions.php)
-* (2) [Node 10 is end of life](https://nodejs.org/en/about/releases/)  
-
-Note: we also tag patch releases of PHP versions. So you can specify a specific patch release using thecodingmachine/php:**8.0.2**-v4-cli for instance.
-However, unless you have a **very specific need** (for instance if the latest patch release of PHP introduced regressions), believe you have no valid reason to ask explicitly for 8.0.2 for instance.
-When 8.0.3 is out, you certainly want to upgrade automatically to this patch release since patch releases contain only bugfixes.
-Also, we automatically rebuild X.Y images every week, but only the latest X.Y.Z patch release gets a rebuild. The other patch releases are frozen in time and will contain bugs and security issues. So use those with great care.
-
-[Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP 7.4 image will always contain 
-the most up-to-date version of the PHP 7.4.x branch.
+All tagged version for php (7.2, 7.3, 7.4, 8.0 and 8.1) [can be found on this page](./docs/TAGS.md).
 
 ## Usage
-
-These images are based on the [official PHP image](https://hub.docker.com/_/php/).
 
 Example with CLI:
 
@@ -65,11 +53,24 @@ Example with PHP-FPM:
 $ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:{{ $image.php_version }}-v4-fpm
 ```
 
-Example with Apache + Node 14.x in a Dockerfile:
+Example with Apache + Node 16.x in a Dockerfile:
 
 **Dockerfile**
 ```Dockerfile
-FROM thecodingmachine/php:{{ $image.php_version }}-v4-apache-node14
+FROM thecodingmachine/php:{{ $image.php_version }}-v4-apache-node16
+
+COPY src/ /var/www/html/
+RUN composer install
+RUN npm install
+RUN npm run build
+```
+
+Example with Apache + Node 16.x in a Dockerfile with slim version :
+
+**Dockerfile**
+```Dockerfile
+ARG NODE_VERSION=16
+FROM thecodingmachine/php:{{ $image.php_version }}-v4-slim-apache
 
 COPY src/ /var/www/html/
 RUN composer install
