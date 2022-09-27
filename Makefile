@@ -10,8 +10,8 @@ _test-prerequisites: blueprint
 	docker pull ubuntu:20.04
 
 test-quick:  ## Test 8.0 and 8.1 quickly
-	VERSION=8.0 VARIANT=cli $(MAKE) _test-version
-	VERSION=8.1 VARIANT=cli $(MAKE) _test-version
+	VERSION=8.0 VARIANT=cli $(MAKE) _test-version-quick
+	VERSION=8.1 VARIANT=cli $(MAKE) _test-version-quick
 
 test-8.1:  ## Test php8.1 build only
 	VERSION=8.1 VARIANT=cli $(MAKE) _test-version
@@ -29,6 +29,13 @@ _test-version: _test-prerequisites ## Test php build for VERSION="" and VARIANT=
 		php$${VERSION//.}-$(VARIANT)-all
 	PHP_VERSION="$(VERSION)" BRANCH=v4 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT))"
+
+_test-version-quick: _test-prerequisites ## Test php build for VERSION="" and VARIANT="" (without node variants)
+	docker buildx bake --load \
+	    --set "*.platform=$$(uname -p)" \
+		php$${VERSION//.}-slim-$(VARIANT) php$${VERSION//.}-$(VARIANT)
+	PHP_VERSION="$(VERSION)" BRANCH=v4 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
+	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT)) - without node-*"
 
 clean: ## Clean dangles image after build
 	rm -rf /tmp/buildx-cache
