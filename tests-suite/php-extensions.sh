@@ -17,6 +17,13 @@ test_presenceOfPDO() {
   RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never PDO)
   assert_equals "PDO" "${RESULT}" "Missing php-PDO"
 }
+#################################################################
+## Let's check that uploadprogress is enabled explicitly with fat
+#################################################################
+test_presenceOfUploadprogressOnFat() {
+  RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=uploadprogress" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never uploadprogress)
+  assert_equals "uploadprogress" "${RESULT}" "Missing php-uploadprogress"
+}
 ############################################################
 ## Let's check that the extensions are enabled when composer is run
 ############################################################
