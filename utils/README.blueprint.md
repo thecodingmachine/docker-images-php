@@ -104,7 +104,7 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 - *mcrypt* is not available anymore in PHP 7.3+
 - *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
 - *event*, *gnupg* are not available in PHP 8.0+
-- *gettext*, *ev*, *rdkafka*, *swoole* are not available in PHP 8.1+
+- *gettext*, *ev*, *swoole* are not available in PHP 8.1+
 - *ev*, *rdkafka*, *snmp*, *swoole* are not available in all `ARM64` images (build time is too long : it's possible to install manually as required) 
 
 ### Enabling/disabling extensions in the fat image
