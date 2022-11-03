@@ -424,7 +424,7 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
     sudo apt-get update && \
     sudo apt-get install -y --no-install-recommends yarn && \
-    if [[ "${NODE_VERSION}" == "10" ]]; then npm install -g npm@^6.14; else npm install -g npm; fi && \
+    if [[ "${NODE_VERSION}" == "10" ]]; then sudo npm install -g npm@^6.14; fi && \
     sudo apt-get clean && \
     sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*; \
     fi;

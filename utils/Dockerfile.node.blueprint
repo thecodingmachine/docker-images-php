@@ -24,7 +24,7 @@ RUN apt-get update && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends yarn && \
-    if [[ "${NODE_VERSION}" == "10" ]]; then npm install -g npm@^6.14; else npm install -g npm; fi && \
+    if [[ "${NODE_VERSION}" == "10" ]]; then npm install -g npm@^6.14; fi && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
