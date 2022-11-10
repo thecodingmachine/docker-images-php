@@ -1,4 +1,4 @@
-{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.1" "8.0" "7.4" "7.3" "7.2" }}{{ $nodeVersions := list "16" "14" "12" "10" }}
+{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.1" "8.0" "7.4" "7.3" "7.2" }}{{ $nodeVersions := list "18" "16" "14" "12" "10" }}
 group "default" {
    targets = [
      {{range $phpV := $versions}}
