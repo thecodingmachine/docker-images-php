@@ -177,7 +177,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** `apcu`, `hash`, `iconv`, `igbinary`, `mysqli`, `mysqlnd`, `redis`, `soap`, `xsl`, `zlib` and all enabled in slim. 
 
-**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `ds` `enchant` `ev` `event` `exif` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `intl` `ldap` `mcrypt` `memcached` `mongodb` `pcov` `pdo_dblib` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `weakref(-beta)` `xdebug` `xmlrpc` `xsl` `yaml`
+**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `ds` `enchant` `ev` `event` `exif` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `intl` `ldap` `mcrypt` `memcached` `mongodb` `pcov` `pdo_dblib` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `weakref(-beta)` `xdebug` `xmlrpc` `xsl` `yaml`
 
 This list can be outdated, you can verify by executing : `docker run --rm -it thecodingmachine/php:8.1-v4-cli php -m`
 
@@ -188,6 +188,7 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 - *event*, *gnupg* are not available in PHP 8.0+
 - *gettext*, *ev*, *swoole* are not available in PHP 8.1+
 - *ev*, *rdkafka*, *snmp*, *swoole* are not available in all `ARM64` images (build time is too long : it's possible to install manually as required) 
+- *ffi* is only available in PHP 7.4+
 
 ### Enabling/disabling extensions in the fat image
 
