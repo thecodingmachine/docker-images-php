@@ -1,4 +1,4 @@
-{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.2" "8.1" "8.0" "7.4" "7.3" "7.2" }}{{ $nodeVersions := list "18" "16" "14" "12" "10" }}
+{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.2" "8.1" "8.0" "7.4" "7.3" "7.2" }}{{ $nodeVersions := list "18" "16" "14" }}
 group "default" {
    targets = [
      {{range $phpV := $versions}}
@@ -23,7 +23,7 @@ variable "REPO" {default = "thecodingmachine/php"}
 variable "TAG_PREFIX" {default = ""}
 variable "PHP_PATCH_MINOR" {default = ""}
 variable "IS_RELEASE" {default = "0"}
-variable "GLOBAL_VERSION" {default = "v4"}
+variable "GLOBAL_VERSION" {default = "v5"}
 
 function "tag" {
     params = [PHP_VERSION, VARIANT]
@@ -49,7 +49,7 @@ target "default" {
 ###########################
 ##    PHP {{ $phpV }}
 ###########################
-# thecodingmachine/php:{{ $phpV }}-v4-slim-{{ $variant }}
+# thecodingmachine/php:{{ $phpV }}-v5-slim-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
   inherits = ["default"]
   tags = tag("{{ $phpV }}", "slim-{{ $variant }}")
@@ -60,7 +60,7 @@ target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
   }
 }
 
-# thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}
+# thecodingmachine/php:{{ $phpV }}-v5-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
   inherits = ["default"]
   tags = tag("{{ $phpV }}", "{{ $variant }}")
@@ -75,7 +75,7 @@ target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
   }
 }
 {{range $nodeV := $nodeVersions}}
-# thecodingmachine/php:{{ $phpV }}-v4-{{ $variant }}-node{{ $nodeV }}
+# thecodingmachine/php:{{ $phpV }}-v5-{{ $variant }}-node{{ $nodeV }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}" {
   inherits = ["default"]
   tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}")

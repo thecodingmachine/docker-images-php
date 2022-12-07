@@ -14,7 +14,7 @@
 * Build the slim image
 * Run it with docker and try extensions with follow commands 
   ```bash
-  docker run -it --rm thecodingmachine/php:8.1-v4-slim-apache sudo bash
+  docker run -it --rm thecodingmachine/php:8.1-v5-slim-apache sudo bash
   apt-get update
   apt-cache search --names-only php8.1-zip
   ```

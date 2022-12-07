@@ -1,3 +1,9 @@
+# Migrating from v4 to v5 images
+
+Important changes:
+
+- v4 images are based on **Ubuntu 20.04**. v5 images are based on **Ubuntu 22.04**.
+
 # Migrating from v3 to v4 images
 
 Important changes:

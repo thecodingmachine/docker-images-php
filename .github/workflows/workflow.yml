@@ -3,10 +3,10 @@ name: Docker PHP Images GitHub workflow
 on:
   pull_request:
     branches:
-      - 'v4'
+      - 'v5'
   push:
     branches:
-      - 'v4'
+      - 'v5'
   schedule:
     - cron: '42 3 * * 0'
 
@@ -49,7 +49,7 @@ jobs:
         run: |
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           PHP_VERSION="${{ matrix.php_version }}" \
-          BRANCH="v4" \
+          BRANCH="v5" \
           VARIANT="${{ matrix.variant }}" \
           PLATFORM="linux/${{ matrix.builder.arch }}" \
           ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
@@ -89,7 +89,7 @@ jobs:
             --load \
             php${PHP_VERSION//.}-slim-${{ matrix.variant }}
           # Retrieve minor
-          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
           echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}" >> $GITHUB_ENV
       - name: Display tags to build
         run: |
