@@ -25,14 +25,14 @@ test-8.0:  ## Test php8.0 build only
 
 _test-version: _test-prerequisites ## Test php build for VERSION="" and VARIANT=""
 	docker buildx bake --load \
-	    --set "*.platform=$$(uname -p)" \
+		--set "*.platform=$(uname -p)" \
 		php$${VERSION//.}-$(VARIANT)-all
 	PHP_VERSION="$(VERSION)" BRANCH=v4 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT))"
 
 _test-version-quick: _test-prerequisites ## Test php build for VERSION="" and VARIANT="" (without node variants)
 	docker buildx bake --load \
-	    --set "*.platform=$$(uname -p)" \
+		--set "*.platform=$(uname -p)" \
 		php$${VERSION//.}-slim-$(VARIANT) php$${VERSION//.}-$(VARIANT)
 	PHP_VERSION="$(VERSION)" BRANCH=v4 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT)) - without node-*"
