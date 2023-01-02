@@ -4,6 +4,9 @@
 
 ### Minor changes
 
+* **2022-12-18**
+  * Support for PHP 8.2
+
 * **2021-09-22** 
   * Preview for PHP 8.1 | PHP 8.1 in release candidate 2 (miss many extensions)
   * Support for Node v16 | Version LTS
