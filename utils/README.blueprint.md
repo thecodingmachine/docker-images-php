@@ -242,6 +242,17 @@ APACHE_DOCUMENT_ROOT=public/
 APACHE_DOCUMENT_ROOT=/var/www/html/public
 ```
 
+## Changing Apache default ports
+
+For the *apache* variant, you can change the default ports of Apache by using the `APACHE_PORT` and `APACHE_SSL_PORT` variables:
+
+```bash
+# The default port of Apache is 80
+APACHE_PORT=8080
+# The default SSL port of Apache is 443
+APACHE_SSL_PORT=8443
+```
+
 ## Enabling/disabling Apache extensions
 
 You can enable/disable Apache extensions using the `APACHE_EXTENSION_[extension_name]` environment variable.
