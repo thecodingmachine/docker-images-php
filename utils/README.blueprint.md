@@ -19,7 +19,7 @@ This repository contains a set of developer-friendly, general purpose PHP images
 {{ $versions := list "8.2" "8.1" "8.0" "7.4" "7.3" "7.2" }}
 {{ $nodeVersions := list "10" "12" "14" "16" "18" }}
 
-| Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size
+| Name                                                                    | PHP version                  | type |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|------------------------------|------|--------|-----------------|------
 {{range $phpV := $versions}}| [thecodingmachine/php:{{ $phpV }}-v4-apache](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache)                                        | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-apache)
 {{range $nodeV := $nodeVersions}}| [thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v4/Dockerfile.apache.node) | `{{ $phpV }}.x`{{if eq $phpV "7.2"}}(1){{ end }}{{if eq $phpV "7.3"}}(1){{ end }} | fat  | apache   | `{{ $nodeV }}.x`{{ if eq $nodeV "10" }}(2){{ end }}  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v4-apache-node{{ $nodeV }})
@@ -33,14 +33,14 @@ This repository contains a set of developer-friendly, general purpose PHP images
 {{end}}
 
 * (1) [PHP 7.2 and 7.3 are end of life](https://www.php.net/supported-versions.php)
-* (2) [Node 10 is end of life](https://nodejs.org/en/about/releases/)
+* (2) [Node 10 is end of life](https://nodejs.org/en/about/releases/)  
 
 Note: we also tag patch releases of PHP versions. So you can specify a specific patch release using thecodingmachine/php:**8.0.2**-v4-cli for instance.
 However, unless you have a **very specific need** (for instance if the latest patch release of PHP introduced regressions), believe you have no valid reason to ask explicitly for 8.0.2 for instance.
 When 8.0.3 is out, you certainly want to upgrade automatically to this patch release since patch releases contain only bugfixes.
 Also, we automatically rebuild X.Y images every week, but only the latest X.Y.Z patch release gets a rebuild. The other patch releases are frozen in time and will contain bugs and security issues. So use those with great care.
 
-[Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP 7.4 image will always contain
+[Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP 7.4 image will always contain 
 the most up-to-date version of the PHP 7.4.x branch.
 
 ## Usage
@@ -87,13 +87,13 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 
 The slim image provides a simple way to install the other extensions. You would typically use the "slim" image in a `Dockerfile` when building your own custom image.
 
-The fat image contains the most commonly used extensions. You would typically use it in a local or CI environment.
+The fat image contains the most commonly used extensions. You would typically use it in a local or CI environment. 
 
 ### Fat image
 
 Below is a list of extensions available in this image:
 
-**Enabled by default (in addition to extensions enabled in Slim image):** `apcu`, `hash`, `iconv`, `igbinary`, `mysqli`, `mysqlnd`, `redis`, `soap`, `xsl`, `zlib` and all enabled in slim.
+**Enabled by default (in addition to extensions enabled in Slim image):** `apcu`, `hash`, `iconv`, `igbinary`, `mysqli`, `mysqlnd`, `redis`, `soap`, `xsl`, `zlib` and all enabled in slim. 
 
 **Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `ds` `enchant` `ev` `event` `exif` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `intl` `ldap` `mcrypt` `memcached` `mongodb` `pcov` `pdo_dblib` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `weakref(-beta)` `xdebug` `xmlrpc` `xsl` `yaml`
 
@@ -105,7 +105,7 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 - *weakref* is not compatible with PHP 7.3+ (but weak references were added to the PHP core in PHP 7.4)
 - *event*, *gnupg* are not available in PHP 8.0+
 - *gettext*, *ev*, *swoole* are not available in PHP 8.1+
-- *ev*, *rdkafka*, *snmp*, *swoole* are not available in all `ARM64` images (build time is too long : it's possible to install manually as required)
+- *ev*, *rdkafka*, *snmp*, *swoole* are not available in all `ARM64` images (build time is too long : it's possible to install manually as required) 
 - *ffi* is only available in PHP 7.4+
 
 ### Enabling/disabling extensions in the fat image
@@ -146,8 +146,8 @@ FROM thecodingmachine/php:{{ $image.php_version }}-v4-slim-apache
 Beware :
 * The `ARG PHP_EXTENSIONS` command must be written before the `FROM`. This is not a typo.
 * `ARG PHP_EXTENSIONS=""` it's not the same as `ENV PHP_EXTENSIONS=""`
-* You can't use `ARG PHP_EXTENSION_MYEXT=""` like the fat image.
-* **Heads up**: if you are using multistage builds, the "ARG" variable must be put at the very top of the file (before the
+* You can't use `ARG PHP_EXTENSION_MYEXT=""` like the fat image. 
+* **Heads up**: if you are using multistage builds, the "ARG" variable must be put at the very top of the file (before the 
 first FROM):
 
 ```Dockerfile
@@ -175,7 +175,7 @@ not contain Node, and contains only required extensions.
 
 ## Setting parameters in php.ini
 
-By default, the base `php.ini` file used is the [*development* php.ini](https://github.com/php/php-src/blob/PHP-{{ $image.php_version }}/php.ini-development) file that comes with PHP.
+By default, the base `php.ini` file used is the [*development* php.ini](https://github.com/php/php-src/blob/PHP-{{ $image.php_version }}/php.ini-development) file that comes with PHP. 
 
 You can use the production `php.ini` file using the `TEMPLATE_PHP_INI` environment variable:
 
@@ -225,7 +225,7 @@ you are using:
 
 ## Changing Apache document root
 
-For the *apache* variant, you can change the document root of Apache (i.e. your "public" directory) by using the
+For the *apache* variant, you can change the document root of Apache (i.e. your "public" directory) by using the 
 `APACHE_DOCUMENT_ROOT` variable:
 
 ```bash
@@ -244,13 +244,13 @@ APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 ## Changing Apache default ports
 
-For the *apache* variant, you can change the default ports of Apache by using the `APACHE_PORT` and `APACHE_PORT_HTTPS` variables:
+For the *apache* variant, you can change the default ports of Apache by using the `APACHE_PORT` and `APACHE_SSL_PORT` variables:
 
 ```bash
 # The default port of Apache is 80
 APACHE_PORT=8080
 # The default SSL port of Apache is 443
-APACHE_PORT_HTTPS=8443
+APACHE_SSL_PORT=8443
 ```
 
 ## Enabling/disabling Apache extensions
@@ -283,7 +283,7 @@ APACHE_EXTENSIONS="dav ssl"
 
 This list can be outdated, you can verify by executing : `docker run --rm -it thecodingmachine/php:{{ $image.php_version }}-v4-slim-apache a2enmod`
 
-
+ 
 ## Debugging
 
 To enable XDebug` `you simply have to set the environment variable:
@@ -291,7 +291,7 @@ To enable XDebug` `you simply have to set the environment variable:
 ```bash
 PHP_EXTENSION_XDEBUG=1
 ```
-
+ 
 If you enable XDebug, the image will do its best to configure the `xdebug.client_host` to point back to your Docker host.
 
 Behind the scenes, the image will:
@@ -341,7 +341,7 @@ be logged in on your host computer as `superdev` (ID: 1000), and the container h
 
 The *thecodingmachine/php* images solve this issue with a bit of black magic:
 
-The image contains a user named `docker`. On container startup, the startup script will look at the owner of the
+The image contains a user named `docker`. On container startup, the startup script will look at the owner of the 
 working directory (`/var/www/html` for Apache/PHP-FPM, or `/usr/src/app` for CLI). The script will then assume that
 you want to run commands as this user. So it will **dynamically change the ID of the docker user** to match the ID of
 the current working directory user.
@@ -359,7 +359,7 @@ The direct result is that, in development:
 
 By changing the Apache user to be `docker:docker`, we are lowering the security.
 This is OK for a development environment, but this should be avoided in production.
-Indeed, in production, Apache should not be allowed to edit PHP files of your application. If for some reason, an
+Indeed, in production, Apache should not be allowed to edit PHP files of your application. If for some reason, an 
 attacker manages to change PHP files using a security hole, he could then run any PHP script by editing the PHP files
 of your application.
 
@@ -418,10 +418,10 @@ FROM thecodingmachine/php:{{ $image.php_version }}-v4-slim-apache
 ```
 
 **Important**: The cron runner we use is "Supercronic" and not the orginial "cron" that has a number of issues
-with containers. Even with Supercronic, the architecture of cron was never designed with Docker in mind
-(Cron is way older than Docker). It will run correctly on your container. If at some point you want to scale and add
-more containers, it will run on all your containers. At that point, if you only want to run a Cron task once for your
-application (and not once per container), you might want to have a look at alternative solutions like
+with containers. Even with Supercronic, the architecture of cron was never designed with Docker in mind 
+(Cron is way older than Docker). It will run correctly on your container. If at some point you want to scale and add 
+more containers, it will run on all your containers. At that point, if you only want to run a Cron task once for your 
+application (and not once per container), you might want to have a look at alternative solutions like 
 [Tasker](https://github.com/opsxcq/tasker) or use the native features of your orchestrator (if you use Kubernetes,
 you have a native task runner available), or one of the many other alternatives.
 
@@ -457,7 +457,7 @@ This can be very helpful to install dependencies or apply database patches for i
 
 ```bash
 STARTUP_COMMAND_1=composer install
-STARTUP_COMMAND_2=vendor/bin/doctrine orm:schema-tool:update
+STARTUP_COMMAND_2=vendor/bin/doctrine orm:schema-tool:update 
 ```
 
 As an alternative, the images will look into the container for an executable file named `/etc/container/startup.sh`.
@@ -465,8 +465,8 @@ As an alternative, the images will look into the container for an executable fil
 If such a file is mounted in the image, it will be executed on container startup.
 
 ```bash
-docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp \
-       -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:{{ $image.php_version }}-v4-cli php your-script.php
+docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp \ 
+       -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:{{ $image.php_version }}-v4-cli php your-script.php 
 ```
 
 ## Using the CLI variant
@@ -497,7 +497,7 @@ services:
 
 ## Registering SSH private keys
 
-If your PHP project as a dependency on [a package stored in a private GIT repository](https://getcomposer.org/doc/05-repositories.md#using-private-repositories),
+If your PHP project as a dependency on [a package stored in a private GIT repository](https://getcomposer.org/doc/05-repositories.md#using-private-repositories), 
 your `composer install` commands will not work unless you register your private key in the container.
 
 You have several options to do this.
@@ -678,9 +678,9 @@ Run a virtual machine with linux/arm64 with Docker installed in it and, then, bu
 
 To add a new version (php, node, apache, ...), please edit the following files :
 
-- utils/README.blueprint.md
+- utils/README.blueprint.md 
   - Add your image in this section: Images
-- orbit.yml: Your image in generation task
+- orbit.yml: Your image in generation task 
 - .travis.yml: To check the new image
 - build-and-test.sh: Add your image in test
 
