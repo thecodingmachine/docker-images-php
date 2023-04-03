@@ -148,8 +148,8 @@ else
 fi
 
 if [[ "$APACHE_PORT" != "80" ]]; then
-    sudo sed -i 's/80/\${PORT}/g' /etc/apache2/ports.conf && \
-    sudo sed -i 's/80/\${PORT}/g' /etc/apache2/sites-available/000-default.conf
+    sudo sed -i 's/80/\${APACHE_PORT}/g' /etc/apache2/ports.conf && \
+    sudo sed -i 's/80/\${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf
 fi
 
 if [[ "$APACHE_PORT_HTTPS" != "443" ]]; then
