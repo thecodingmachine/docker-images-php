@@ -11,16 +11,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install orbit
-        run: |
-          wget -qO- https://github.com/gulien/orbit/releases/download/v3.3.0/orbit_Linux_x86_64.tar.gz | tar xvz -C /tmp orbit
-          sudo mv /tmp/orbit /usr/local/bin && sudo chmod +x /usr/local/bin/orbit
-          orbit version
       - name: Regenerate blueprint
-        run: |
-          export SHELL=/bin/bash
-          orbit run generate --debug
-      - name: Check if nothing was changed
+        run: make blueprint-all
+      - name: Check if something changed
         run: |
           if [[ "$(git diff --name-only -w | wc -l)" -ne "0" ]]; then
             echo "Wrong file generation are theses one :"

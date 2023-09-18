@@ -10,7 +10,7 @@ fi;
 ############################################################
 test_start() {
   docker run --name test-fpm1 ${RUN_OPTIONS} --rm -e MYVAR=foo -e PHP_INI_MEMORY_LIMIT=2G -p "9001:9000" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
   # Let's wait for FPM to start
   sleep 3

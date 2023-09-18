@@ -6,7 +6,7 @@
 # (it's compiled in PHP)
 ###########################################################
 test_presenceOfMbstring() {
-  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never mbstring)
+  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never mbstring)
   assert_equals "mbstring" "${RESULT}" "Missing php-mbstring"
 }
 ############################################################
@@ -14,7 +14,7 @@ test_presenceOfMbstring() {
 ## (it's compiled in PHP)
 ############################################################
 test_presenceOfPDO() {
-  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never PDO)
+  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never PDO)
   assert_equals "PDO" "${RESULT}" "Missing php-PDO"
 }
 #################################################################

@@ -1,0 +1,130 @@
+#syntax=docker/dockerfile-upstream:1.4
+ARG COMPOSER_VERSION="^2"
+ARG PHP_VERSION_MINOR
+ARG FROM_VARIANT=""
+ARG GLOBAL_VERSION
+FROM php:${PHP_VERSION_MINOR}${FROM_VARIANT}-alpine
+# TODO debian ARG DEBIAN_FRONTEND=noninteractive
+ARG PHP_VERSION_MINOR
+ARG TARGETOS
+ARG TARGETARCH
+ONBUILD ARG TARGETOS
+ONBUILD ARG TARGETARCH
+LABEL   authors="Mistral Oz <m.oz@thecodingmachine.com>, Julien Neuhart, David Négrier <d.negrier@thecodingmachine.com>" \
+        org.label-schema.name="tcm php images" \
+        org.label-schema.vendor="thecodingmachine.com" \
+        org.label-schema.description="" \
+        org.label-schema.vcs-url="https://github.com/thecodingmachine/docker-images-php" \
+        org.label-schema.version="" \
+        org.label-schema.license=""
+
+USER root
+
+###################################################
+## Basic tools
+###################################################
+RUN apk add --no-cache vim nano bash htop
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+ADD <<EOF ~/.bashrc
+alias ls='ls --color=auto'
+alias ll='ls --color=auto -alF'
+alias la='ls --color=auto -A'
+alias l='ls --color=auto -CF'
+EOF
+RUN mkdir ~/.ssh && touch ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts && eval "$(ssh-agent -s)"
+# FIXME est-ce que nous devons installer symfony par défaut ?
+RUN echo 'eval "$(symfony-autocomplete)"' > ~/.bash_profile
+###################################################
+## PHP Extension installer
+## https://github.com/mlocati/docker-php-extension-installer
+###################################################
+RUN curl -sSLf \
+            -o /usr/local/bin/install-php-extensions \
+            https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x /usr/local/bin/install-php-extensions
+#RUN install-php-extensions @composer-${COMPOSER_VERSION}
+#RUN install-php-extensions gd
+
+
+###################################################
+## SUPERCRONIC Stuff
+## https://github.com/aptible/supercronic
+###################################################
+ENV SUPERCRONIC_OPTIONS=""
+ONBUILD ARG INSTALL_CRON
+ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
+     SUPERCRONIC="supercronic-${TARGETOS}-${TARGETARCH}" \
+     && SUPERCRONIC_URL="https://github.com/aptible/supercronic/releases/download/v0.2.25/${SUPERCRONIC}" \
+     && echo ${SUPERCRONIC_URL} \
+     && if [ "$TARGETARCH" = "arm64" ]; then SUPERCRONIC_SHA1SUM=4f625d77d2f9a790ea4ad679d0d2c318a14ec3be; \
+        elif [ "$TARGETARCH" = "amd64" ]; then SUPERCRONIC_SHA1SUM=642f4f5a2b67f3400b5ea71ff24f18c0a7d77d49; \
+        else echo "Target arch '${TARGETOS}/${TARGETARCH}' is not supported"; exit 1; fi \
+     && curl -fsSLO "${SUPERCRONIC_URL}" \
+     && echo "${SUPERCRONIC_SHA1SUM} ${SUPERCRONIC}" | sha1sum -c - \
+     && chmod +x "${SUPERCRONIC}" \
+     && mv "${SUPERCRONIC}" "/usr/local/bin/${SUPERCRONIC}" \
+     && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic; \
+  fi
+
+###################################################
+## Process manager
+## https://github.com/just-containers/s6-overlay
+## https://skarnet.org/software/s6-rc/
+###################################################
+ARG S6_OVERLAY_VERSION=3.1.5.0
+#RUN curl -L https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz | tar -C / -Jxp && \
+#    curl -L https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz | tar -C / -Jxp
+RUN mkdir -p /tmp/s6-overlay && cd /tmp/s6-overlay && \
+    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz && \
+    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz.sha256 && \
+    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-$(uname -m).tar.xz && \
+    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-$(uname -m).tar.xz.sha256 && \
+    sha256sum -c *.sha256 && \
+    tar -C / -Jxpf s6-overlay-noarch.tar.xz && \
+    tar -C / -Jxpf s6-overlay-$(uname -m).tar.xz && \
+    rm -rf /tmp/s6-overlay
+ENTRYPOINT ["/init"]
+COPY --link --chown=root:root ./s6-overlay /etc/s6-overlay
+# https://github.com/just-containers/s6-overlay#container-environment
+# Stop by sending a termination signal to the supervision tree if any startup commands fail
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 2
+# Avoid loggin to the terminal when image is executed with `docker run -it...`
+ENV S6_CMD_USE_TERMINAL 1
+# inform init stage 3 that it should attempt to sync filesystems before stopping the container
+ENV S6_SYNC_DISKS 1
+# 1 will only print warnings and errors, and 0 will only print errors
+ENV S6_VERBOSITY 1
+# Grace time in ms to non supervised services
+ENV S6_KILL_GRACETIME 200
+# 0 will send kill signal to command, then to the supervisor (0 will do the reverse)
+# FIXME : this option is not compatible with in-out term actions
+#ENV S6_CMD_RECEIVE_SIGNALS 1
+RUN chmod a+x /etc/s6-overlay/scripts/* \
+              /etc/s6-overlay/s6-rc.d/*/run \
+              /etc/s6-overlay/s6-rc.d/*/finish
+
+
+###################################################
+## FPM With Apache #TODO another with apache
+## https://wiki.alpinelinux.org/wiki/Apache_with_php-fpm
+###################################################
+#RUN if [[ "${FROM_VARIANT}" != "-fpm" ]]; then exit 0; fi; \
+#    apk --no-cache apache2-proxy && \
+#    cat <<EOF >> /etc/apache2/httpd.conf
+#<FilesMatch \.php$>
+#    SetHandler "proxy:fcgi://127.0.0.1:9000"
+#</FilesMatch>
+#EOF
+
+USER root
+
+
+# A reporter plus haut
+ENV PHP_VERSION_MINOR $PHP_VERSION_MINOR
+
+#ADD <<EDF /init2
+#echo $@
+#EDF
+#RUN chmod a+x /init2
+ENTRYPOINT ["/init", "/etc/s6-overlay/scripts/run-as-user"]
+CMD ["echo ok"]

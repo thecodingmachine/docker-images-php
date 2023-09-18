@@ -1,0 +1,4 @@
+#!/command/with-contenv bash
+if [ ! -z "$PHPFPM_SOCK_PATH" ]; then
+    exec timeout ${1:-5} bash -c -- "while [ ! -e ${PHPFPM_SOCK_PATH} ]; do sleep ${2:-0.5}; done; echo 'Found ${PHPFPM_SOCK_PATH}!'"
+fi

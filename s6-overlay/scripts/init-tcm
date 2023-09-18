@@ -1,0 +1,10 @@
+#!/command/with-contenv bash
+. $(dirname -- "$( readlink -f -- "$0"; )")/lib/functions.sh
+init
+## TODO
+if [[ $VARIANT == "apache" ]]; then
+  # For apache variant, php-fpm is launched in background (apache is the main task)
+  # For php-fpm one, php-fpm is launched as main task
+  s6-svc -U /run/s6-rc/scandir/php-fpm/
+fi
+end

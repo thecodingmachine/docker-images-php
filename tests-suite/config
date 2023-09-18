@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 export PLATFORM="${PLATFORM:-$(uname -p)}"
 export BUILDTOOL="build --platform=${PLATFORM}"
-export RUN_OPTIONS="--platform=${PLATFORM}"
+export RUN_OPTIONS="--platform=${PLATFORM} --env S6_VERBOSITY=0"
 export PHP_VERSION=${PHP_VERSION:-8.1}
-export BRANCH=${BRANCH:-v4}
+export BRANCH=${BRANCH:-v5}
 export VARIANT=${VARIANT:-apache}
 export BRANCH_VARIANT="${VARIANT//./-}"
 export REPO="${REPO:-thecodingmachine/php}"

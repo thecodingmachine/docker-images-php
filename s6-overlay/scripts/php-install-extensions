@@ -1,0 +1,7 @@
+#!/command/with-contenv bash
+. $(dirname -- "$( readlink -f -- "$0"; )")/lib/functions.sh
+init
+isLocked
+## TODO
+lock
+end

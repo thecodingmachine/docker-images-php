@@ -1,0 +1,5 @@
+{% macro prefixIfNotEmpty(text, prefix='-') -%}
+    {% if text|trim != "" -%}
+        {{ prefix }}{{ text|trim }}
+    {%- endif %}
+{%- endmacro -%}

@@ -1,7 +1,11 @@
 /.git*
+/template
+/tests-suite
+/Dockerfile.*
+
+
 /docs
 /docker-bake.hcl
-/Dockerfile.*
 /Makefile
 /*.md
 /LICENSE

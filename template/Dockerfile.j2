@@ -1,0 +1,22 @@
+#syntax=docker/dockerfile-upstream:1.4
+{% set image_type = 'regular' %}
+{% include "./part/top-args-"+image_type+".Dockerfile" with context %}
+{% import "./function/filter.j2" as filter -%}
+FROM php:{{version.php}}{{filter.prefixIfNotEmpty(imageFrom.variant)}}{{filter.prefixIfNotEmpty(imageFrom.dist)}}
+{% include "./part/head-banner.Dockerfile" with context -%}
+{% include "./part/head-args.Dockerfile" with context -%}
+
+USER root
+
+{% include "./part/tools-basics.Dockerfile" with context %}
+{% include "./part/tools-php-installer.Dockerfile" with context %}
+{% include "./part/tools-cron-manager.Dockerfile" with context %}
+{% include "./part/tools-process-manager.Dockerfile" with context %}
+
+{% if imageFrom.variant == 'fpm' %}
+{% include "./part/tools-fpm.Dockerfile" with context -%}
+{% else %}
+{% include "./part/tools-apache.Dockerfile" with context -%}
+{% endif %}
+
+{% include "./part/bottom-entrypoint.Dockerfile" with context -%}

@@ -16,7 +16,7 @@
 #
 #  https://github.com/pgrange/bash_unit
 
-VERSION=v2.0.0
+VERSION=v2.1.0
 
 ESCAPE=$(printf "\033")
 NOCOLOR="${ESCAPE}[0m"
@@ -104,7 +104,7 @@ assert_equals() {
   local actual=$2
   local message=${3:-}
   [[ -z $message ]] || message="$message\n"
-  
+
   if [ "$expected" != "$actual" ]
   then
     fail "$message expected [$expected] but was [$actual]"
@@ -143,14 +143,40 @@ assert_not_matches() {
   fi
 }
 
+assert_within_delta() {
+  function abs() {
+    local value=$1
+    local sign=$(( value < 0 ? -1 : 1 ))
+    echo $((value * sign))
+  }
+  function is_number() {
+    local value=$1
+    test $value -eq $value 2>/dev/null
+  }
+  local expected=$1
+  local actual=$2
+  local max_delta=$3
+  assert "is_number $expected" "$message expected value [$expected] is not a number"
+  assert "is_number $actual" "$message actual value [$actual] is not a number"
+  assert "is_number $max_delta" "$message max_delta [$max_delta] is not a number"
+  local message=${4:-}
+  [[ -z $message ]] || message="$message\n"
+
+  local actual_delta="$(abs $(($expected - $actual)))"
+
+  if (( $actual_delta > $max_delta )); then
+    fail "$message expected value [$expected] to match [$actual] with a maximum delta of [$max_delta]"
+  fi
+}
+
 assert_no_diff() {
   local expected=$1
   local actual=$2
   local message=${3:-}
   [[ -z $message ]] || message="$message\n"
 
-  diff -u "${expected}" "${actual}" >/dev/null || \
-    fail "$message expected '${actual}' to be identical to '${expected}' but was different"
+  assert 'diff '"${expected}"' '"${actual}"  \
+         "$message expected '"${actual}"' to be identical to '"${expected}"' but was different"
 }
 
 fake() {

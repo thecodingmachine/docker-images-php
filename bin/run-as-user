@@ -1,0 +1,4 @@
+#!/command/with-contenv bash
+# TODO replace UID/GID for ${USER} user (except if he is root)
+# TODO wait s6 finished to start all
+/command/s6-setuidgid ${USER:-root} $@

@@ -1,0 +1,14 @@
+meta:
+  banner: true
+  registry:
+    host: docker.io
+    name: thecodingmachine/php-alpha
+version:
+ global: v5
+ php: 8.1
+image:
+  type: "slim"
+  variant: "cli"
+imageFrom:
+  dist: "alpine"
+  variant: "fpm"

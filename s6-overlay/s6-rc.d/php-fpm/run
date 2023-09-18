@@ -1,0 +1,6 @@
+#!/command/with-contenv bash
+export PHP_DEFAULT_CHARSET="${PHP_DEFAULT_CHARSET:-UTF-8}"
+export PHP_DATE_TIMEZONE="${PHP_DATE_TIMEZONE:-$TZ}"
+export PHP_OPEN_BASEDIR="${PHP_OPEN_BASEDIR:-$WEBHOME}"
+export PHPFPM_SOCK_PATH="/var/run/php/php-fpm.sock"
+exec php-fpm --nodaemonize

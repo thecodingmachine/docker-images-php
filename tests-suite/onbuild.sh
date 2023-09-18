@@ -15,7 +15,7 @@ test_onbluidBase() {
 onbluidBase() {
   docker ${BUILDTOOL} -t ${DOCKER1_NAME} - <<EOF
   ARG PHP_EXTENSIONS="pdo_pgsql pdo_sqlite"
-  FROM ${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
+  FROM ${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}
 EOF
   return $?
 }
@@ -41,7 +41,7 @@ composer() {
 EOF
   cat <<EOF > "${TMP_DIR}/Dockerfile"
   ARG PHP_EXTENSIONS="gd"
-  FROM ${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}
+  FROM ${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}
 
   COPY composer.json composer.json
 

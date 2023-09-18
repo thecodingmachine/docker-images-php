@@ -1,0 +1,20 @@
+#!/command/with-contenv bash
+. $(dirname -- "$( readlink -f -- "$0"; )")/lib/functions.sh
+init
+isLocked
+# if there are any CRON_COMMAND
+if (env | grep -q ^CRON_COMMAND_); then
+  ##############################
+  ## Init supercronic config
+  ##############################
+  /usr/local/bin/php -f "${SCRIPT_DIR}/lib/generate_cron.php" > /etc/s6-overlay/s6-rc.d/supercronic/env/cron
+  chown daemon:daemon /etc/s6-overlay/s6-rc.d/supercronic/env/cron
+  ##############################
+  ## Mark service to be started
+  ##############################
+  s6-svc -U /run/s6-rc/scandir/supercronic/
+else
+  debug "{${SCRIPT_NAME}} There is no cron defined"
+fi
+lock
+end

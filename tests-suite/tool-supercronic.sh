@@ -6,7 +6,7 @@
 ############################################################
 test_displayErrorWhenMissing() {
   RESULT=$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -o 'Cron is not available in this image')
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -o 'Cron is not available in this image')
   assert_equals "Cron is not available in this image" "$RESULT"
 }
 ############################################################
@@ -14,10 +14,10 @@ test_displayErrorWhenMissing() {
 ############################################################
 test_errorLog() {
   RESULT="$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&1 echo 'foobar')" \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=foobar' | head -n1)"
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | tail -n +1 | grep -oP 'msg=foobar' | head -n1)"
   assert_equals "msg=foobar" "$RESULT" "std1"
   RESULT="$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="(>&2 echo 'error')" \
-   "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=error' | head -n1)"
+   "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | tail -n +1 | grep -oP 'msg=error' | head -n1)"
   assert_equals "msg=error" "$RESULT" "std2"
 }
 ############################################################
@@ -25,7 +25,7 @@ test_errorLog() {
 ############################################################
 test_changeUser() {
   RESULT="$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="whoami" -e CRON_USER_1="docker" \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=docker' | head -n1)"
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | tail -n +1 | grep -oP 'msg=docker' | head -n1)"
   assert_equals "msg=docker" "$RESULT"
 }
 ############################################################
@@ -33,6 +33,6 @@ test_changeUser() {
 ############################################################
 test_twoCommandInOneRow() {
   RESULT="$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="whoami;whoami" -e CRON_USER_1="docker" \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | grep -oP 'msg=docker' | wc -l)"
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" sleep 1 2>&1 | tail -n +1 | grep -oP 'msg=docker' | wc -l)"
   assert '[ "$RESULT" -gt "1" ]'
 }

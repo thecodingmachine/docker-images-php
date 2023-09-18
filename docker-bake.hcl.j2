@@ -1,0 +1,95 @@
+{% set phpDef = {
+    '7.4': {'supported': false, },
+    '8.0': {'supported': true, },
+    '8.1': {'supported': true, },
+} -%}
+{% set variantDef = {
+    'cli': { },
+    'apache': { },
+    'fpm': { },
+} -%}
+group "default" {
+   targets = [
+     {% for version, opt in phpDef.items() %}{% if opt.supported %}"{{ version.replace('.', '_') }}", {% endif %}{% endfor %}
+   ]
+}
+group "all" {
+   targets = [
+     {% for version, opt in phpDef.items() %}"{{ version.replace('.', '_') }}", {% endfor %}
+   ]
+}
+{% for version, opt in phpDef.items() %}
+group "{{ version.replace('.', '_') }}" {
+   targets = [
+     {%- for var, varOpt in variantDef.items() %}
+        "{{ version.replace('.', '_') }}-{{ var }}", "{{ version.replace('.', '_') }}-{{ var }}-dev",
+     {%- endfor %}
+   ]
+}
+{% endfor %}
+
+
+variable "REPO" {default = "thecodingmachine/php"}
+variable "TAG_PREFIX" {default = ""}
+variable "PHP_PATCH_MINOR" {default = ""}
+variable "IS_RELEASE" {default = "0"}
+
+function "tag" {
+    params = [PHP_VERSION, VARIANT]
+    result = [
+      equal("1",IS_RELEASE) ? "${REPO}:${PHP_VERSION}-v5-${VARIANT}" : "",
+      equal("1",IS_RELEASE) ? (notequal("",PHP_PATCH_MINOR) ? "${REPO}:${PHP_PATCH_MINOR}-v5-${VARIANT}": "") : "",
+      "${REPO}:${TAG_PREFIX}${PHP_VERSION}-v5-${VARIANT}",
+    ]
+}
+
+target "default" {
+  context = "."
+  args = {
+    GLOBAL_VERSION = "v5"
+  }
+  #platforms = ["linux/amd64", "linux/arm64"]
+  #platforms = ["linux/amd64"]
+  platforms = [BAKE_LOCAL_PLATFORM] # export in system platform by default
+  pull = true
+  output = ["type=docker"] # export in local docker by default
+}
+
+
+{% for version, opt in phpDef.items() %}
+###############################
+## PHP {{ version }}
+###############################
+{%- for var, varOpt in variantDef.items() %}
+# -------------------------------
+# PHP {{ version }} - variant {{ var }}
+# -------------------------------
+group "{{ version.replace('.', '_') }}-{{ var }}-all" {
+   targets = [
+        "{{ version.replace('.', '_') }}-{{ var }}", "{{ version.replace('.', '_') }}-{{ var }}-dev",
+   ]
+}
+target "{{ version.replace('.', '_') }}-{{ var }}" {
+  inherits = ["default"]
+  tags = tag("{{ version }}", "{{ var }}")
+  dockerfile = "Dockerfile.{{ version }}-{{ var }}"
+  args = {
+    PHP_VERSION_MINOR = "{{ version }}"
+    VARIANT = "{{ var }}"
+  }
+}
+target "{{ version.replace('.', '_') }}-{{ var }}-dev" {
+  inherits = ["{{ version.replace('.', '_') }}-{{ var }}"]
+  tags = tag("{{ version }}", "{{ var }}-dev")
+  dockerfile = "Dockerfile.{{ version }}-{{ var }}-dev"
+  args = {
+    PHP_VERSION_MINOR = "{{ version }}"
+    VARIANT = "{{ var }}"
+    FROM_IMAGE = "regular"
+  }
+  contexts = {
+    regular = "target:{{ version.replace('.', '_') }}-{{ var }}"
+  }
+}
+{%- endfor %}
+{% endfor %}

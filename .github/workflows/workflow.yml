@@ -3,20 +3,21 @@ name: Docker PHP Images GitHub workflow
 on:
   pull_request:
     branches:
-      - 'v4'
+      - 'v5'
   push:
     branches:
-      - 'v4'
-  schedule:
-    - cron: '42 3 * * 0'
+      - 'v5'
+# FIXME disabled for testing purpose
+#  schedule:
+#    - cron: '42 3 * * 0'
 
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.1','8.0','7.4', '7.3','7.2']
-        variant: ['apache','cli','fpm']
+        php_version: ['8.1']
+        variant: ['cli']
 #        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "macos-latest"}]
         builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "ubuntu-latest"}]
     runs-on: ${{ matrix.builder.os }}
@@ -33,23 +34,24 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Build
+      - name: Build regular and dev for current arch
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          REPO=thecodingmachine/php-alpha \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
             --set "*.output=type=docker" \
             --load \
-            php${PHP_VERSION//.}-${{ matrix.variant }}-all
+            ${{ matrix.php_version }}-${{ matrix.variant }}-all
       - name: Display tags built
         run: |
-          docker image ls --filter="reference=thecodingmachine/php"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
-      - name: Test
+          docker image ls --filter="reference=thecodingmachine/php-alpha"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
+      - name: Test retrocompatibility
+        continue-on-error: true # FIXME / WIP
         run: |
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           PHP_VERSION="${{ matrix.php_version }}" \
-          BRANCH="v4" \
+          REPO=thecodingmachine/php-alpha \
           VARIANT="${{ matrix.variant }}" \
           PLATFORM="linux/${{ matrix.builder.arch }}" \
           ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
@@ -64,8 +66,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.1','8.0','7.4', '7.3','7.2']
-        variant: ['apache','cli','fpm']
+        php_version: ['8.1']
+        variant: ['cli']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -74,41 +76,41 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Fetch minor version of php
         run: |
-          # Build slim one
-          PHP_VERSION="${{ matrix.php_version }}"
+          # Build regular one
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          REPO=thecodingmachine/php-alpha \
           docker buildx bake \
             --set "*.platform=linux/amd64" \
             --set "*.output=type=docker" \
             --load \
-            php${PHP_VERSION//.}-slim-${{ matrix.variant }}
+            ${{ matrix.php_version }}-${{ matrix.variant }}
           # Retrieve minor
           PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
           echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}" >> $GITHUB_ENV
       - name: Display tags to build
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
           PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          REPO=thecodingmachine/php-alpha \
           IS_RELEASE="1" \
-          docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --print --progress plain | jq ".target[].tags | join(\" \")" -r > "/tmp/tags.log"
+          docker buildx bake ${{ matrix.php_version }}-${{ matrix.variant }}-all --print --progress plain | jq ".target[].tags | join(\" \")" -r > "/tmp/tags.log"
           cat "/tmp/tags.log"
       - name: Build and push ${{ matrix.php_version }}-${{ matrix.variant }}
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
           PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          REPO=thecodingmachine/php-alpha \
           IS_RELEASE="1" \
           docker buildx bake \
             --set "*.platform=linux/amd64,linux/arm64" \
             --set "*.output=type=registry" \
-            php${PHP_VERSION//.}-${{ matrix.variant }}-all
+            ${{ matrix.php_version }}-${{ matrix.variant }}-all
       - name: Push artifacts
         uses: actions/upload-artifact@v3
         with:

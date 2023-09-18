@@ -1,0 +1,7 @@
+#!/command/with-contenv bash
+. $(dirname -- "$( readlink -f -- "$0"; )")/lib/functions.sh
+init
+isLocked
+/usr/local/bin/php -f "${SCRIPT_DIR}/lib/generate_conf.php" > "/usr/local/etc/php/conf.d/01-generated_conf.ini"
+lock
+end

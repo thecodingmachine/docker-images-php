@@ -46,19 +46,20 @@ setup_suite() {
   export DOCKER1_PORT="$(unused_port)"
   export DOCKER1_NAME="test-apache1-${DOCKER1_PORT}"
   docker run --name "${DOCKER1_NAME}" ${RUN_OPTIONS} --rm -e MYVAR=foo -e PHP_INI_MEMORY_LIMIT=2G -p "${DOCKER1_PORT}:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
   # SETUP apache2
   export DOCKER2_PORT="$(unused_port)"
   export DOCKER2_NAME="test-apache2-${DOCKER2_PORT}"
   docker run --name "${DOCKER2_NAME}" ${RUN_OPTIONS} --rm -e MYVAR=foo -e APACHE_DOCUMENT_ROOT=apache -p "${DOCKER2_PORT}:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
   # SETUP apache3
   export DOCKER3_PORT="$(unused_port)"
   export DOCKER3_NAME="test-apache3-${DOCKER3_PORT}"
   docker run --name "${DOCKER3_NAME}" ${RUN_OPTIONS} --rm -e MYVAR=foo -e APACHE_DOCUMENT_ROOT=/var/www/foo/apache -p "${DOCKER3_PORT}:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/foo  \
-    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" > /dev/null
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-.scr2
+    . 2 ${BRANCH_VARIANT}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
   # Let's wait for Apache to start
   waitfor http://localhost:${DOCKER1_PORT}

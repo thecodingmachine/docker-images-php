@@ -1,0 +1,5 @@
+#!/command/execlineb -S1
+
+if { eltest ${1} -ne 0 -a ${1} -ne 256 }
+foreground { redirfd -w 1 /run/s6-linux-init-container-results/exitcode echo 0 }
+/run/s6/basedir/bin/halt

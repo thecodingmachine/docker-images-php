@@ -1,0 +1,2 @@
+#!/command/with-contenv bash
+exec /usr/local/bin/supercronic ${SUPERCRONIC_OPTIONS:"-split-logs"} /etc/s6-overlay/s6-rc.d/supercronic/env/cron

@@ -1,0 +1,8 @@
+#syntax=docker/dockerfile-upstream:1.4
+{% set image_type = 'dev' %}
+{% import "./function/filter.j2" as filter -%}
+{% include "./part/top-args-"+image_type+".Dockerfile" with context %}
+ARG FROM_IMAGE="${REGISTRY_BASE}:{{version.php}}-{{version.global}}-{{image.variant}}"
+FROM "${FROM_IMAGE}"
+{% include "./part/head-banner.Dockerfile" with context %}
+{% include "./part/bottom-entrypoint.Dockerfile" with context %}
