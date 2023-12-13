@@ -4,6 +4,9 @@
 
 ### Minor changes
 
+* **2023-12-13**
+  * Support for PHP 8.3
+
 * **2022-12-18**
   * Support for PHP 8.2
 

@@ -2,7 +2,7 @@
 export PLATFORM="${PLATFORM:-$(uname -p)}"
 export BUILDTOOL="build --platform=${PLATFORM}"
 export RUN_OPTIONS="--platform=${PLATFORM}"
-export PHP_VERSION=${PHP_VERSION:-8.2}
+export PHP_VERSION=${PHP_VERSION:-8.3}
 export BRANCH=${BRANCH:-v4}
 export VARIANT=${VARIANT:-apache}
 export BRANCH_VARIANT="${VARIANT//./-}"
