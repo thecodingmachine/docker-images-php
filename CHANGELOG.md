@@ -4,6 +4,10 @@
 
 ### Minor changes
 
+* **2023-12-13**
+  * Support for PHP 8.3
+  * Support for Node v20
+
 * **2022-12-18**
   * Support for PHP 8.2
 
