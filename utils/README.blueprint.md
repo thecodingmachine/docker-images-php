@@ -95,7 +95,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** `apcu`, `hash`, `iconv`, `igbinary`, `mysqli`, `mysqlnd`, `redis`, `soap`, `xsl`, `zlib` and all enabled in slim. 
 
-**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `ds` `enchant` `ev` `event` `exif` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `intl` `ldap` `mcrypt` `memcached` `mongodb` `pcov` `pdo_dblib` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `weakref(-beta)` `xdebug` `xmlrpc` `xsl` `yaml`
+**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `ds` `enchant` `ev` `event` `exif` `excimer` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `intl` `ldap` `mcrypt` `memcached` `mongodb` `pcov` `pdo_dblib` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `weakref(-beta)` `xdebug` `xmlrpc` `xsl` `yaml`
 
 This list can be outdated, you can verify by executing : `docker run --rm -it thecodingmachine/php:{{ $image.php_version }}-v4-cli php -m`
 
