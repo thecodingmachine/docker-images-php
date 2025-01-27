@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG PHP_VERSION
 ARG TARGETOS
 ARG TARGETARCH
-ARG BLACKFIRE_VERSION=1
+ARG BLACKFIRE_VERSION=2
 ONBUILD ARG TARGETOS=${TARGETOS}
 ONBUILD ARG TARGETARCH=${TARGETARCH}
 ONBUILD ARG BLACKFIRE_VERSION=${BLACKFIRE_VERSION}
@@ -32,18 +32,25 @@ ENV PHP_VERSION=${PHP_VERSION}
 
 # Install php an other packages
 RUN apt update \
-    && apt install -y software-properties-common \
+    && apt upgrade -y \
+    && apt install -y software-properties-common --no-install-recommends \
     && add-apt-repository ppa:ondrej/php \
+    && apt remove --purge -y software-properties-common \
+    && apt autoremove -y \
     && apt install -y --no-install-recommends \
-        git \
         nano \
         sudo \
+        git \
         iproute2 \
-        openssh-client \
         procps \
+        curl \
         unzip \
         ca-certificates \
-        curl \
+        openssh-client \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+RUN apt update \
+    && apt install -y --no-install-recommends \
         php${PHP_VERSION}-cli \
         php${PHP_VERSION}-curl \
         php${PHP_VERSION}-mbstring \
@@ -51,7 +58,6 @@ RUN apt update \
         php${PHP_VERSION}-readline \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-zip \
-    && if [[ "${PHP_VERSION}" =~ ^7 ]]; then apt install -y --no-install-recommends php${PHP_VERSION}-json; fi \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
@@ -308,3 +314,4 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     sudo apt clean && \
     sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*; \
     fi;
+

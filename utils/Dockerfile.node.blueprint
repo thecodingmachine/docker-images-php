@@ -1,7 +1,9 @@
 #syntax=docker/dockerfile-upstream:1
+ARG PHP_VERSION="8.4"
+ARG GLOBAL_VERSION="v5"
 ARG REPO="thecodingmachine/php"
 ARG TAG_PREFIX=""
-ARG FROM_IMAGE="${REPO}:${TAG_PREFIX}:${PHP_VERSION}-${GLOBAL_VERSION}-{{ .Orbit.variant }}"
+ARG FROM_IMAGE="${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-{{ .Orbit.variant }}"
 FROM $FROM_IMAGE
 LABEL authors="Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]

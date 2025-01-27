@@ -33,13 +33,12 @@ This repository contains a set of developer-friendly, general purpose PHP images
 {{end}}
  
 
-Note: we also tag patch releases of PHP versions. So you can specify a specific patch release using thecodingmachine/php:**8.4.2**-v5-cli for instance.
-However, unless you have a **very specific need** (for instance if the latest patch release of PHP introduced regressions), believe you have no valid reason to ask explicitly for 8.4.2 for instance.
-When 8.4.3 is out, you certainly want to upgrade automatically to this patch release since patch releases contain only bugfixes.
+Note: we also tag patch releases of PHP versions. So you can specify a specific patch release using thecodingmachine/php:**{{ $image.php_version }}.1**-v5-cli for instance.
+However, unless you have a **very specific need** (for instance if the latest patch release of PHP introduced regressions), believe you have no valid reason to ask explicitly for {{ $image.php_version }}.1 for instance.
+When {{ $image.php_version }}.2 is out, you certainly want to upgrade automatically to this patch release since patch releases contain only bugfixes.
 Also, we automatically rebuild X.Y images every week, but only the latest X.Y.Z patch release gets a rebuild. The other patch releases are frozen in time and will contain bugs and security issues. So use those with great care.
 
-[Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP 8.4 image will always contain 
-the most up-to-date version of the PHP 8.4.x branch.
+[Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP {{ $image.php_version }} image will always contain the most up-to-date version of the PHP {{ $image.php_version }}.x branch.
 
 ## Usage
 
@@ -63,11 +62,11 @@ Example with PHP-FPM:
 $ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:{{ $image.php_version }}-v5-fpm
 ```
 
-Example with Apache + Node 24.x in a Dockerfile:
+Example with Apache + Node {{ $image.node_version }}.x in a Dockerfile:
 
 **Dockerfile**
 ```Dockerfile
-FROM thecodingmachine/php:{{ $image.php_version }}-v5-apache-node24
+FROM thecodingmachine/php:{{ $image.php_version }}-v5-apache-node{{ $image.node_version }}
 
 COPY src/ /var/www/html/
 RUN composer install
@@ -113,7 +112,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node24
+    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node{{ $image.node_version }}
     environment:
       # Enable the PostgreSQL extension
       PHP_EXTENSION_PGSQL: 1
@@ -149,7 +148,7 @@ first FROM):
 # The PHP_EXTENSIONS ARG will apply to the "slim" image
 ARG PHP_EXTENSIONS="apcu mysqli pdo_mysql soap"
 
-FROM thecodingmachine/php:{{ $image.php_version }}-v5-apache-node24 AS builder
+FROM thecodingmachine/php:{{ $image.php_version }}-v5-apache-node{{ $image.node_version }} AS builder
 
 COPY --chown=docker:docker sources/web .
 RUN composer install &&\
@@ -157,7 +156,7 @@ RUN composer install &&\
     yarn build
 
 # The slim image will automatically build the extensions from the list provided at the very top of the file.
-FROM thecodingmachine/php:8.4-v5-slim-apache
+FROM thecodingmachine/php:{{ $image.php_version }}-v5-slim-apache
 
 ENV APP_ENV=prod \
     APACHE_DOCUMENT_ROOT=public/
@@ -185,7 +184,7 @@ You can override parameters in `php.ini` using the PHP_INI_XXX environment varia
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node24
+    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node{{ $image.node_version }}
     environment:
       # set the parameter memory_limit=1g
       PHP_INI_MEMORY_LIMIT: 1g
@@ -247,7 +246,7 @@ For instance:
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node24
+    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node{{ $image.node_version }}
     environment:
       # Enable the DAV extension for Apache
       APACHE_EXTENSION_DAV: 1
@@ -261,9 +260,9 @@ As an alternative, you can use the `APACHE_EXTENSIONS` global variable:
 APACHE_EXTENSIONS="dav ssl"
 ```
 
-**Apache modules enabled by default:** `access_compat` `alias` `auth_basic` `authn_core` `authn_file` `authz_core` `authz_host` `authz_user` `autoindex` `deflate` `dir` `env` `expires` `filter` `mime` `mpm_prefork` `negotiation` `php8.4 (depend of your active version)` `reqtimeout` `rewrite` `setenvif` `status`
+**Apache modules enabled by default:** `access_compat` `alias` `auth_basic` `authn_core` `authn_file` `authz_core` `authz_host` `authz_user` `autoindex` `deflate` `dir` `env` `expires` `filter` `mime` `mpm_prefork` `negotiation` `php{{ $image.php_version }} (depend of your active version)` `reqtimeout` `rewrite` `setenvif` `status`
 
-**Apache modules available:** `access_compat` `actions` `alias` `allowmethods` `asis` `auth_basic` `auth_digest` `auth_form` `authn_anon` `authn_core` `authn_dbd` `authn_dbm` `authn_file` `authn_socache` `authnz_fcgi` `authnz_ldap` `authz_core` `authz_dbd` `authz_dbm` `authz_groupfile` `authz_host` `authz_owner` `authz_user` `autoindex` `brotli` `buffer` `cache` `cache_disk` `cache_socache` `cern_meta` `cgi` `cgid` `charset_lite` `data` `dav` `dav_fs` `dav_lock` `dbd` `deflate` `dialup` `dir` `dump_io` `echo` `env` `ext_filter` `expires` `file_cache` `filter` `headers` `heartbeat` `heartmonitor` `http2` `ident` `imagemap` `include` `info` `lbmethod_bybusyness` `lbmethod_byrequests` `lbmethod_bytraffic` `lbmethod_heartbeat` `ldap` `log_debug` `log_forensic` `lua` `macro` `md` `mime` `mime_magic` `mpm_event` `mpm_prefork` `mpm_worker` `negotiation` `php8.4 (depend of your active version)` `proxy` `proxy_ajp` `proxy_balancer` `proxy_connect` `proxy_express` `proxy_fcgi` `proxy_fdpass` `proxy_ftp` `proxy_hcheck` `proxy_html` `proxy_http` `proxy_http2` `proxy_scgi` `proxy_wstunnel` `ratelimit` `reflector` `remoteip` `reqtimeout` `request` `rewrite` `sed` `session` `session_cookie` `session_crypto` `session_dbd` `setenvif` `slotmem_plain` `slotmem_shm` `socache_dbm` `socache_memcache` `socache_redis` `socache_shmcb` `speling` `ssl` `status` `substitute` `suexec` `unique_id` `userdir` `usertrack` `vhost_alias` `xml2enc`
+**Apache modules available:** `access_compat` `actions` `alias` `allowmethods` `asis` `auth_basic` `auth_digest` `auth_form` `authn_anon` `authn_core` `authn_dbd` `authn_dbm` `authn_file` `authn_socache` `authnz_fcgi` `authnz_ldap` `authz_core` `authz_dbd` `authz_dbm` `authz_groupfile` `authz_host` `authz_owner` `authz_user` `autoindex` `brotli` `buffer` `cache` `cache_disk` `cache_socache` `cern_meta` `cgi` `cgid` `charset_lite` `data` `dav` `dav_fs` `dav_lock` `dbd` `deflate` `dialup` `dir` `dump_io` `echo` `env` `ext_filter` `expires` `file_cache` `filter` `headers` `heartbeat` `heartmonitor` `http2` `ident` `imagemap` `include` `info` `lbmethod_bybusyness` `lbmethod_byrequests` `lbmethod_bytraffic` `lbmethod_heartbeat` `ldap` `log_debug` `log_forensic` `lua` `macro` `md` `mime` `mime_magic` `mpm_event` `mpm_prefork` `mpm_worker` `negotiation` `php{{ $image.php_version }} (depend of your active version)` `proxy` `proxy_ajp` `proxy_balancer` `proxy_connect` `proxy_express` `proxy_fcgi` `proxy_fdpass` `proxy_ftp` `proxy_hcheck` `proxy_html` `proxy_http` `proxy_http2` `proxy_scgi` `proxy_wstunnel` `ratelimit` `reflector` `remoteip` `reqtimeout` `request` `rewrite` `sed` `session` `session_cookie` `session_crypto` `session_dbd` `setenvif` `slotmem_plain` `slotmem_shm` `socache_dbm` `socache_memcache` `socache_redis` `socache_shmcb` `speling` `ssl` `status` `substitute` `suexec` `unique_id` `userdir` `usertrack` `vhost_alias` `xml2enc`
 
 This list can be outdated, you can verify by executing : `docker run --rm -it thecodingmachine/php:{{ $image.php_version }}-v5-slim-apache a2enmod`
 
@@ -294,20 +293,20 @@ In that case the manually set value takes precedence over the mentioned ones abo
 
 ## NodeJS
 
-The *fat* images come with a Node variant. You can use Node 10, 12, 14 or 16. If you need a Node 8 variant, [use thecodingmachine/php v3 images](https://github.com/thecodingmachine/docker-images-php/tree/v3). If you need a Node 6 variant, [use thecodingmachine/php v1 images](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
+The *fat* images come with a Node variant. You can use Node :{{range $nodeV := $nodeVersions}} {{$nodeV}}{{end}}. If you need a previous variant, [use thecodingmachine/php v4 images](https://github.com/thecodingmachine/docker-images-php/tree/v4), [php v3 images](https://github.com/thecodingmachine/docker-images-php/tree/v3) or [v1](https://github.com/thecodingmachine/docker-images-php/tree/7.2-v1).
 
 If you use the *slim* images, you can install a NodeJS version with a simple ARG during the build:
 
 ```Dockerfile
-ARG NODE_VERSION=14
+ARG NODE_VERSION=18
 FROM thecodingmachine/php:{{ $image.php_version }}-v5-slim-apache
-# The build will automatically trigger the download of Node 14
+# The build will automatically trigger the download of Node 18
 # (thanks to a ONBUILD hook in the slim image)
 ```
 
 Beware! The `ARG NODE_VERSION` command must be written before the `FROM`. This is not a typo.
 
-`NODE_VERSION` can take any valid node versions (from 6 to 11 at the time of writing this README)
+`NODE_VERSION` can take any valid node versions (tested only with the versions provided here but should work too for some previous versions)
 
 ## Permissions
 
@@ -495,7 +494,7 @@ This option is the easiest way to go if you are using the image on a development
 version: '3'
 services:
   my_app:
-    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node24
+    image: thecodingmachine/php:{{ $image.php_version }}-v5-apache-node{{ $image.node_version }}
     volumes:
       - ~/.ssh:/home/docker/.ssh
 ```
@@ -644,7 +643,7 @@ PHP_VERSION={{ $image.php_version }} BRANCH=v5 VARIANT=apache ./build-and-test.s
 
 - BUILDER: either build or buildx depending on your configuration.
 Defaults to build
-- BLACKFIRE_VERSION: defaults to 1. You can install v2 if you're feeling adventurous by specifying 2 as a value.
+- BLACKFIRE_VERSION: defaults to 2. You can install v1 but will include some CVEs in the build.
 - PLATFORM: Docker will default to your architecture for building images. However, if you have QEMU set up in your machine, you can try building for another architecture like linux/arm64
 
 Only one platform at a time is supported during the build and test script execution.

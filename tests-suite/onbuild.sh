@@ -48,6 +48,7 @@ EOF
   # Let's check that GD is available.
   RUN composer install
 EOF
+  cat "${TMP_DIR}/Dockerfile"
   docker ${BUILDTOOL} -t ${DOCKER2_NAME} "${TMP_DIR}"
   return $?
 }

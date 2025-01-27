@@ -35,9 +35,6 @@ test-8.4:  ## Test php8.4 build only
 	VERSION=8.4 VARIANT=fpm $(MAKE) _test-version
 
 test-node:  ## Test node builds only
-	VERSION=8.4 VARIANT=cli NODE=12 $(MAKE) _test-node
-	VERSION=8.4 VARIANT=cli NODE=14 $(MAKE) _test-node
-	VERSION=8.4 VARIANT=cli NODE=16 $(MAKE) _test-node
 	VERSION=8.4 VARIANT=cli NODE=18 $(MAKE) _test-node
 	VERSION=8.4 VARIANT=cli NODE=20 $(MAKE) _test-node
 	VERSION=8.4 VARIANT=cli NODE=22 $(MAKE) _test-node
@@ -67,28 +64,29 @@ clean: ## Clean dangles image after build
 	rm -rf /tmp/buildx-cache
 
 
-test-manual-build:
+cves:
 	docker build \
 		--build-arg PHP_VERSION="8.4" \
-		--build-arg VARIANT="cli" \
+		--build-arg VARIANT="apache" \
 		--build-arg GLOBAL_VERSION="v5" \
-		--file ./Dockerfile.slim.cli \
+		--file ./Dockerfile.slim.apache \
 		--tag testv5-slim \
 		.
 	docker --debug build \
 		--build-arg PHP_VERSION="8.4" \
-		--build-arg VARIANT="cli" \
+		--build-arg VARIANT="apache" \
 		--build-arg GLOBAL_VERSION="v5" \
 		--build-arg FROM_IMAGE="testv5-slim" \
-		--file ./Dockerfile.cli \
+		--file ./Dockerfile.apache \
 		--tag testv5 \
 		.
-#		--target=base \
-
-test-manual-exec:
-	docker run --rm -it testv5 bash
-
-
-testtt:
-	PHP_EXTENSION_SWOOLE=1 php -m | grep -i swoole
-	PHP_EXTENSION_GETTEXT=1 php -m | grep -i gettext
+	docker --debug build \
+		--build-arg PHP_VERSION="8.4" \
+		--build-arg VARIANT="apache-node22" \
+		--build-arg NODE_VERSION="22" \
+		--build-arg GLOBAL_VERSION="v5" \
+		--build-arg FROM_IMAGE="testv5" \
+		--file ./Dockerfile.apache.node \
+		--tag testv5-node \
+		.
+	docker scout cves testv5-node --only-fixed --locations
