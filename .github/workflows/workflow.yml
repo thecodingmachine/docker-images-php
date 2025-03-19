@@ -18,7 +18,7 @@ jobs:
         php_version: ['8.4', '8.3','8.2','8.1','8.0','7.4']
         variant: ['apache','cli','fpm']
 #        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "macos-latest"}]
-        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "ubuntu-latest"}]
+        builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04"}]
     runs-on: ${{ matrix.builder.os }}
     name: Test ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }} only
     steps:
@@ -110,7 +110,7 @@ jobs:
             --set "*.output=type=registry" \
             php${PHP_VERSION//.}-${{ matrix.variant }}-all
       - name: Push artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.php_version }}-${{ matrix.variant }}
           path: /tmp/tags.log
