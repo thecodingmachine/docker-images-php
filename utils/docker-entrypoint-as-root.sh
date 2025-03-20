@@ -147,6 +147,16 @@ else
   export ABSOLUTE_APACHE_DOCUMENT_ROOT="/var/www/html/$APACHE_DOCUMENT_ROOT"
 fi
 
+if [[ "$APACHE_PORT" != "80" ]]; then
+    sudo sed -i 's/Listen 80/Listen \${APACHE_PORT}/g' /etc/apache2/ports.conf && \
+    sudo sed -i 's/VirtualHost *:80/VirtualHost *:\${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf
+fi
+
+if [[ "$APACHE_PORT_HTTPS" != "443" ]]; then
+    sudo sed -i 's/Listen 443/Listen \${APACHE_PORT_HTTPS}/g' /etc/apache2/ports.conf && \
+    sudo sed -i 's/VirtualHost _default_:443/VirtualHost _default_:\${APACHE_PORT_HTTPS}/g' /etc/apache2/sites-available/default-ssl.conf
+fi
+
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
 if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
