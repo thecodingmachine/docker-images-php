@@ -1,14 +1,6 @@
-name: Auto test and build v5
+name: build v4 legacy
 
 on:
-  pull_request:
-    branches:
-      - 'v5'
-  push:
-    branches:
-      - 'v5'
-  schedule:
-    - cron: '42 3 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -16,15 +8,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.4', '8.3','8.2','8.1']
+        php_version: ['8.4', '8.3','8.2','8.1','8.0','7.4']
         variant: ['apache','cli','fpm']
 #        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "macos-latest"}]
-        builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04"}]
+        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "ubuntu-latest"}]
     runs-on: ${{ matrix.builder.os }}
     name: Test ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }} only
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: v4
       - name: Set up Docker
         # /!\ this action is marked as experimental
         # It's required only for macos
@@ -50,7 +44,7 @@ jobs:
         run: |
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           PHP_VERSION="${{ matrix.php_version }}" \
-          BRANCH="v5" \
+          BRANCH="v4" \
           VARIANT="${{ matrix.variant }}" \
           PLATFORM="linux/${{ matrix.builder.arch }}" \
           ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
@@ -65,7 +59,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.4', '8.3','8.2','8.1']
+        php_version: ['8.4', '8.3','8.2','8.1','8.0','7.4']
         variant: ['apache','cli','fpm']
     steps:
       - name: Checkout
@@ -90,7 +84,7 @@ jobs:
             --load \
             php${PHP_VERSION//.}-slim-${{ matrix.variant }}
           # Retrieve minor
-          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v4-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
           echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}" >> $GITHUB_ENV
       - name: Display tags to build
         run: |
@@ -111,7 +105,7 @@ jobs:
             --set "*.output=type=registry" \
             php${PHP_VERSION//.}-${{ matrix.variant }}-all
       - name: Push artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.php_version }}-${{ matrix.variant }}
           path: /tmp/tags.log
