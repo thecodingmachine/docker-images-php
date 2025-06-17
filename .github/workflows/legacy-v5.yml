@@ -1,0 +1,63 @@
+name: Direct build v5 of legacy php
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-and-publish:
+    runs-on: ubuntu-latest
+    name: Publish ${{ matrix.php_version }}-${{ matrix.variant }} multi-arch to dockerhub
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: ['8.1', '8.0', '7.4']
+        variant: ['apache','cli','fpm']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Fetch minor version of php
+        run: |
+          # Build slim one
+          PHP_VERSION="${{ matrix.php_version }}"
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          docker buildx bake \
+            --set "*.platform=linux/amd64" \
+            --set "*.output=type=docker" \
+            --load \
+            php${PHP_VERSION//.}-slim-${{ matrix.variant }}
+          # Retrieve minor
+          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}" >> $GITHUB_ENV
+      - name: Display tags to build
+        run: |
+          PHP_VERSION="${{ matrix.php_version }}"
+          PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          IS_RELEASE="1" \
+          docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --print --progress plain | jq ".target[].tags | join(\" \")" -r > "/tmp/tags.log"
+          cat "/tmp/tags.log"
+      - name: Build and push ${{ matrix.php_version }}-${{ matrix.variant }}
+        run: |
+          PHP_VERSION="${{ matrix.php_version }}"
+          PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          IS_RELEASE="1" \
+          docker buildx bake \
+            --set "*.platform=linux/amd64,linux/arm64" \
+            --set "*.output=type=registry" \
+            php${PHP_VERSION//.}-${{ matrix.variant }}-all
+      - name: Push artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.php_version }}-${{ matrix.variant }}
+          path: /tmp/tags.log
+          retention-days: 60
