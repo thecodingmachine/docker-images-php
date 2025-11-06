@@ -9,6 +9,15 @@ test-latest: test-8.4 ## Test the latest build only
 _test-prerequisites: blueprint
 	docker pull ubuntu:20.04
 
+test-hot:  ## Test 7.4, 8.0 and 8.1 quickly
+	docker buildx bake --load \
+    		--set "*.platform=$(uname -p)" \
+    		php80-slim-cli php80-cli
+	docker run --rm -it docker.io/thecodingmachine/php:8.0-v5-cli php -v
+test-legacy-quick:  ## Test 7.4, 8.0 and 8.1 quickly
+	VERSION=7.4 VARIANT=cli $(MAKE) _test-version-quick
+	VERSION=8.0 VARIANT=cli $(MAKE) _test-version-quick
+	VERSION=8.1 VARIANT=cli $(MAKE) _test-version-quick
 test-quick:  ## Test 8.2, 8.3 and 8.4 quickly
 	VERSION=8.2 VARIANT=cli $(MAKE) _test-version-quick
 	VERSION=8.3 VARIANT=cli $(MAKE) _test-version-quick
