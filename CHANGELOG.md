@@ -1,6 +1,13 @@
 # Change Log
 ## Version 5
 
+### Minor changes
+
+* **2025-11-26**
+  * Support for PHP 8.5
+
+### Initial
+
 **2025-01-27**
   * Upgrade the base version from Ubuntu 20.04 to 24.04
   * Default blackfire version is now the version 2 (v1 is still available with BLACKFIRE_VERSION=1 at buildtime but with securities issues)

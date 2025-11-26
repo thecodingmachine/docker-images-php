@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 . ./config
 
-if [[ "${PHP_VERSION}" == "8.4" ]]; then
-  echo "-- PHP8.4 not support yet blackfire : https://support.blackfire.platform.sh/hc/en-us/articles/4740726712082-PHP-versions-Platforms-support"
+if [[ "${PHP_VERSION}" == "8.4" ]] || [[ "${PHP_VERSION}" == "8.5" ]]; then
+  echo "-- PHP${PHP_VERSION} not support yet blackfire : https://support.blackfire.platform.sh/hc/en-us/articles/4740726712082-PHP-versions-Platforms-support"
   return 0
 fi
 test_enable() {

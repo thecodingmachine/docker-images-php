@@ -2,7 +2,8 @@
 
 group "default" {
    targets = [
-     
+
+     "php85",
      "php84",
      "php83",
      "php82",
@@ -12,6 +13,27 @@ group "default" {
    ]
 }
 
+group "php85-apache-all" {
+   targets = [
+     "php85-slim-apache",
+     "php85-apache",
+     "php85-apache-node24","php85-apache-node22","php85-apache-node20",
+   ]
+}
+group "php85-fpm-all" {
+   targets = [
+     "php85-slim-fpm",
+     "php85-fpm",
+     "php85-fpm-node24","php85-fpm-node22","php85-fpm-node20",
+   ]
+}
+group "php85-cli-all" {
+   targets = [
+     "php85-slim-cli",
+     "php85-cli",
+     "php85-cli-node24","php85-cli-node22","php85-cli-node20",
+   ]
+}
 group "php84-apache-all" {
    targets = [
      "php84-slim-apache",
@@ -140,6 +162,9 @@ group "php74-cli-all" {
 }
 
 
+group "php85" {
+   targets = ["php85-apache-all","php85-fpm-all","php85-cli-all",]
+}
 group "php84" {
    targets = ["php84-apache-all","php84-fpm-all","php84-cli-all",]
 }
@@ -185,6 +210,237 @@ target "default" {
   output = ["type=docker"] # export in local docker
 }
 
+
+###########################
+##    PHP 8.5
+###########################
+# thecodingmachine/php:8.5-v5-slim-apache
+target "php85-slim-apache" {
+  inherits = ["default"]
+  tags = tag("8.5", "slim-apache")
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "apache"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-apache
+target "php85-apache" {
+  inherits = ["default"]
+  tags = tag("8.5", "apache")
+  dockerfile = "Dockerfile.apache"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "apache"
+    FROM_IMAGE = "slim"
+  }
+  contexts = {
+    slim = "target:php85-slim-apache"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-apache-node24
+target "php85-apache-node24" {
+  inherits = ["default"]
+  tags = tag("8.5", "apache-node24")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "apache-node24"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "24"
+  }
+  contexts = {
+    fat = "target:php85-apache"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-apache-node22
+target "php85-apache-node22" {
+  inherits = ["default"]
+  tags = tag("8.5", "apache-node22")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "apache-node22"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "22"
+  }
+  contexts = {
+    fat = "target:php85-apache"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-apache-node20
+target "php85-apache-node20" {
+  inherits = ["default"]
+  tags = tag("8.5", "apache-node20")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "apache-node20"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "20"
+  }
+  contexts = {
+    fat = "target:php85-apache"
+  }
+}
+
+###########################
+##    PHP 8.5
+###########################
+# thecodingmachine/php:8.5-v5-slim-fpm
+target "php85-slim-fpm" {
+  inherits = ["default"]
+  tags = tag("8.5", "slim-fpm")
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "fpm"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-fpm
+target "php85-fpm" {
+  inherits = ["default"]
+  tags = tag("8.5", "fpm")
+  dockerfile = "Dockerfile.fpm"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "fpm"
+    FROM_IMAGE = "slim"
+  }
+  contexts = {
+    slim = "target:php85-slim-fpm"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-fpm-node24
+target "php85-fpm-node24" {
+  inherits = ["default"]
+  tags = tag("8.5", "fpm-node24")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "fpm-node24"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "24"
+  }
+  contexts = {
+    fat = "target:php85-fpm"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-fpm-node22
+target "php85-fpm-node22" {
+  inherits = ["default"]
+  tags = tag("8.5", "fpm-node22")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "fpm-node22"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "22"
+  }
+  contexts = {
+    fat = "target:php85-fpm"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-fpm-node20
+target "php85-fpm-node20" {
+  inherits = ["default"]
+  tags = tag("8.5", "fpm-node20")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "fpm-node20"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "20"
+  }
+  contexts = {
+    fat = "target:php85-fpm"
+  }
+}
+
+###########################
+##    PHP 8.5
+###########################
+# thecodingmachine/php:8.5-v5-slim-cli
+target "php85-slim-cli" {
+  inherits = ["default"]
+  tags = tag("8.5", "slim-cli")
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "cli"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-cli
+target "php85-cli" {
+  inherits = ["default"]
+  tags = tag("8.5", "cli")
+  dockerfile = "Dockerfile.cli"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "cli"
+    FROM_IMAGE = "slim"
+  }
+  contexts = {
+    slim = "target:php85-slim-cli"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-cli-node24
+target "php85-cli-node24" {
+  inherits = ["default"]
+  tags = tag("8.5", "cli-node24")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "cli-node24"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "24"
+  }
+  contexts = {
+    fat = "target:php85-cli"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-cli-node22
+target "php85-cli-node22" {
+  inherits = ["default"]
+  tags = tag("8.5", "cli-node22")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "cli-node22"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "22"
+  }
+  contexts = {
+    fat = "target:php85-cli"
+  }
+}
+
+# thecodingmachine/php:8.5-v5-cli-node20
+target "php85-cli-node20" {
+  inherits = ["default"]
+  tags = tag("8.5", "cli-node20")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.5"
+    VARIANT = "cli-node20"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "20"
+  }
+  contexts = {
+    fat = "target:php85-cli"
+  }
+}
 
 ###########################
 ##    PHP 8.4
