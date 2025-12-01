@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 . ./config
 
-if [[ "${PHP_VERSION}" == "8.4" ]] || [[ "${PHP_VERSION}" == "8.5" ]]; then
-  echo "-- PHP${PHP_VERSION} not support yet blackfire : https://support.blackfire.platform.sh/hc/en-us/articles/4740726712082-PHP-versions-Platforms-support"
-  return 0
-fi
 test_enable() {
   # Check that blackfire can be enabled
   docker run ${RUN_OPTIONS} --rm -e PHP_EXTENSION_BLACKFIRE=1 "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" \

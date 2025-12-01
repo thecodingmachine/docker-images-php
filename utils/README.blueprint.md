@@ -99,8 +99,7 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 **Note**:
 
 - *ev* is not available in PHP 8.1+
-- *rdkafka* and *snmp* are not available in all `ARM64` images (build time is too long : it's possible to install manually as required) 
-- *blackfire* not supported yet in PHP8.4+ : https://support.blackfire.platform.sh/hc/en-us/articles/4740726712082-PHP-versions-Platforms-support
+- *rdkafka* and *snmp* are not available in all `ARM64` images (build time is too long : it's possible to install manually as required)
 
 ### Enabling/disabling extensions in the fat image
 
