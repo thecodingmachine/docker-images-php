@@ -48,12 +48,17 @@ RUN apt update \
         openssh-client \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-RUN apt update \
+# Note: From PHP 8.5, opcache is built-in and php${PHP_VERSION}-opcache package doesn't exist
+RUN OPCACHE_PACKAGE="" \
+    && if [ "${PHP_VERSION}" != "8.5" ]; then \
+        OPCACHE_PACKAGE="php${PHP_VERSION}-opcache"; \
+    fi \
+    && apt update \
     && apt install -y --no-install-recommends \
         php${PHP_VERSION}-cli \
         php${PHP_VERSION}-curl \
         php${PHP_VERSION}-mbstring \
-        php${PHP_VERSION}-opcache \
+        ${OPCACHE_PACKAGE} \
         php${PHP_VERSION}-readline \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-zip \
