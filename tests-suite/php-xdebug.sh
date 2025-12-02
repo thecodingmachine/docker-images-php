@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 . ./config
 
+# xdebug is not yet available for PHP 8.5
+if [[ "${PHP_VERSION}" == "8.5" ]]; then
+  echo "-- PHP${PHP_VERSION} does not yet have xdebug package available"
+  return 0
+fi
+
 ############################################################
 ## xdebug
 ############################################################
