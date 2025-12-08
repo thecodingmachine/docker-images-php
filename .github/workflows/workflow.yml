@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.4', '8.3','8.2','8.1']
+        php_version: ['8.5', '8.4', '8.3','8.2','8.1']
         variant: ['apache','cli','fpm']
 #        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "macos-latest"}]
         builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04"}]
@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.4', '8.3','8.2','8.1']
+        php_version: ['8.5', '8.4', '8.3','8.2','8.1']
         variant: ['apache','cli','fpm']
     steps:
       - name: Checkout

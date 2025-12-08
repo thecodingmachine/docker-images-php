@@ -4,7 +4,7 @@ blueprint: ## Generate all blueprints file
 	@if ! type orbit >/dev/null 2>&1; then echo "Missing orbit dependency, please install from https://github.com/gulien/orbit/"; exit 1; fi
 	orbit run generate
 
-test-latest: test-8.4 ## Test the latest build only
+test-latest: test-8.5 ## Test the latest build only
 
 _test-prerequisites: blueprint
 	docker pull ubuntu:20.04
@@ -18,10 +18,11 @@ test-legacy-quick:  ## Test 7.4, 8.0 and 8.1 quickly
 	VERSION=7.4 VARIANT=cli $(MAKE) _test-version-quick
 	VERSION=8.0 VARIANT=cli $(MAKE) _test-version-quick
 	VERSION=8.1 VARIANT=cli $(MAKE) _test-version-quick
-test-quick:  ## Test 8.2, 8.3 and 8.4 quickly
+test-quick:  ## Test 8.2, 8.3, 8.4 and 8.5 quickly
 	VERSION=8.2 VARIANT=cli $(MAKE) _test-version-quick
 	VERSION=8.3 VARIANT=cli $(MAKE) _test-version-quick
 	VERSION=8.4 VARIANT=cli $(MAKE) _test-version-quick
+	VERSION=8.5 VARIANT=cli $(MAKE) _test-version-quick
 
 test-8.3:  ## Test php8.3 build only
 	VERSION=8.3 VARIANT=cli $(MAKE) _test-version
@@ -37,6 +38,11 @@ test-8.1:  ## Test php8.1 build only
 	VERSION=8.1 VARIANT=cli $(MAKE) _test-version
 	VERSION=8.1 VARIANT=apache $(MAKE) _test-version
 	VERSION=8.1 VARIANT=fpm $(MAKE) _test-version
+
+test-8.5:  ## Test php8.5 build only
+	VERSION=8.5 VARIANT=cli $(MAKE) _test-version
+	VERSION=8.5 VARIANT=apache $(MAKE) _test-version
+	VERSION=8.5 VARIANT=fpm $(MAKE) _test-version
 
 test-8.4:  ## Test php8.4 build only
 	VERSION=8.4 VARIANT=cli $(MAKE) _test-version

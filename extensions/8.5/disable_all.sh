@@ -1,0 +1,1 @@
+../core/disable_all.sh
