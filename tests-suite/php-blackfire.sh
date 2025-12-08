@@ -8,11 +8,6 @@ test_enable() {
   assert_equals "0" "$?"
 }
 test_alertConflictWithXDebug() {
-  # Skip this test for PHP 8.5 since xdebug is not yet available
-  if [[ "${PHP_VERSION}" == "8.5" ]]; then
-    echo "-- Skipping blackfire+xdebug conflict test for PHP${PHP_VERSION} (xdebug not available)"
-    return 0
-  fi
   # Tests that blackfire + xdebug will output an error
   RESULT="$(docker run ${RUN_OPTIONS} --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 \
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" \
