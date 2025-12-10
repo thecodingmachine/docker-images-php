@@ -20,7 +20,7 @@ This repository contains a set of developer-friendly, general purpose PHP images
 
 
 
-| Name                                                                    | PHP version                                                                                                                                        | type                                       |variant | NodeJS version  | Size
+| Name                                                                    | PHP version                                                                                                                                        | type                                       |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|--------|-----------------|------
 | [thecodingmachine/php:8.5-v5-apache](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.apache)                      | `8.5.x` | fat  | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:8.5-v5-apache.svg)](https://microbadger.com/images/thecodingmachine/php:8.5-v5-apache)
 | [thecodingmachine/php:8.5-v5-apache-node20](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.apache.node) | `8.5.x` | fat  | apache   | `20.x`  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:8.5-v5-apache-node20.svg)](https://microbadger.com/images/thecodingmachine/php:8.5-v5-apache-node20)
@@ -166,7 +166,6 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 **Note**:
 
 - *ev* is not available in PHP 8.1+
-- *rdkafka* and *snmp* are not available in all `ARM64` images (build time is too long : it's possible to install manually as required)
 
 ### Enabling/disabling extensions in the fat image
 

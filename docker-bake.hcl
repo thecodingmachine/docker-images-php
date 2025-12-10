@@ -2,7 +2,7 @@
 
 group "default" {
    targets = [
-
+     
      "php85",
      "php84",
      "php83",
@@ -189,13 +189,14 @@ variable "TAG_PREFIX" {default = ""}
 variable "PHP_PATCH_MINOR" {default = ""}
 variable "IS_RELEASE" {default = "0"}
 variable "GLOBAL_VERSION" {default = "v5"}
+variable "ARCH_SUFFIX" {default = ""}
 
 function "tag" {
     params = [PHP_VERSION, VARIANT]
     result = [
-      equal("1",IS_RELEASE) ? "${REPO}:${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}" : "",
-      equal("1",IS_RELEASE) ? (notequal("",PHP_PATCH_MINOR) ? "${REPO}:${PHP_PATCH_MINOR}-${GLOBAL_VERSION}-${VARIANT}": "") : "",
-      "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}",
+      equal("1",IS_RELEASE) ? "${REPO}:${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}${ARCH_SUFFIX}" : "",
+      equal("1",IS_RELEASE) ? (notequal("",PHP_PATCH_MINOR) ? "${REPO}:${PHP_PATCH_MINOR}-${GLOBAL_VERSION}-${VARIANT}${ARCH_SUFFIX}": "") : "",
+      "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-${VARIANT}${ARCH_SUFFIX}",
     ]
 }
 

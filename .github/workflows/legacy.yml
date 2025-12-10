@@ -10,8 +10,7 @@ jobs:
       matrix:
         php_version: ['8.4', '8.3','8.2','8.1','8.0','7.4']
         variant: ['apache','cli','fpm']
-#        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "macos-latest"}]
-        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "ubuntu-latest"}]
+        builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
     name: Test ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }} only
     steps:
