@@ -6,7 +6,7 @@
 # (it's compiled in PHP)
 ###########################################################
 test_presenceOfMbstring() {
-  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never mbstring)
+  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m | tail -n +1 | grep --color=never mbstring)
   assert_equals "mbstring" "${RESULT}" "Missing php-mbstring"
 }
 ############################################################
@@ -14,21 +14,21 @@ test_presenceOfMbstring() {
 ## (it's compiled in PHP)
 ############################################################
 test_presenceOfPDO() {
-  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never PDO)
+  RESULT=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m | tail -n +1 | grep --color=never PDO)
   assert_equals "PDO" "${RESULT}" "Missing php-PDO"
 }
 #################################################################
 ## Let's check that uploadprogress is enabled explicitly with fat
 #################################################################
 test_presenceOfUploadprogressOnFat() {
-  RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=uploadprogress" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never uploadprogress)
+  RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=uploadprogress" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m | tail -n +1 | grep --color=never uploadprogress)
   assert_equals "uploadprogress" "${RESULT}" "Missing php-uploadprogress"
 }
 ###################################################################
 ## Let's check that FFI is enabled explicitly with fat for PHP 7.4+
 ###################################################################
 test_presenceOfFFIOnFat() {
-  RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=ffi" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}" php -m | tail -n +1 | grep --color=never FFI)
+  RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=ffi" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m | tail -n +1 | grep --color=never FFI)
   assert_equals "FFI" "${RESULT}" "Missing php-FFI"
 }
 ############################################################
@@ -37,7 +37,7 @@ test_presenceOfFFIOnFat() {
 test_enableGdWithComposer() {
   docker $BUILDTOOL -t test/composer_with_gd \
     --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" \
-    --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --build-arg REPO="$REPO" --build-arg TAG_PREFIX="$TAG_PREFIX" \
+    --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --build-arg REPO="$REPO" --build-arg TAG_PREFIX="$TAG_PREFIX" --build-arg ARCH_SUFFIX="$ARCH_SUFFIX" \
     "${SCRIPT_DIR}/assets/composer" > /dev/null 2>&1
   assert_equals "0" "$?" "Docker build failed"
   # This should run ok (the sudo disables environment variables but call to composer proxy does not trigger PHP ini file regeneration)

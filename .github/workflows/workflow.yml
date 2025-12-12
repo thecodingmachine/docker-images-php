@@ -12,56 +12,78 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build:
     strategy:
       fail-fast: false
       matrix:
         php_version: ['8.5', '8.4', '8.3','8.2','8.1']
         variant: ['apache','cli','fpm']
-#        builder: [ {arch: "amd64", os: "ubuntu-latest"}, {arch: "arm64", os: "macos-latest"}]
-        builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04"}]
+        builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
-    name: Test ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }} only
+    name: Build&test ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Docker
-        # /!\ this action is marked as experimental
-        # It's required only for macos
-        if: ${{ matrix.builder.os == 'macos-latest' }}
         uses: docker-practice/actions-setup-docker@master
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
+          # Get last cached successful builds
+          TAGS=$(REPO="ghcr.io/${{ github.repository_owner }}/php" TAG_PREFIX="" docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --progress=quiet --print | jq -r '.target[].tags[]')
+          for TAG in $TAGS; do
+             docker pull --quiet ${TAG} || echo ""
+          done;
+          # Build the current builds
+          REPO="ghcr.io/${{ github.repository_owner }}/php" \
+          ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
             --set "*.output=type=docker" \
-            --load \
+            --load --progress=quiet \
             php${PHP_VERSION//.}-${{ matrix.variant }}-all
       - name: Display tags built
         run: |
-          docker image ls --filter="reference=thecodingmachine/php"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
+          docker image ls --filter="reference=ghcr.io/${{ github.repository_owner }}/php"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
       - name: Test
         run: |
+          REPO="ghcr.io/${{ github.repository_owner }}/php" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           PHP_VERSION="${{ matrix.php_version }}" \
+          ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           BRANCH="v5" \
           VARIANT="${{ matrix.variant }}" \
           PLATFORM="linux/${{ matrix.builder.arch }}" \
           ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
+      - name: Publish specific arch version
+        if: > # Only from the main repo
+              github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
+              (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+        run: |
+          PHP_VERSION="${{ matrix.php_version }}"
+          TAGS=$(REPO="ghcr.io/${{ github.repository_owner }}/php" \
+              ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
+              TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+              docker buildx bake \
+                --print --progress=quiet \
+                php${PHP_VERSION//.}-${{ matrix.variant }}-all | jq -r '.target[].tags[]');
+          for TAG in $TAGS; do docker push --quiet ${TAG}; done;
 
-  publish:
-    # push ~ schedule
+  merge-and-publish:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     needs:
-      - test
+      - build
     runs-on: ubuntu-latest
-    name: Publish ${{ matrix.php_version }}-${{ matrix.variant }} multi-arch to dockerhub
+    name: Merge and publish ${{ matrix.php_version }}-${{ matrix.variant }}
     strategy:
       fail-fast: false
       matrix:
@@ -70,49 +92,67 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to DockerHub
         uses: docker/login-action@v3
+        if: ${{ github.repository_owner == 'thecodingmachine' }}
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Install regctl
+        uses: regclient/actions/regctl-installer@main
+        with:
+          release: 'v0.8.1'
       - name: Fetch minor version of php
         run: |
-          # Build slim one
-          PHP_VERSION="${{ matrix.php_version }}"
-          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
-          docker buildx bake \
-            --set "*.platform=linux/amd64" \
-            --set "*.output=type=docker" \
-            --load \
-            php${PHP_VERSION//.}-slim-${{ matrix.variant }}
+          # Pull amd64 slim image to get PHP version
+          docker pull --quiet ghcr.io/${{ github.repository_owner }}/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }}-amd64
           # Retrieve minor
-          PHP_PATCH_MINOR=`docker run --rm thecodingmachine/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }} php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          PHP_PATCH_MINOR=`docker run --rm ghcr.io/${{ github.repository_owner }}/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }}-amd64 php -v | head -n1 | grep -P '\d+\.\d+\.\d+' -o | head -n1`
+          echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}"
           echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}" >> $GITHUB_ENV
-      - name: Display tags to build
+      - name: Get list of images for this variant
+        id: get-images
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
+          REPO="ghcr.io/${{ github.repository_owner }}/php" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
-          IS_RELEASE="1" \
-          docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --print --progress plain | jq ".target[].tags | join(\" \")" -r > "/tmp/tags.log"
-          cat "/tmp/tags.log"
-      - name: Build and push ${{ matrix.php_version }}-${{ matrix.variant }}
-        run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-          PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" \
-          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
-          IS_RELEASE="1" \
           docker buildx bake \
-            --set "*.platform=linux/amd64,linux/arm64" \
-            --set "*.output=type=registry" \
-            php${PHP_VERSION//.}-${{ matrix.variant }}-all
-      - name: Push artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.php_version }}-${{ matrix.variant }}
-          path: /tmp/tags.log
-          retention-days: 60
+            --print --progress=quiet \
+            php${PHP_VERSION//.}-${{ matrix.variant }}-all | jq '.target[].tags[]'
+      - name: Create multiarch manifests
+        run: |
+          PHP_VERSION="${{ matrix.php_version }}"
+
+          # Get all targets from the bake group
+          TARGETS=$(docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --progress=quiet --print | jq -r ".group[\"php${PHP_VERSION//.}-${{ matrix.variant }}-all\"].targets[]")
+
+          for TARGET in $TARGETS; do
+            TAG_ORI=$(REPO="ghcr.io/${{ github.repository_owner }}/php" TAG_PREFIX="rc${GITHUB_RUN_ID}-" docker buildx bake ${TARGET} --progress=quiet --print | jq -r ".target | to_entries[] | select(.key == \"${TARGET}\") | .value.tags[0]")
+            TAG_PATH=$(REPO="php" PHP_PATCH_MINOR="${{ env.PHP_PATCH_MINOR }}" docker buildx bake ${TARGET} --progress=quiet --print | jq -r ".target | to_entries[] | select(.key == \"${TARGET}\") | .value.tags[0]")
+            TAG_MINOR=$(REPO="php" docker buildx bake ${TARGET} --progress=quiet --print | jq -r ".target | to_entries[] | select(.key == \"${TARGET}\") | .value.tags[0]")
+
+            # Create manifest for rc tag (always)
+            echo "Creating manifest: ${TARGET} - ${TAG_ORI}"
+            docker buildx imagetools create --progress=plain -t "${TAG_ORI}" "${TAG_ORI}-amd64" "${TAG_ORI}-arm64"
+
+            # Create manifest for PHP_PATCH
+            regctl image copy "${TAG_ORI}" "ghcr.io/${{ github.repository_owner }}/${TAG_PATH}"
+            # Create manifest for PHP_MINOR
+            regctl image copy "${TAG_ORI}" "ghcr.io/${{ github.repository_owner }}/${TAG_MINOR}"
+
+            # SAME FOR DOCKERHUB (for the official repository)
+            if [ "${{ github.repository_owner }}" == "thecodingmachine" ]; then
+                # Create manifest for PHP_PATCH_MINOR
+                regctl image copy "${TAG_ORI}" "thecodingmachine/${TAG_PATH}"
+                # Create manifest for PHP_VERSION
+                regctl image copy "${TAG_ORI}" "thecodingmachine/${TAG_MINOR}"
+            fi
+          done

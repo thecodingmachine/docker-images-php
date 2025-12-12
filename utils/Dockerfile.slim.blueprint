@@ -107,7 +107,7 @@ RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
 #ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
+RUN curl -sS --retry 5 --retry-delay 2 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
     chmod +x /usr/local/bin/composer
 
 # TODO: utils.php in /usr/local/bin... bof!
@@ -402,7 +402,7 @@ ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
      && if [ "$TARGETARCH" = "arm64" ]; then SUPERCRONIC_SHA1SUM=e2714c43e7781bf1579c85aa61259245f56dbba1; \
         elif [ "$TARGETARCH" = "amd64" ]; then SUPERCRONIC_SHA1SUM=5ddf8ea26b56d4a7ff6faecdd8966610d5cb9d85; \
         else echo "Target arch '${TARGETARCH}' is not supported"; exit 1; fi \
-     && curl -fsSLO "${SUPERCRONIC_URL}" \
+     && curl -fsSLO --retry 5 --retry-delay 2 "${SUPERCRONIC_URL}" \
      && echo "${SUPERCRONIC_SHA1SUM} ${SUPERCRONIC}" | sha1sum -c - \
      && chmod +x "${SUPERCRONIC}" \
      && sudo mv "${SUPERCRONIC}" "/usr/local/bin/${SUPERCRONIC}" \
@@ -423,15 +423,15 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     sudo apt update && \
     sudo apt install -y --no-install-recommends gnupg && \
     if [[ "${NODE_VERSION}" -lt "16" ]]; then \
-        curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo bash -; \
+        curl -sL --retry 5 --retry-delay 2 https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo bash -; \
     else \
         sudo mkdir -p /etc/apt/keyrings && \
-        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+        curl -fsSL --retry 5 --retry-delay 2 https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
         echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_VERSION.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list; \
     fi && \
     sudo apt update && \
     sudo apt install -y --no-install-recommends nodejs && \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
+    curl -sS --retry 5 --retry-delay 2 https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
     sudo apt update && \
     sudo apt install -y --no-install-recommends yarn && \

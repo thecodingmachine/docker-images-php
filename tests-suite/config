@@ -6,6 +6,7 @@ export PHP_VERSION=${PHP_VERSION:-8.4}
 export BRANCH=${BRANCH:-v5}
 export VARIANT=${VARIANT:-apache}
 export BRANCH_VARIANT="${VARIANT//./-}"
+export ARCH_SUFFIX="${ARCH_SUFFIX:-}"
 export REPO="${REPO:-thecodingmachine/php}"
 export TAG_PREFIX="${TAG_PREFIX:-}"
 export SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
