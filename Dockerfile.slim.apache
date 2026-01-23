@@ -406,10 +406,11 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     fi && \
     sudo apt update && \
     sudo apt install -y --no-install-recommends nodejs && \
-    curl -sS --retry 5 --retry-delay 2 https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
-    sudo apt update && \
-    sudo apt install -y --no-install-recommends yarn && \
+    if [[ "${NODE_VERSION}" -ge "16" ]]; then \
+        sudo corepack enable && sudo corepack prepare yarn@stable --activate; \
+    else \
+        sudo npm install -g yarn; \
+    fi && \
     if [[ "${NODE_VERSION}" == "10" ]]; then sudo npm install -g npm@^6.14; fi && \
     sudo apt clean && \
     sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*; \
