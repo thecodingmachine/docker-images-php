@@ -11,16 +11,20 @@ if [ -n "$CONFIGURE_OPTIONS" ]; then
 fi
 
 if [ -n "$EXTENSION" ]; then
-  set +e
-  PACKAGE_NAME=${PACKAGE_NAME:-$EXTENSION}
-  if apt-cache search --names-only "php${PHP_VERSION}-$PACKAGE_NAME" | grep "php${PHP_VERSION}-$PACKAGE_NAME"; then
-    set -e
-    apt install -y --no-install-recommends php${PHP_VERSION}-$PACKAGE_NAME
+  if [ -f "/etc/php/${PHP_VERSION}/mods-available/${EXTENSION}.ini" ]; then
+    # Some extensions are bundled in php-common on recent versions (e.g. ffi and gettext on PHP 8.5): nothing to install.
+    echo "Extension ${EXTENSION} is already provided, skipping package installation"
   else
-    set -e
-    apt install -y --no-install-recommends php-$PACKAGE_NAME
+    set +e
+    PACKAGE_NAME=${PACKAGE_NAME:-$EXTENSION}
+    if apt-cache search --names-only "php${PHP_VERSION}-$PACKAGE_NAME" | grep "php${PHP_VERSION}-$PACKAGE_NAME"; then
+      set -e
+      apt install -y --no-install-recommends php${PHP_VERSION}-$PACKAGE_NAME
+    else
+      set -e
+      apt install -y --no-install-recommends php-$PACKAGE_NAME
+    fi
   fi
-
 fi
 
 if [ -n "$PECL_EXTENSION" ]; then
