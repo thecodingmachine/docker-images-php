@@ -11,7 +11,7 @@ _test-prerequisites: blueprint
 
 test-hot:  ## Test 7.4, 8.0 and 8.1 quickly
 	docker buildx bake --load \
-    		--set "*.platform=$(uname -p)" \
+    		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
     		php80-slim-cli php80-cli
 	docker run --rm -it docker.io/thecodingmachine/php:8.0-v5-cli php -v
 test-legacy-quick:  ## Test 7.4, 8.0 and 8.1 quickly
@@ -56,21 +56,21 @@ test-node:  ## Test node builds only
 
 _test-node: _test-prerequisites ## Test node for VERSION="" and VARIANT=""
 	docker buildx bake --load \
-		--set "*.platform=$(uname -p)" \
+		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
 		php$${VERSION//.}-$(VARIANT)-all
 	PHP_VERSION="$(VERSION)" BRANCH=v5 VARIANT=$(VARIANT) NODE=$(NODE) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT)-node$(NODE))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT)-node$(NODE))"
 
 _test-version: _test-prerequisites ## Test php build for VERSION="" and VARIANT=""
 	docker buildx bake --load \
-		--set "*.platform=$(uname -p)" \
+		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
 		php$${VERSION//.}-$(VARIANT)-all
 	PHP_VERSION="$(VERSION)" BRANCH=v5 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT))"
 
 _test-version-quick: _test-prerequisites ## Test php build for VERSION="" and VARIANT="" (without node variants)
 	docker buildx bake --load \
-		--set "*.platform=$(uname -p)" \
+		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
 		php$${VERSION//.}-slim-$(VARIANT) php$${VERSION//.}-$(VARIANT)
 	PHP_VERSION="$(VERSION)" BRANCH=v5 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT)) - without node-*"

@@ -31,7 +31,7 @@ elif [[ "${BLACKFIRE_VERSION}" == "2" ]]; then
   echo "Installing Blackfire version 2..."
   mkdir -p /tmp/blackfire
   curl -A "Docker" -L https://blackfire.io/api/v1/releases/cli/linux/${TARGETARCH} | tar zxp -C /tmp/blackfire
-  if ! /tmp/blackfire/blackfire self:version --no-ansi | grep -qE "version 2\.[0-9]+\.[0-9]+"; then
+  if ! /tmp/blackfire/blackfire self:version --no-ansi | grep -qE "version (2|20[0-9]{2})\.[0-9]+\.[0-9]+"; then
     echo "Blackfire installed is not version 2 : $(/tmp/blackfire/blackfire self:version --no-ansi)"
     exit 1
   fi

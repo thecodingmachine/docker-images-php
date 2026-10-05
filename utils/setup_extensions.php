@@ -55,8 +55,8 @@ foreach ($availableExtensions as $extension) {
     }
 }
 
-// mysqlnd is a dependency required for mysqli or pdo_mysql
-if (enableExtension('mysqli') || enableExtension('pdo_mysql')) {
+// mysqlnd is a dependency required for mysqli, pdo_mysql or swoole
+if (enableExtension('mysqli') || enableExtension('pdo_mysql') || enableExtension('swoole')) {
     $toEnable['mysqlnd'] = 'mysqlnd';
     unset($toDisable['mysqlnd']);
 }

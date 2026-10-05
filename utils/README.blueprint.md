@@ -40,6 +40,30 @@ Also, we automatically rebuild X.Y images every week, but only the latest X.Y.Z 
 
 [Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP {{ $image.php_version }} image will always contain the most up-to-date version of the PHP {{ $image.php_version }}.x branch.
 
+## Supported versions
+
+We only maintain the PHP and NodeJS versions that are still supported by their respective communities
+(see [PHP supported versions](https://www.php.net/supported-versions.php) and [NodeJS releases](https://nodejs.org/en/about/previous-releases)).
+Bugs are fixed on maintained versions only.
+
+| PHP version | Status                                        |
+|-------------|-----------------------------------------------|
+| 8.5         | Maintained (until 2029-12-31)                 |
+| 8.4         | Maintained (until 2028-12-31)                 |
+| 8.3         | Maintained (until 2027-12-31)                 |
+| 8.2         | Maintained (until 2026-12-31)                 |
+| 8.1         | **Not maintained** (end of life: 2025-12-31)  |
+| 8.0         | **Not maintained** (end of life: 2023-11-26)  |
+| 7.4         | **Not maintained** (end of life: 2022-11-28)  |
+
+| NodeJS version | Status                                        |
+|----------------|-----------------------------------------------|
+| 24             | Maintained (until 2028-04-30)                 |
+| 22             | Maintained (until 2027-04-30)                 |
+| 20             | **Not maintained** (end of life: 2026-04-30)  |
+
+Images of non-maintained versions are still available but no longer receive fixes: use them at your own risk and plan your upgrade.
+
 ## Usage
 
 These images are based on the [official PHP image](https://hub.docker.com/_/php/).
@@ -92,13 +116,14 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** `apcu`, `hash`, `iconv`, `igbinary`, `mysqli`, `mysqlnd`, `redis`, `soap`, `xsl`, `zlib` and all enabled in slim. 
 
-**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `ds` `enchant` `exif` `excimer` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `grpc` `igbinary` `imagick` `imap` `intl` `ldap` `memcached` `mongodb` `pcov` `pdo_dblib` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `xdebug` `xmlrpc` `xsl` `yaml`
+**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `decimal` `ds` `enchant` `exif` `excimer` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `inotify` `intl` `ldap` `lz4` `mcrypt` `memcached` `mongodb` `odbc` `pcov` `pdo_dblib` `pdo_odbc` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `rdkafka` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `xdebug` `xmlrpc` `xsl` `yaml` `zstd`
 
 This list can be outdated, you can verify by executing : `docker run --rm -it thecodingmachine/php:{{ $image.php_version }}-v5-cli php -m`
 
 **Note**:
 
 - *ev* is not available in PHP 8.1+
+- *mcrypt* is deprecated and its usage is discouraged: it is provided for legacy applications only
 
 ### Enabling/disabling extensions in the fat image
 
@@ -296,9 +321,9 @@ The *fat* images come with a Node variant. You can use Node :{{range $nodeV := $
 If you use the *slim* images, you can install a NodeJS version with a simple ARG during the build:
 
 ```Dockerfile
-ARG NODE_VERSION=18
+ARG NODE_VERSION=24
 FROM thecodingmachine/php:{{ $image.php_version }}-v5-slim-apache
-# The build will automatically trigger the download of Node 18
+# The build will automatically trigger the download of Node 24
 # (thanks to a ONBUILD hook in the slim image)
 ```
 
