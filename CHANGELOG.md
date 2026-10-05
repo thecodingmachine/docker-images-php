@@ -11,6 +11,8 @@
   * Document the supported PHP and NodeJS versions
   * Add the `decimal`, `gnupg`, `inotify`, `lz4`, `mcrypt`, `odbc`, `pdo_odbc` and `zstd` extensions on PHP 8.2+
   * Remove the unused `weakref` extension (PHP provides `WeakReference` natively since 7.4)
+  * Support for Node v26 (corepack is now installed with npm since NodeJS no longer bundles it from v25)
+  * PHP 8.1 and Node v20 (end of life) are no longer built by the main workflow: they are only built by the legacy workflow (Node v20 for PHP 8.1, 8.0 and 7.4)
 
 * **2025-11-26**
   * Support for PHP 8.5

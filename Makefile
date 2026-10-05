@@ -50,9 +50,9 @@ test-8.4:  ## Test php8.4 build only
 	VERSION=8.4 VARIANT=fpm $(MAKE) _test-version
 
 test-node:  ## Test node builds only
-	VERSION=8.4 VARIANT=cli NODE=18 $(MAKE) _test-node
-	VERSION=8.4 VARIANT=cli NODE=20 $(MAKE) _test-node
 	VERSION=8.4 VARIANT=cli NODE=22 $(MAKE) _test-node
+	VERSION=8.4 VARIANT=cli NODE=24 $(MAKE) _test-node
+	VERSION=8.4 VARIANT=cli NODE=26 $(MAKE) _test-node
 
 _test-node: _test-prerequisites ## Test node for VERSION="" and VARIANT=""
 	docker buildx bake --load \

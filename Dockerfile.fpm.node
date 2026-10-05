@@ -29,6 +29,10 @@ RUN apt update && \
     fi && \
     apt update && \
     apt install -y --no-install-recommends nodejs && \
+    if [[ "${NODE_VERSION}" -ge "25" ]]; then \
+        # corepack is no longer bundled with NodeJS since v25
+        npm install -g corepack; \
+    fi && \
     if [[ "${NODE_VERSION}" -ge "16" ]]; then \
         corepack enable && corepack prepare yarn@stable --activate; \
     else \
