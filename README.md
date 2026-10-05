@@ -107,6 +107,30 @@ Also, we automatically rebuild X.Y images every week, but only the latest X.Y.Z 
 
 [Major].[minor] images are automatically updated when a new patch version of PHP is released, so the PHP 8.4 image will always contain the most up-to-date version of the PHP 8.4.x branch.
 
+## Supported versions
+
+We only maintain the PHP and NodeJS versions that are still supported by their respective communities
+(see [PHP supported versions](https://www.php.net/supported-versions.php) and [NodeJS releases](https://nodejs.org/en/about/previous-releases)).
+Bugs are fixed on maintained versions only.
+
+| PHP version | Status                                        |
+|-------------|-----------------------------------------------|
+| 8.5         | Maintained (until 2029-12-31)                 |
+| 8.4         | Maintained (until 2028-12-31)                 |
+| 8.3         | Maintained (until 2027-12-31)                 |
+| 8.2         | Maintained (until 2026-12-31)                 |
+| 8.1         | **Not maintained** (end of life: 2025-12-31)  |
+| 8.0         | **Not maintained** (end of life: 2023-11-26)  |
+| 7.4         | **Not maintained** (end of life: 2022-11-28)  |
+
+| NodeJS version | Status                                        |
+|----------------|-----------------------------------------------|
+| 24             | Maintained (until 2028-04-30)                 |
+| 22             | Maintained (until 2027-04-30)                 |
+| 20             | **Not maintained** (end of life: 2026-04-30)  |
+
+Images of non-maintained versions are still available but no longer receive fixes: use them at your own risk and plan your upgrade.
+
 ## Usage
 
 These images are based on the [official PHP image](https://hub.docker.com/_/php/).
@@ -363,9 +387,9 @@ The *fat* images come with a Node variant. You can use Node : 20 22 24. If you n
 If you use the *slim* images, you can install a NodeJS version with a simple ARG during the build:
 
 ```Dockerfile
-ARG NODE_VERSION=18
+ARG NODE_VERSION=24
 FROM thecodingmachine/php:8.4-v5-slim-apache
-# The build will automatically trigger the download of Node 18
+# The build will automatically trigger the download of Node 24
 # (thanks to a ONBUILD hook in the slim image)
 ```
 

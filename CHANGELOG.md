@@ -3,6 +3,13 @@
 
 ### Minor changes
 
+* **2026-10-05**
+  * The build now fails when an extension cannot be installed (failures were silently ignored)
+  * Fix rdkafka: installed from the stable package (6.0.5) instead of an alpha version, and now available on PHP 8.5
+  * Fix Blackfire CLI missing since its versioning switched to calendar versions
+  * Fix swoole requiring mysqlnd
+  * Document the supported PHP and NodeJS versions
+
 * **2025-11-26**
   * Support for PHP 8.5
 
