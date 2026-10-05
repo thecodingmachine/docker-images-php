@@ -35,16 +35,20 @@ test_presenceOfFFIOnFat() {
 ## Let's check that the extensions are enabled when composer is run
 ############################################################
 test_enableGdWithComposer() {
-  docker $BUILDTOOL -t test/composer_with_gd \
+  docker $BUILDTOOL -t "${COMPOSER_GD_NAME}" \
     --build-arg PHP_VERSION="${PHP_VERSION}" --build-arg BRANCH="$BRANCH" \
     --build-arg BRANCH_VARIANT="$BRANCH_VARIANT" --build-arg REPO="$REPO" --build-arg TAG_PREFIX="$TAG_PREFIX" --build-arg ARCH_SUFFIX="$ARCH_SUFFIX" \
     "${SCRIPT_DIR}/assets/composer" > /dev/null 2>&1
   assert_equals "0" "$?" "Docker build failed"
   # This should run ok (the sudo disables environment variables but call to composer proxy does not trigger PHP ini file regeneration)
-  docker run ${RUN_OPTIONS} --rm test/composer_with_gd sudo composer update > /dev/null 2>&1
+  docker run ${RUN_OPTIONS} --rm "${COMPOSER_GD_NAME}" sudo composer update > /dev/null 2>&1
   assert_equals "0" "$?" "Docker run failed"
 }
 
+setup_suite() {
+  export COMPOSER_GD_NAME="test/composer_with_gd_$(unused_port)"
+}
+
 teardown_suite() {
-  docker rmi test/composer_with_gd > /dev/null 2>&1
+  docker rmi "${COMPOSER_GD_NAME}" > /dev/null 2>&1
 }
