@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export PLATFORM="${PLATFORM:-$(uname -p)}"
+export PLATFORM="${PLATFORM:-$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')}"
 export BUILDTOOL="build --platform=${PLATFORM}"
 export RUN_OPTIONS="--platform=${PLATFORM}"
 export PHP_VERSION=${PHP_VERSION:-8.4}
