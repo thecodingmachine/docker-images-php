@@ -9,6 +9,8 @@
   * Fix Blackfire CLI missing since its versioning switched to calendar versions
   * Fix swoole requiring mysqlnd
   * Document the supported PHP and NodeJS versions
+  * Add the `decimal`, `gnupg`, `inotify`, `lz4`, `mcrypt`, `odbc`, `pdo_odbc` and `zstd` extensions on PHP 8.2+
+  * Remove the unused `weakref` extension (PHP provides `WeakReference` natively since 7.4)
 
 * **2025-11-26**
   * Support for PHP 8.5
