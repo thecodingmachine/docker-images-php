@@ -1,16 +1,16 @@
-{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" "7.4" }}{{ $nodeVersions := list "24" "22" "20" }}
+{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" "7.4" }}{{ $nodeVersions := list "26" "24" "22" }}{{ $legacyVersions := list "8.1" "8.0" "7.4" }}{{ $legacyNodeVersions := list "26" "24" "22" "20" }}
 group "default" {
    targets = [
      {{range $phpV := $versions}}
      "php{{ $phpV | replace "." "" }}",{{end}}
    ]
 }
-{{range $phpV := $versions}}{{range $variant := $variants}}
+{{range $phpV := $versions}}{{range $variant := $variants}}{{ $nodes := $nodeVersions }}{{ if has $phpV $legacyVersions }}{{ $nodes = $legacyNodeVersions }}{{ end }}
 group "php{{ $phpV | replace "." "" }}-{{ $variant }}-all" {
    targets = [
      "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}",
      "php{{ $phpV | replace "." "" }}-{{ $variant }}",
-     {{range $nodeV := $nodeVersions}}"php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}",{{end}}
+     {{range $nodeV := $nodes}}"php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}",{{end}}
    ]
 }{{end}}{{end}}
 
@@ -46,7 +46,7 @@ target "default" {
   output = ["type=docker"] # export in local docker
 }
 
-{{range $phpV := $versions}}{{range $variant := $variants}}
+{{range $phpV := $versions}}{{range $variant := $variants}}{{ $nodes := $nodeVersions }}{{ if has $phpV $legacyVersions }}{{ $nodes = $legacyNodeVersions }}{{ end }}
 ###########################
 ##    PHP {{ $phpV }}
 ###########################
@@ -75,7 +75,7 @@ target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
     slim = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}"
   }
 }
-{{range $nodeV := $nodeVersions}}
+{{range $nodeV := $nodes}}
 # thecodingmachine/php:{{ $phpV }}-v5-{{ $variant }}-node{{ $nodeV }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}" {
   inherits = ["default"]

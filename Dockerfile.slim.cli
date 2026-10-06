@@ -311,6 +311,10 @@ ONBUILD RUN if [ -n "$NODE_VERSION" ]; then \
     fi && \
     sudo apt update && \
     sudo apt install -y --no-install-recommends nodejs && \
+    if [[ "${NODE_VERSION}" -ge "25" ]]; then \
+        # corepack is no longer bundled with NodeJS since v25
+        sudo npm install -g corepack; \
+    fi && \
     if [[ "${NODE_VERSION}" -ge "16" ]]; then \
         sudo corepack enable && sudo corepack prepare yarn@stable --activate; \
     else \
