@@ -3,6 +3,9 @@
 
 ### Minor changes
 
+* **2026-10-06**
+  * Fix ev and event extensions on PHP 7.4 (ev pinned to 1.1.5, event dependencies updated for Ubuntu 24.04)
+
 * **2026-10-05**
   * The build now fails when an extension cannot be installed (failures were silently ignored)
   * Fix rdkafka: installed from the stable package (6.0.5) instead of an alpha version, and now available on PHP 8.5
