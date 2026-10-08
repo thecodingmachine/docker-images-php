@@ -3,6 +3,9 @@
 
 ### Minor changes
 
+* **2026-10-19**
+  * Fix switching the Apache MPM with `APACHE_EXTENSION_*` (modules are now disabled before being enabled, the MPM last)
+
 * **2026-10-12**
   * The README only describes the images and links to the documentation of each topic in the `docs` directory (extensions, php.ini, variants, processes, debugging, advanced features, contributing)
   * Add `APACHE_HTTP_PORT` and `APACHE_HTTPS_PORT` to change the ports Apache listens on (e.g. unprivileged ports)

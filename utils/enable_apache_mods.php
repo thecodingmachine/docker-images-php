@@ -55,16 +55,20 @@ foreach ($apacheExtensions as $apacheExtension) {
     }
 }
 
-$toEnableExtensions = '';
-$toDisableExtensions = '';
+$toEnableExtensions = [];
+$toDisableExtensions = [];
 
 foreach ($availableExtensions as $extension) {
     if (enableExtension($extension)) {
-        $toEnableExtensions .= $extension.' ';
+        $toEnableExtensions[] = $extension;
     } else {
-        $toDisableExtensions .= $extension.' ';
+        $toDisableExtensions[] = $extension;
     }
 }
 
-echo 'a2enmod '.$toEnableExtensions.' > /dev/null && ';
-echo 'a2dismod '.$toDisableExtensions." > /dev/null\n";
+// Modules are disabled before the others are enabled, and the MPM last (mod_php depends on mpm_prefork)
+usort($toDisableExtensions, function (string $a, string $b): int {
+    return (strpos($a, 'mpm_') === 0) <=> (strpos($b, 'mpm_') === 0) ?: strcmp($a, $b);
+});
+echo 'a2dismod -q '.implode(' ', $toDisableExtensions).' > /dev/null; ';
+echo 'a2enmod -q '.implode(' ', $toEnableExtensions)." > /dev/null\n";
