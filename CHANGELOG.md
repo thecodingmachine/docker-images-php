@@ -4,6 +4,7 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Fix PHP warnings (e.g. an extension that cannot be loaded) breaking the container start: they were written in `generated_conf.ini`, in the crontab and in the startup commands
   * Fix the fpm variant stop: PHP-FPM is now stopped gracefully (`SIGQUIT`: running requests are completed) and port 9000 is exposed
   * Fix stop requests sent while the apache or fpm container is starting: the stop signal (`SIGWINCH` / `SIGQUIT`) was ignored by the entrypoint and the container was killed after the stop timeout
   * Fix Apache modules listed in the documentation but rejected by `APACHE_EXTENSION_*`: `brotli`, `cern_meta`, `imagemap`, `md`, `proxy_hcheck`, `proxy_uwsgi`, `socache_redis`

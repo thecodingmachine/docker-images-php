@@ -25,3 +25,13 @@ test_withFile() {
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m 2>/dev/null | grep -q "startup.sh executed"
   assert_equals "0" "$?"
 }
+############################################################
+## Tests that a PHP startup warning does not prevent the container from starting
+############################################################
+test_phpStartupWarning() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e STARTUP_COMMAND_1="echo startup-ok" \
+    -v "${SCRIPT_DIR}/assets/php-startup-warning.ini":"/etc/php/${PHP_VERSION}/cli/conf.d/99-startup-warning.ini" \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" sleep 1 2>/dev/null)"
+  assert_equals "0" "$?" "Docker run failed"
+  assert_equals "startup-ok" "$RESULT"
+}
