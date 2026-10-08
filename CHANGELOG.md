@@ -3,6 +3,10 @@
 
 ### Minor changes
 
+* **2026-10-09**
+  * Images built from a slim image are ~105MB lighter: the apt binary caches (`/var/cache/apt/*.bin`) were left by the ONBUILD hook (even without any extension), and the hook no longer runs apt when `PHP_EXTENSIONS` is empty
+  * Fat images are ~105MB lighter (same apt binary caches left after installing the extensions)
+
 * **2026-10-06**
   * Fix ev and event extensions on PHP 7.4 (ev pinned to 1.1.5, event dependencies updated for Ubuntu 24.04)
 
