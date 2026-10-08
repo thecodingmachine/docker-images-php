@@ -4,6 +4,7 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Fix Composer and NodeJS binaries (`vendor/bin`, `node_modules/.bin` and global Composer binaries) not found by `docker exec` / `docker compose exec` when run without their path
   * Fix extensions that could not be loaded without another extension: the required extensions are now enabled with them (`memcached` requires `igbinary` and `msgpack`, `redis` requires `igbinary`, `mailparse` requires `mbstring` and `swoole` requires `curl`)
   * Fix the container start when the mounted directory belongs to an ID used by a system account of the image (e.g. 998 for a `gitlab-runner` user): the commands were run with this account (no home directory, no sudo) instead of the `docker` user
   * Fix `DOCKER_USER` set to an ID used by a system account of the image (`usermod: UID already exists`)

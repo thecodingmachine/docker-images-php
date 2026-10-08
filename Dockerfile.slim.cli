@@ -178,7 +178,9 @@ WORKDIR /usr/src/app
 # |
 # | Let's add ./vendor/bin to the PATH (utility function to use Composer bin easily)
 # |
-ENV PATH="$PATH:./vendor/bin:~/.composer/vendor/bin"
+
+ENV PATH="$PATH:/usr/src/app/vendor/bin:/home/docker/.composer/vendor/bin:./vendor/bin:~/.composer/vendor/bin"
+
 RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./vendor/bin:~/.composer/vendor/bin#g' /etc/sudoers
 
 USER docker
@@ -217,7 +219,9 @@ USER root
 # |
 # | NodeJS path registration (if we install NodeJS, this is useful).
 # |
-ENV PATH="$PATH:./node_modules/.bin"
+
+ENV PATH="$PATH:/usr/src/app/node_modules/.bin:./node_modules/.bin"
+
 RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin#g' /etc/sudoers
 
 # |--------------------------------------------------------------------------
