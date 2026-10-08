@@ -4,6 +4,7 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Accept the `http2` and `proxy_http2` Apache modules in `APACHE_EXTENSION_*` (HTTP/2 requires a threaded MPM such as `mpm_event`: it is not served with the `mpm_prefork` MPM required by mod_php)
   * Fix switching the Apache MPM with `APACHE_EXTENSION_*` (modules are now disabled before being enabled, the MPM last)
   * Upgrade Supercronic from 0.1.9 to 0.2.49 (built with an up-to-date Go version)
   * Fix Composer and NodeJS binaries (`vendor/bin`, `node_modules/.bin` and global Composer binaries) not found by `docker exec` / `docker compose exec` when run without their path
