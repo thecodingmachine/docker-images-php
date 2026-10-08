@@ -55,10 +55,25 @@ foreach ($availableExtensions as $extension) {
     }
 }
 
-// mysqlnd is a dependency required for mysqli, pdo_mysql or swoole
-if (enableExtension('mysqli') || enableExtension('pdo_mysql') || enableExtension('swoole')) {
-    $toEnable['mysqlnd'] = 'mysqlnd';
-    unset($toDisable['mysqlnd']);
+// Extensions that cannot be loaded without other extensions (dependencies of the Ubuntu packages)
+$dependencies = [
+    'mailparse' => ['mbstring'],
+    'memcached' => ['igbinary', 'msgpack'],
+    'mysqli' => ['mysqlnd'],
+    'pdo_mysql' => ['mysqlnd'],
+    'redis' => ['igbinary'],
+    'swoole' => ['curl', 'mysqlnd'],
+];
+foreach ($dependencies as $extension => $requiredExtensions) {
+    if (!isset($toEnable[$extension])) {
+        continue;
+    }
+    foreach ($requiredExtensions as $requiredExtension) {
+        if (in_array($requiredExtension, $availableExtensions, true)) {
+            $toEnable[$requiredExtension] = $requiredExtension;
+            unset($toDisable[$requiredExtension]);
+        }
+    }
 }
 
 // curl is a dependency required for blackfire 8 (see https://blog.blackfire.io/php-8-support.html)

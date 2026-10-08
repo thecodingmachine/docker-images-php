@@ -46,6 +46,19 @@ test_presenceOfPhp82ExtensionsOnFat() {
     assert_equals "${EXTENSIONS[$EXTENSION]}" "${RESULT}" "Missing php-${EXTENSION}"
   done
 }
+#################################################################
+## Let's check that the extensions required by an enabled
+## extension are enabled too (even if explicitly disabled)
+#################################################################
+test_dependenciesOfExtensionsOnFat() {
+  MODULES=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=memcached mailparse" -e PHP_EXTENSION_IGBINARY=0 -e PHP_EXTENSION_MBSTRING=0 \
+    --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m 2>&1 | tail -n +1)
+  assert_equals "0" "$(echo "${MODULES}" | grep -c 'Unable to load dynamic library')" "An extension cannot be loaded"
+  for EXTENSION in memcached igbinary msgpack mailparse mbstring redis; do
+    RESULT=$(echo "${MODULES}" | grep --color=never -x "${EXTENSION}")
+    assert_equals "${EXTENSION}" "${RESULT}" "Missing php-${EXTENSION}"
+  done
+}
 ############################################################
 ## Let's check that the extensions are enabled when composer is run
 ############################################################
