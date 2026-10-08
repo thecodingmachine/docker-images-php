@@ -66,6 +66,24 @@ fi
 
 # DOCKER_USER is a user name if the user exists in the container, otherwise, it is a user ID (from a user on the host).
 
+# A system account of the image that has the ID of DOCKER_USER is moved to a free ID: the docker user takes this ID
+SYS_UID_MIN=$(awk '$1 == "SYS_UID_MIN" { print $2 }' /etc/login.defs)
+SYS_UID_MAX=$(awk '$1 == "SYS_UID_MAX" { print $2 }' /etc/login.defs)
+SYS_UID_MIN=${SYS_UID_MIN:-100}
+SYS_UID_MAX=${SYS_UID_MAX:-999}
+SYSTEM_ACCOUNT=$(getent passwd "$DOCKER_USER" | cut -d: -f1,3)
+SYSTEM_ACCOUNT_NAME=${SYSTEM_ACCOUNT%%:*}
+SYSTEM_ACCOUNT_ID=${SYSTEM_ACCOUNT##*:}
+if [[ -n "$SYSTEM_ACCOUNT" ]] && [[ "$SYSTEM_ACCOUNT_NAME" != "docker" ]] && (( SYSTEM_ACCOUNT_ID >= SYS_UID_MIN && SYSTEM_ACCOUNT_ID <= SYS_UID_MAX )); then
+    FREE_ID=$SYS_UID_MAX
+    while getent passwd "$FREE_ID" > /dev/null; do
+        FREE_ID=$((FREE_ID - 1))
+    done
+    sed -i "s/^${SYSTEM_ACCOUNT_NAME}:\([^:]*\):${SYSTEM_ACCOUNT_ID}:/${SYSTEM_ACCOUNT_NAME}:\1:${FREE_ID}:/" /etc/passwd
+    DOCKER_USER=$SYSTEM_ACCOUNT_ID
+fi
+unset SYS_UID_MIN SYS_UID_MAX SYSTEM_ACCOUNT SYSTEM_ACCOUNT_NAME SYSTEM_ACCOUNT_ID FREE_ID
+
 # If DOCKER_USER is an ID, let's
 if [[ "$DOCKER_USER" =~ ^[0-9]+$ ]] ; then
     # MAIN_DIR_USER is a user ID.

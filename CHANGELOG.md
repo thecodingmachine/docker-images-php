@@ -4,6 +4,8 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Fix the container start when the mounted directory belongs to an ID used by a system account of the image (e.g. 998 for a `gitlab-runner` user): the commands were run with this account (no home directory, no sudo) instead of the `docker` user
+  * Fix `DOCKER_USER` set to an ID used by a system account of the image (`usermod: UID already exists`)
   * Fix `php` run by a user that cannot use sudo (e.g. `sudo -u www-data php ...`): sudo password errors, and failure when a `PHP_*` variable had changed
   * Fix PHP warnings (e.g. an extension that cannot be loaded) breaking the container start: they were written in `generated_conf.ini`, in the crontab and in the startup commands
   * Fix the fpm variant stop: PHP-FPM is now stopped gracefully (`SIGQUIT`: running requests are completed) and port 9000 is exposed

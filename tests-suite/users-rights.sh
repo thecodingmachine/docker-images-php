@@ -36,7 +36,7 @@ test_defaultUserCanWriteOnStdoutAndStderr() {
 ############################################################
 ## It's also works for users with existing IDs in the container
 ############################################################
-test_defaultUserCanWriteOnStdoutAndStderr() {
+test_defaultUserCanBeAnExistingUser() {
   mkdir -p "${TMP_DIR}/user33"
   cat << EOF > "${TMP_DIR}/user33/composer.json"
   {
@@ -57,6 +57,21 @@ EOF
   assert_equals "0" "$?" "Docker run 2 failed"
 }
 
+
+############################################################
+## The system accounts of the image (systemd-network, polkitd...)
+## do not take the place of the default user when they have the
+## ID of the mounted directory (e.g. 998 for gitlab-runner)
+############################################################
+test_defaultUserTakesUidOfSystemAccount() {
+  mkdir -p "${TMP_DIR}/user998"
+  docker run ${RUN_OPTIONS} --rm -v /tmp:/tmp busybox chown 998:998 "${TMP_DIR}/user998" > /dev/null 2>&1
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -v "${TMP_DIR}/user998":"${CONTAINER_CWD}" -e STARTUP_COMMAND_1='touch ~/.startup_done' \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    bash -c 'echo "$(id -un):$(id -ur)"')"
+  assert_equals "0" "$?" "Docker run failed"
+  assert_equals "docker:998" "${RESULT}" "Default user mismatch with a mounted directory owned by a system account ID"
+}
 
 ############################################################
 ## Users that cannot use sudo can run PHP, even when a PHP_*
