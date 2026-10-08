@@ -281,10 +281,10 @@ ENV SUPERCRONIC_OPTIONS=""
 ONBUILD ARG INSTALL_CRON
 ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
      SUPERCRONIC="supercronic-${TARGETOS}-${TARGETARCH}" \
-     && SUPERCRONIC_URL="https://github.com/aptible/supercronic/releases/download/v0.1.9/${SUPERCRONIC}" \
+     && SUPERCRONIC_URL="https://github.com/aptible/supercronic/releases/download/v0.2.49/${SUPERCRONIC}" \
      && echo ${SUPERCRONIC_URL} \
-     && if [ "$TARGETARCH" = "arm64" ]; then SUPERCRONIC_SHA1SUM=e2714c43e7781bf1579c85aa61259245f56dbba1; \
-        elif [ "$TARGETARCH" = "amd64" ]; then SUPERCRONIC_SHA1SUM=5ddf8ea26b56d4a7ff6faecdd8966610d5cb9d85; \
+     && if [ "$TARGETARCH" = "arm64" ]; then SUPERCRONIC_SHA1SUM=0b6c5bb743e0b0dafed1132198c81807927ac413; \
+        elif [ "$TARGETARCH" = "amd64" ]; then SUPERCRONIC_SHA1SUM=e63c11a9726b775a6a11801e81af4f3fb926aa68; \
         else echo "Target arch '${TARGETARCH}' is not supported"; exit 1; fi \
      && curl -fsSLO --retry 5 --retry-delay 2 "${SUPERCRONIC_URL}" \
      && echo "${SUPERCRONIC_SHA1SUM} ${SUPERCRONIC}" | sha1sum -c - \
