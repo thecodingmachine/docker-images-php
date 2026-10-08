@@ -11,6 +11,7 @@ This repository contains a set of developer-friendly, general purpose PHP images
  - Fat images are bundled with [Supercronic](https://github.com/aptible/supercronic) which is a Cron compatible task runner. Cron jobs can be configured using environment variables
  - Fat images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
+ - Composer binaries (`vendor/bin` and global binaries) and NodeJS binaries (`node_modules/.bin`) can be run without their path, including with `docker exec` / `docker compose exec` (e.g. `docker compose exec app phpstan`)
  - Everything is done to limit file permission issues that often arise when using Docker. The image is actively tested on Linux, Windows and MacOS
 
 {{ $image := .Orbit.Images }}
@@ -125,6 +126,7 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 
 - *ev* is not available in PHP 8.1+
 - *mcrypt* is deprecated and its usage is discouraged: it is provided for legacy applications only
+- The extensions required by an enabled extension are enabled with it, even if they are disabled: `igbinary` and `msgpack` for *memcached*, `igbinary` for *redis*, `mbstring` for *mailparse*, `curl` and `mysqlnd` for *swoole*, `mysqlnd` for *mysqli* and *pdo_mysql*
 
 ### Enabling/disabling extensions in the fat image
 
