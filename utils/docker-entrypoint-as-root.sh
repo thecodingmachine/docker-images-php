@@ -25,6 +25,15 @@ if [[ "$IMAGE_VARIANT" == "fpm" ]]; then
     ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/fpm/php.ini
 fi
 
+# Built-in web server of the fpm variant
+if [[ -n "$PHP_FPM_WEB_SERVER" ]] && [[ "$PHP_FPM_WEB_SERVER" != "apache" ]]; then
+    >&2 echo "Invalid PHP_FPM_WEB_SERVER value: '$PHP_FPM_WEB_SERVER' (supported: 'apache', or empty to disable it)"
+    exit 1
+fi
+if [[ "$IMAGE_VARIANT" == "apache" ]] || [[ "$PHP_FPM_WEB_SERVER" == "apache" ]]; then
+    WITH_APACHE=1
+fi
+
 # Let's find the user to use for commands.
 # If $DOCKER_USER, let's use this. Otherwise, let's find it.
 if [[ "$DOCKER_USER" == "" ]]; then
@@ -156,7 +165,7 @@ if [[ -s /tmp/generated_crontab ]]; then
     supercronic ${SUPERCRONIC_OPTIONS} /tmp/generated_crontab &
 fi
 
-if [[ "$IMAGE_VARIANT" == "apache" ]]; then
+if [[ "$WITH_APACHE" == "1" ]]; then
     /usr/bin/real_php -d display_errors=stderr /usr/local/bin/enable_apache_mods.php | bash
 fi
 
@@ -175,6 +184,10 @@ fi
 if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
     exec "$@";
+elif [[ "$@" == "php-fpm" ]] && [[ "$WITH_APACHE" == "1" ]]; then
+    # Apache must be started as root. PHP-FPM reads the environment variables itself (clear_env = no):
+    # no need to expose them through Apache
+    exec apache2-fpm-foreground;
 else
     exec "sudo" "-E" "-H" "-u" "#$DOCKER_USER_ID" "$@";
 fi

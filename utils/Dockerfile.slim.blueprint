@@ -159,13 +159,14 @@ RUN composer global require bamarni/symfony-console-autocomplete && \
 
 USER root
 
-{{if eq .Orbit.variant "apache" }}
+{{if or (eq .Orbit.variant "apache") (eq .Orbit.variant "fpm") }}
+# Apache: built-in web server of the fpm variant (disabled by default, see PHP_FPM_WEB_SERVER)
 ENV APACHE_CONFDIR=/etc/apache2
 ENV APACHE_ENVVARS=$APACHE_CONFDIR/envvars
 
 RUN set -eux; \
 	apt update; \
-	apt install -y --no-install-recommends apache2 libapache2-mod-php${PHP_VERSION}; \
+	apt install -y --no-install-recommends apache2{{if eq .Orbit.variant "apache" }} libapache2-mod-php${PHP_VERSION}{{end}}; \
 	rm -rf /var/lib/apt/lists/*; \
 	\
 # generically convert lines like
@@ -199,19 +200,24 @@ RUN set -eux; \
 	ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"; \
 	chown -R --no-dereference "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR"
 
-# Apache + PHP requires preforking Apache for best results
+{{if eq .Orbit.variant "apache" }}
+# Apache + mod_php requires preforking Apache (mod_php is not thread-safe)
 RUN a2dismod mpm_event && a2enmod mpm_prefork
 
 # PHP files should be handled by PHP, and should be preferred over any other file type
 COPY utils/apache-docker-php.conf /etc/apache2/conf-available/docker-php.conf
 
-RUN a2enconf docker-php
-
-ENV PHP_EXTRA_BUILD_DEPS=apache2-dev
-ENV PHP_EXTRA_CONFIGURE_ARGS="--with-apxs2 --disable-cgi"
-
 # https://httpd.apache.org/docs/2.4/stopping.html#gracefulstop
 STOPSIGNAL SIGWINCH
+{{else}}
+# Apache keeps its default threaded MPM (mpm_event) and forwards PHP files to PHP-FPM
+RUN a2enmod proxy_fcgi setenvif
+
+# PHP files should be handled by PHP-FPM, and should be preferred over any other file type
+COPY utils/apache-docker-php-fpm.conf /etc/apache2/conf-available/docker-php.conf
+{{end}}
+
+RUN a2enconf docker-php
 
 COPY utils/apache2-foreground /usr/local/bin/
 
@@ -222,8 +228,10 @@ ENV APACHE_DOCUMENT_ROOT=
 RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
     sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+{{if eq .Orbit.variant "apache" }}
 # Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
+{{end}}
 
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite
@@ -236,8 +244,9 @@ RUN a2enmod rewrite
 {{end}}
 
 {{if eq .Orbit.variant "fpm" }}
+# libfcgi-bin provides cgi-fcgi, used by php-fpm-healthcheck
 RUN apt update \
-    && apt install -y --no-install-recommends php${PHP_VERSION}-fpm \
+    && apt install -y --no-install-recommends php${PHP_VERSION}-fpm libfcgi-bin \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
@@ -245,7 +254,23 @@ RUN apt update \
 RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini &&  \
     ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
 COPY utils/fpm-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf
+COPY utils/fpm-zz-docker-pm.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker-pm.conf
+COPY utils/php-fpm-healthcheck /usr/local/bin/php-fpm-healthcheck
+
+# PHP-FPM process manager (defaults are the ones of the Ubuntu package)
+ENV PHP_FPM_PM=dynamic \
+    PHP_FPM_PM_MAX_CHILDREN=5 \
+    PHP_FPM_PM_START_SERVERS=2 \
+    PHP_FPM_PM_MIN_SPARE_SERVERS=1 \
+    PHP_FPM_PM_MAX_SPARE_SERVERS=3 \
+    PHP_FPM_PM_MAX_REQUESTS=0 \
+    PHP_FPM_ACCESS_LOG=/proc/self/fd/2
+
 COPY utils/fpm-zz-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker.conf
+
+# Built-in web server: "apache" runs Apache in front of PHP-FPM (empty: PHP-FPM only)
+ENV PHP_FPM_WEB_SERVER=
+COPY utils/apache2-fpm-foreground /usr/local/bin/
 
 EXPOSE 9000
 
@@ -339,8 +364,10 @@ ENV IMAGE_VARIANT={{ .Orbit.variant }}
 
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
-{{if eq .Orbit.variant "apache" }}
+{{if or (eq .Orbit.variant "apache") (eq .Orbit.variant "fpm") }}
 COPY utils/enable_apache_mods.php /usr/local/bin/enable_apache_mods.php
+{{end}}
+{{if eq .Orbit.variant "apache" }}
 COPY utils/apache-expose-envvars.sh /usr/local/bin/apache-expose-envvars.sh
 {{end}}
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
@@ -351,12 +378,14 @@ RUN ln -s ${PHP_VERSION} /usr/local/lib/thecodingmachine-php/extensions/current
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-{{if eq .Orbit.variant "apache" }}
+{{if or (eq .Orbit.variant "apache") (eq .Orbit.variant "fpm") }}
 # Let's register a servername to remove the message "apache2: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message"
 RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf && \
     a2enconf servername
 
+{{if eq .Orbit.variant "apache" }}
 CMD ["apache2-foreground"]
+{{end}}
 
 # |--------------------------------------------------------------------------
 # | Entrypoint

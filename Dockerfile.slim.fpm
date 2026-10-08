@@ -161,10 +161,81 @@ RUN composer global require bamarni/symfony-console-autocomplete && \
 USER root
 
 
+# Apache: built-in web server of the fpm variant (disabled by default, see PHP_FPM_WEB_SERVER)
+ENV APACHE_CONFDIR=/etc/apache2
+ENV APACHE_ENVVARS=$APACHE_CONFDIR/envvars
+
+RUN set -eux; \
+	apt update; \
+	apt install -y --no-install-recommends apache2; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+# generically convert lines like
+#   export APACHE_RUN_USER=www-data
+# into
+#   : ${APACHE_RUN_USER:=www-data}
+#   export APACHE_RUN_USER
+# so that they can be overridden at runtime ("-e APACHE_RUN_USER=...")
+	sed -ri 's/^export ([^=]+)=(.*)$/: ${\1:=\2}\nexport \1/' "$APACHE_ENVVARS"; \
+	\
+# setup directories and permissions
+	. "$APACHE_ENVVARS"; \
+	for dir in \
+		"$APACHE_LOCK_DIR" \
+		"$APACHE_RUN_DIR" \
+		"$APACHE_LOG_DIR" \
+	; do \
+		rm -rvf "$dir"; \
+		mkdir -p "$dir"; \
+		chown "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$dir"; \
+# allow running as an arbitrary user (https://github.com/docker-library/php/issues/743)
+		chmod 777 "$dir"; \
+	done; \
+	\
+# delete the "index.html" that installing Apache drops in here
+	rm -rvf /var/www/html/*; \
+	\
+# logs should go to stdout / stderr
+	ln -sfT /dev/stderr "$APACHE_LOG_DIR/error.log"; \
+	ln -sfT /dev/stdout "$APACHE_LOG_DIR/access.log"; \
+	ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"; \
+	chown -R --no-dereference "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR"
 
 
+# Apache keeps its default threaded MPM (mpm_event) and forwards PHP files to PHP-FPM
+RUN a2enmod proxy_fcgi setenvif
+
+# PHP files should be handled by PHP-FPM, and should be preferred over any other file type
+COPY utils/apache-docker-php-fpm.conf /etc/apache2/conf-available/docker-php.conf
+
+
+RUN a2enconf docker-php
+
+COPY utils/apache2-foreground /usr/local/bin/
+
+EXPOSE 80
+
+ENV APACHE_DOCUMENT_ROOT=
+
+RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
+    sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+
+
+# |--------------------------------------------------------------------------
+# | Apache mod_rewrite
+# |--------------------------------------------------------------------------
+# |
+# | Enables Apache mod_rewrite.
+# |
+
+RUN a2enmod rewrite
+
+
+
+# libfcgi-bin provides cgi-fcgi, used by php-fpm-healthcheck
 RUN apt update \
-    && apt install -y --no-install-recommends php${PHP_VERSION}-fpm \
+    && apt install -y --no-install-recommends php${PHP_VERSION}-fpm libfcgi-bin \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
@@ -172,7 +243,23 @@ RUN apt update \
 RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini &&  \
     ln -s /usr/sbin/php-fpm${PHP_VERSION} /usr/sbin/php-fpm
 COPY utils/fpm-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf
+COPY utils/fpm-zz-docker-pm.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker-pm.conf
+COPY utils/php-fpm-healthcheck /usr/local/bin/php-fpm-healthcheck
+
+# PHP-FPM process manager (defaults are the ones of the Ubuntu package)
+ENV PHP_FPM_PM=dynamic \
+    PHP_FPM_PM_MAX_CHILDREN=5 \
+    PHP_FPM_PM_START_SERVERS=2 \
+    PHP_FPM_PM_MIN_SPARE_SERVERS=1 \
+    PHP_FPM_PM_MAX_SPARE_SERVERS=3 \
+    PHP_FPM_PM_MAX_REQUESTS=0 \
+    PHP_FPM_ACCESS_LOG=/proc/self/fd/2
+
 COPY utils/fpm-zz-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker.conf
+
+# Built-in web server: "apache" runs Apache in front of PHP-FPM (empty: PHP-FPM only)
+ENV PHP_FPM_WEB_SERVER=
+COPY utils/apache2-fpm-foreground /usr/local/bin/
 
 EXPOSE 9000
 
@@ -260,6 +347,9 @@ ENV IMAGE_VARIANT=fpm
 COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
+COPY utils/enable_apache_mods.php /usr/local/bin/enable_apache_mods.php
+
+
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
 
@@ -268,6 +358,24 @@ RUN ln -s ${PHP_VERSION} /usr/local/lib/thecodingmachine-php/extensions/current
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
+
+# Let's register a servername to remove the message "apache2: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message"
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf && \
+    a2enconf servername
+
+
+
+# |--------------------------------------------------------------------------
+# | Entrypoint
+# |--------------------------------------------------------------------------
+# |
+# | Defines Apache user. By default, we switch this to "docker" user.
+# | This way, no problem to write from Apache in the current working directory.
+# | Important! This should be changed back to www-data in production.
+# |
+
+ENV APACHE_RUN_USER=docker \
+    APACHE_RUN_GROUP=docker
 
 
 

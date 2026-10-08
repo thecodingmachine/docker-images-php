@@ -1,0 +1,6 @@
+#!/bin/bash
+# Checks that PHP-FPM answers on its ping endpoint.
+# Usable as a Docker HEALTHCHECK or a Kubernetes exec probe.
+
+SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET \
+    cgi-fcgi -bind -connect "${PHP_FPM_HEALTHCHECK_ADDRESS:-127.0.0.1:9000}" 2>/dev/null | grep -q '^pong'

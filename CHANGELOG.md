@@ -4,6 +4,9 @@
 ### Minor changes
 
 * **2026-10-09**
+  * fpm variant: optional built-in Apache (`PHP_FPM_WEB_SERVER=apache`): Apache (`mpm_event`) in front of PHP-FPM in the same container. Same features as the `apache` variant (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`), lower memory usage and much better handling of concurrent connections (see `benchmarks/fpm-apache`)
+  * PHP-FPM: the process manager and the access log can be configured with `PHP_FPM_PM*` and `PHP_FPM_ACCESS_LOG` environment variables
+  * PHP-FPM: new `php-fpm-healthcheck` command (ping endpoint), usable as a Docker healthcheck or a Kubernetes probe
   * Accept the `http2` and `proxy_http2` Apache modules in `APACHE_EXTENSION_*` (HTTP/2 requires a threaded MPM such as `mpm_event`: it is not served with the `mpm_prefork` MPM required by mod_php)
   * Fix switching the Apache MPM with `APACHE_EXTENSION_*` (modules are now disabled before being enabled, the MPM last)
   * Upgrade Supercronic from 0.1.9 to 0.2.49 (built with an up-to-date Go version)
