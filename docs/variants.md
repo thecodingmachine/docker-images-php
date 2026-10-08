@@ -1,10 +1,10 @@
 # Variants: cli, apache and fpm
 
-| Variant | Default command      | Working directory | Port                      |
-|---------|----------------------|-------------------|---------------------------|
-| cli     | `php -v`             | `/usr/src/app`    | -                         |
-| apache  | `apache2-foreground` | `/var/www/html`   | `80` (HTTP)               |
-| fpm     | `php-fpm`            | `/var/www/html`   | `9000` (FastCGI, no HTTP) |
+| Variant | Default command      | Working directory | Port                                                            |
+|---------|----------------------|-------------------|-----------------------------------------------------------------|
+| cli     | `php -v`             | `/usr/src/app`    | -                                                               |
+| apache  | `apache2-foreground` | `/var/www/html`   | `80` (HTTP)                                                     |
+| fpm     | `php-fpm`            | `/var/www/html`   | `9000` (FastCGI, no HTTP), `80` (HTTP) with the built-in Apache |
 
 Mount or copy your application in the working directory.
 
@@ -28,7 +28,7 @@ services:
 
 ## apache
 
-Apache runs PHP with `mod_php`.
+Apache runs PHP with `mod_php`. The sections below also apply to the [built-in Apache of the *fpm* variant](#built-in-apache).
 
 ### Document root
 
@@ -74,6 +74,9 @@ APACHE_EXTENSIONS="dav ssl"
 `authz_host` `authz_user` `autoindex` `deflate` `dir` `env` `expires` `filter` `mime` `mpm_prefork` `negotiation`
 `php8.x` (your PHP version) `reqtimeout` `rewrite` `setenvif` `status`
 
+For the built-in Apache of the *fpm* variant, `mpm_event` `proxy` `proxy_fcgi` are enabled instead of `mpm_prefork` and
+`php8.x` (`mod_php` is not available).
+
 **Modules available:** `access_compat` `actions` `alias` `allowmethods` `asis` `auth_basic` `auth_digest` `auth_form`
 `authn_anon` `authn_core` `authn_dbd` `authn_dbm` `authn_file` `authn_socache` `authnz_fcgi` `authnz_ldap`
 `authz_core` `authz_dbd` `authz_dbm` `authz_groupfile` `authz_host` `authz_owner` `authz_user` `autoindex` `brotli`
@@ -111,4 +114,55 @@ in another container, and point it to `fpm-container:9000`.
 $ docker run -p 9000:9000 --rm -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
 ```
 
-A `docker stop` stops PHP-FPM gracefully: the running requests are completed.
+A `docker stop` stops PHP-FPM gracefully (`SIGQUIT`), with or without the built-in Apache: the running requests are
+completed.
+
+### Built-in Apache
+
+With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache in front of PHP-FPM, in the same container:
+
+```bash
+$ docker run -p 80:80 --rm -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
+```
+
+- Apache uses the threaded `mpm_event` MPM instead of `mpm_prefork` (required by `mod_php`): static files and
+  keep-alive connections no longer hold a process embedding PHP, so the memory usage is lower and the container
+  handles more concurrent connections (see [the benchmark](../benchmarks/fpm-apache)). HTTP/2 can also be enabled with `APACHE_EXTENSION_HTTP2=1`.
+- The Apache features of the *apache* variant are available (`.htaccess`, [document root](#document-root),
+  [ports](#ports), [modules](#apache-modules)).
+- The number of PHP workers is configured independently (see [PHP-FPM settings](#php-fpm-settings)).
+- If Apache or PHP-FPM stops, the other one is stopped too and the container exits (so that your orchestrator can restart it).
+
+It is meant to replace the *apache* variant (`mod_php`). When migrating, be aware that:
+
+- `php_value` and `php_flag` directives are not supported in `.htaccess` files (Apache answers with a 500 error):
+  use the `PHP_INI_*` environment variables or a [`.user.ini` file](https://www.php.net/manual/en/configuration.file.per-user.php) instead.
+- The `Authorization` header is forwarded to PHP (`CGIPassAuth On`).
+- Environment variables are read by PHP-FPM itself: they are no longer exposed through Apache (`PassEnv`).
+- The PHP-FPM access log is disabled (Apache already writes one).
+
+### PHP-FPM settings
+
+The PHP-FPM process manager can be configured with environment variables (the defaults are the ones of the Ubuntu
+package):
+
+| Environment variable           | `php-fpm.conf` setting  | Default           |
+|--------------------------------|-------------------------|-------------------|
+| `PHP_FPM_PM`                   | `pm`                    | `dynamic`         |
+| `PHP_FPM_PM_MAX_CHILDREN`      | `pm.max_children`       | `5`               |
+| `PHP_FPM_PM_START_SERVERS`     | `pm.start_servers`      | `2`               |
+| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `pm.min_spare_servers`  | `1`               |
+| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `pm.max_spare_servers`  | `3`               |
+| `PHP_FPM_PM_MAX_REQUESTS`      | `pm.max_requests`       | `0`               |
+| `PHP_FPM_ACCESS_LOG`           | `access.log`            | `/proc/self/fd/2` |
+
+The `php-fpm-healthcheck` command checks that PHP-FPM answers (on its `/ping` endpoint). You can use it as a Docker
+healthcheck or as a Kubernetes probe:
+
+```yml
+services:
+  my_app:
+    image: thecodingmachine/php:8.4-v5-fpm
+    healthcheck:
+      test: ["CMD", "php-fpm-healthcheck"]
+```
