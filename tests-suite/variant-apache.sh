@@ -42,6 +42,16 @@ test_changeMemoryLimit() {
 }
 
 ############################################################
+## Apache modules can be enabled with APACHE_EXTENSION_*
+############################################################
+test_enableApacheModule() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_EXTENSION_BROTLI=1 \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" ls /etc/apache2/mods-enabled 2>&1)"
+  assert_matches "brotli.load" "$RESULT" "APACHE_EXTENSION_BROTLI was not applied"
+  assert_matches "php${PHP_VERSION}.load" "$RESULT" "mod_php should stay enabled"
+  assert_not_matches "does not exist" "$RESULT" "a2enmod/a2dismod received an unknown module"
+}
+############################################################
 ## A stop requested during the initialization is not lost
 ############################################################
 test_stopDuringStartup() {
