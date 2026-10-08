@@ -4,6 +4,7 @@
 ### Minor changes
 
 * **2026-10-19**
+  * Accept the `http2` and `proxy_http2` Apache modules in `APACHE_EXTENSION_*` (HTTP/2 requires a threaded MPM such as `mpm_event`: it is not served with the `mpm_prefork` MPM required by mod_php)
   * Fix switching the Apache MPM with `APACHE_EXTENSION_*` (modules are now disabled before being enabled, the MPM last)
 
 * **2026-10-12**
