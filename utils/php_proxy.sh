@@ -1,8 +1,11 @@
 #!/bin/bash
 
-sudo chown docker:docker /opt/php_env_var_cache.php
+# Users that cannot use sudo run PHP with the current configuration
+if ! sudo -n chown docker:docker /opt/php_env_var_cache.php 2> /dev/null; then
+  exec /usr/bin/real_php "$@"
+fi
 
-REGENERATE=$(/usr/bin/real_php /usr/local/bin/check_php_env_var_changes.php)
+REGENERATE=$(/usr/bin/real_php -d display_errors=stderr /usr/local/bin/check_php_env_var_changes.php)
 
 if [[ "$REGENERATE" != "0" ]] && [[ "$REGENERATE" != "1" ]]; then
   >&2 echo "Unexpected PHP proxy output:"

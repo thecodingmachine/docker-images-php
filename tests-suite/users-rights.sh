@@ -58,6 +58,17 @@ EOF
 }
 
 
+############################################################
+## Users that cannot use sudo can run PHP, even when a PHP_*
+## environment variable has changed
+############################################################
+test_userWithoutSudoCanRunPhp() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    sudo -E -u www-data PHP_INI_MEMORY_LIMIT=1G php -r 'echo "OK";' 2>&1)"
+  assert_equals "0" "$?" "Docker run failed"
+  assert_equals "OK" "${RESULT}" "PHP run as www-data failed or printed errors"
+}
+
 setup_suite() {
   export TMP_DIR="$(mktemp -d)"
   if [[ $VARIANT == cli* ]]; then export CONTAINER_CWD=/usr/src/app; else export CONTAINER_CWD=/var/www/html; fi
