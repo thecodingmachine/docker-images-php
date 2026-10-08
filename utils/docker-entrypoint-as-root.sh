@@ -2,6 +2,12 @@
 
 set -e
 
+# Stop right away if a graceful stop is requested during the initialization
+trap 'exit 0' QUIT
+if [[ "$IMAGE_VARIANT" == "apache" ]]; then
+    trap 'exit 0' WINCH
+fi
+
 # Let's write a file saying the container is started (we are no longer in build mode, useful for php_proxy.sh)
 touch /opt/container_started
 

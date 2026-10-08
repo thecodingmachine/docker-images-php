@@ -4,6 +4,8 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Fix the fpm variant stop: PHP-FPM is now stopped gracefully (`SIGQUIT`: running requests are completed) and port 9000 is exposed
+  * Fix stop requests sent while the apache or fpm container is starting: the stop signal (`SIGWINCH` / `SIGQUIT`) was ignored by the entrypoint and the container was killed after the stop timeout
   * Images built from a slim image are ~105MB lighter: the apt binary caches (`/var/cache/apt/*.bin`) were left by the ONBUILD hook (even without any extension), and the hook no longer runs apt when `PHP_EXTENSIONS` is empty
   * Fat images are ~105MB lighter (same apt binary caches left after installing the extensions)
 
