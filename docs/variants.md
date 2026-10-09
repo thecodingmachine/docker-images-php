@@ -122,7 +122,8 @@ completed.
 With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache (`mpm_event`) in front of PHP-FPM, in the same
 container, with the Apache features of the *apache* variant (`.htaccess`, [document root](#document-root),
 [ports](#ports), [modules](#apache-modules)). The number of PHP workers is configured independently (see
-[PHP-FPM settings](#php-fpm-settings)).
+[PHP-FPM settings](#php-fpm-settings)), and `APACHE_PROXY_TIMEOUT` sets how long Apache waits for PHP-FPM (`300` seconds
+by default).
 
 ```bash
 $ docker run -p 80:80 --rm -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
