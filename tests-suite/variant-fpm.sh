@@ -180,8 +180,24 @@ test_apacheFpmCrashStopsContainer() {
   docker rm -f "${CRASH_NAME}" > /dev/null 2>&1
   assert_not_equals "0" "${EXIT_CODE:-0}" "The container should exit with an error when PHP-FPM dies"
 }
+############################################################
+## PHP-FPM starts when the working directory belongs to root (#206):
+## its workers run with the Apache user
+############################################################
+test_rootWorkingDirectory() {
+  for web_server in "" apache; do
+    docker run --name "${ROOT_DIR_NAME}" ${RUN_OPTIONS} -d --tmpfs /var/www/html -e PHP_FPM_WEB_SERVER="${web_server}" \
+      "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" > /dev/null
+    wait_ready "${ROOT_DIR_NAME}" "${web_server}"
+    assert_equals "0" "$?" "PHP-FPM did not start (web server: '${web_server}')"
+    WORKERS="$(docker exec "${ROOT_DIR_NAME}" ps -eo user:20,args | grep 'php-fpm: pool' | grep -v grep | awk '{print $1}' | sort -u)"
+    docker rm -f "${ROOT_DIR_NAME}" > /dev/null 2>&1
+    assert_equals "docker" "${WORKERS}" "PHP-FPM workers should run with the Apache user (web server: '${web_server}')"
+  done
+}
 
 setup_suite() {
+  export ROOT_DIR_NAME="test-fpm-root-dir-$(unused_port)"
   export FPM_CONTAINER_NAME="test-fpm-$(unused_port)"
   export FPM_STOP_CONTAINER_NAME="test-fpm-stop-$(unused_port)"
   export STARTUP_STOP_NAME="test-fpm-startup-stop-$(unused_port)"
@@ -217,5 +233,5 @@ setup_suite() {
 
 teardown_suite() {
   docker stop "${FPM_CONTAINER_NAME}" "${DOCKER1_NAME}" "${DOCKER2_NAME}" "${DOCKER3_NAME}" > /dev/null 2>&1
-  docker rm -f "${FPM_STOP_CONTAINER_NAME}" "${STOP_NAME}" "${CRASH_NAME}" "${STARTUP_STOP_NAME}" > /dev/null 2>&1
+  docker rm -f "${FPM_STOP_CONTAINER_NAME}" "${STOP_NAME}" "${CRASH_NAME}" "${STARTUP_STOP_NAME}" "${ROOT_DIR_NAME}" > /dev/null 2>&1
 }
