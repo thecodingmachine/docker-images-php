@@ -174,6 +174,10 @@ RUN rm /etc/php/${PHP_VERSION}/fpm/php.ini &&  \
 COPY utils/fpm-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf
 COPY utils/fpm-zz-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker.conf
 
+EXPOSE 9000
+
+STOPSIGNAL SIGQUIT
+
 
 
 
@@ -273,7 +277,7 @@ RUN touch /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini && ln -s /et
 RUN ln -s /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini /etc/php/${PHP_VERSION}/fpm/conf.d/generated_conf.ini && \
     sed -i 's/^user = www-data/;user = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i 's/^group = www-data/;group = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
-    sed -i 's#listen = /run/php/php${PHP_VERSION}-fpm.sock#;listen = /run/php/php${PHP_VERSION}-fpm.sock#g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i "s#^listen = /run/php/php${PHP_VERSION}-fpm.sock#;listen = /run/php/php${PHP_VERSION}-fpm.sock#g" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i "s#pid = /run/php/php${PHP_VERSION}-fpm.pid#;pid = /run/php/php${PHP_VERSION}-fpm.pid#g" /etc/php/${PHP_VERSION}/fpm/php-fpm.conf
 
 

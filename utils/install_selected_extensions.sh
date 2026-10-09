@@ -1,6 +1,12 @@
 #!/bin/bash
 
 set -e
+
+if [ -z "${PHP_EXTENSIONS// /}" ]; then
+    echo "No extensions installed in ONBUILD hook."
+    exit 0
+fi
+
 set -x
 
 # Let's disable autoclean of package list after apt-get install
@@ -16,4 +22,5 @@ mv /tmp/docker-clean /etc/apt/apt.conf.d/docker-clean
 apt-get purge -y php-pear build-essential php${PHP_VERSION}-dev pkg-config
 apt-get autoremove -y
 apt-get clean
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin /tmp/* /var/tmp/* /usr/share/doc/*
+rm -f /usr/local/bin/pickle

@@ -41,7 +41,32 @@ test_changeMemoryLimit() {
   assert_equals "2G" "$RESULT" "Apache PHP_INI_MEMORY_LIMIT was not applied"
 }
 
+############################################################
+## Apache modules can be enabled with APACHE_EXTENSION_*
+############################################################
+test_enableApacheModule() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_EXTENSION_BROTLI=1 \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" ls /etc/apache2/mods-enabled 2>&1)"
+  assert_matches "brotli.load" "$RESULT" "APACHE_EXTENSION_BROTLI was not applied"
+  assert_matches "php${PHP_VERSION}.load" "$RESULT" "mod_php should stay enabled"
+  assert_not_matches "does not exist" "$RESULT" "a2enmod/a2dismod received an unknown module"
+}
+############################################################
+## A stop requested during the initialization is not lost
+############################################################
+test_stopDuringStartup() {
+  docker run --name "${STOP_NAME}" ${RUN_OPTIONS} -d \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" > /dev/null
+  sleep 0.3
+  START=$(date +%s)
+  docker stop "${STOP_NAME}" > /dev/null 2>&1
+  DURATION=$(( $(date +%s) - START ))
+  docker rm -f "${STOP_NAME}" > /dev/null 2>&1
+  assert "test ${DURATION} -lt 5" "Stopping during startup took ${DURATION}s (killed by timeout?)"
+}
+
 setup_suite() {
+  export STOP_NAME="test-apache-stop-$(unused_port)"
   # SETUP apache1
   export DOCKER1_PORT="$(unused_port)"
   export DOCKER1_NAME="test-apache1-${DOCKER1_PORT}"
@@ -68,4 +93,5 @@ setup_suite() {
 
 teardown_suite() {
   docker stop "${DOCKER1_NAME}" "${DOCKER2_NAME}" "${DOCKER3_NAME}" > /dev/null 2>&1
+  docker rm -f "${STOP_NAME}" > /dev/null 2>&1
 }
