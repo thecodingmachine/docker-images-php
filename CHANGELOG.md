@@ -4,6 +4,8 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Imagick can read SVG images (also WMF, DjVu and OpenEXR): the fat images are ~17MB larger
+  * Add the `opentelemetry` extension on PHP 8.2+
   * Upgrade Supercronic from 0.1.9 to 0.2.49 (built with an up-to-date Go version)
   * Fix Composer and NodeJS binaries (`vendor/bin`, `node_modules/.bin` and global Composer binaries) not found by `docker exec` / `docker compose exec` when run without their path
   * Fix extensions that could not be loaded without another extension: the required extensions are now enabled with them (`memcached` requires `igbinary` and `msgpack`, `redis` requires `igbinary`, `mailparse` requires `mbstring` and `swoole` requires `curl`)
