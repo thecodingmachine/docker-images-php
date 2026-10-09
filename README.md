@@ -423,6 +423,10 @@ working directory (`/var/www/html` for Apache/PHP-FPM, or `/usr/src/app` for CLI
 you want to run commands as this user. So it will **dynamically change the ID of the docker user** to match the ID of
 the current working directory user.
 
+If this ID is already used by a system account of the image (e.g. `998`, used by `systemd-network` in the image and
+often by the `gitlab-runner` user on CI hosts), this system account is moved to another ID: the commands are still run
+by the `docker` user.
+
 Furthermore, the image is changing the Apache default user/group to be `docker/docker` (instead if `www-data/www-data`).
 So Apache will run with the same rights as the user on your host.
 
