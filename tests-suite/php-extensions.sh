@@ -25,6 +25,14 @@ test_presenceOfUploadprogressOnFat() {
   assert_equals "uploadprogress" "${RESULT}" "Missing php-uploadprogress"
 }
 ###################################################################
+## Let's check that Imagick can read SVG images on fat
+###################################################################
+test_imagickSvgOnFat() {
+  RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=imagick" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    php -r 'echo in_array("SVG", Imagick::queryFormats(), true) ? "SVG" : "missing";' 2>&1)
+  assert_equals "SVG" "${RESULT}" "Imagick cannot read SVG images"
+}
+###################################################################
 ## Let's check that FFI is enabled explicitly with fat for PHP 7.4+
 ###################################################################
 test_presenceOfFFIOnFat() {

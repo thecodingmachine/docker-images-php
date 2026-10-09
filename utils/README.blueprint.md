@@ -126,6 +126,8 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 
 - *ev* is not available in PHP 8.1+
 - *mcrypt* is deprecated and its usage is discouraged: it is provided for legacy applications only
+- *imagick* supports SVG, WMF, DjVu and OpenEXR images in addition to the common formats. If you process
+  untrusted images, you can restrict the allowed formats in the ImageMagick policy (`/etc/ImageMagick-6/policy.xml`)
 - The extensions required by an enabled extension are enabled with it, even if they are disabled: `igbinary` and `msgpack` for *memcached*, `igbinary` for *redis*, `mbstring` for *mailparse*, `curl` and `mysqlnd` for *swoole*, `mysqlnd` for *mysqli* and *pdo_mysql*
 
 ### Enabling/disabling extensions in the fat image
