@@ -39,7 +39,7 @@ test_presenceOfPhp82ExtensionsOnFat() {
   # Only available on PHP 8.2+
   if [[ "$(printf '%s\n' "$PHP_VERSION" "8.2" | sort -V | head -n 1)" != "8.2" ]]; then return 0; fi
   # Extension name in PHP_EXTENSIONS => name displayed by "php -m"
-  declare -A EXTENSIONS=([gnupg]=gnupg [mcrypt]=mcrypt [odbc]=odbc [pdo_odbc]=PDO_ODBC [zstd]=zstd [lz4]=lz4 [decimal]=decimal [inotify]=inotify)
+  declare -A EXTENSIONS=([gnupg]=gnupg [mcrypt]=mcrypt [odbc]=odbc [pdo_odbc]=PDO_ODBC [zstd]=zstd [lz4]=lz4 [decimal]=decimal [inotify]=inotify [opentelemetry]=opentelemetry)
   MODULES=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=${!EXTENSIONS[*]}" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m | tail -n +1)
   for EXTENSION in "${!EXTENSIONS[@]}"; do
     RESULT=$(echo "${MODULES}" | grep --color=never -x "${EXTENSIONS[$EXTENSION]}")
