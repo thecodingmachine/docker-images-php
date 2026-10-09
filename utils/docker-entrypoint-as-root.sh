@@ -180,13 +180,22 @@ else
   export ABSOLUTE_APACHE_DOCUMENT_ROOT="/var/www/html/$APACHE_DOCUMENT_ROOT"
 fi
 
+# When the PHP-FPM master process runs as root, its workers run with the Apache user
+if [[ "$@" == "php-fpm" ]]; then
+    FPM_USER_CONF="/etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker-user.conf"
+    if [[ "$WITH_APACHE" == "1" ]] || [[ "$DOCKER_USER_ID" == "0" ]]; then
+        printf '[www]\nuser = %s\ngroup = %s\n' "$APACHE_RUN_USER" "$APACHE_RUN_GROUP" > "$FPM_USER_CONF"
+    else
+        rm -f "$FPM_USER_CONF"
+    fi
+fi
+
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
 if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
     exec "$@";
 elif [[ "$@" == "php-fpm" ]] && [[ "$WITH_APACHE" == "1" ]]; then
-    # Apache must be started as root. PHP-FPM reads the environment variables itself (clear_env = no):
-    # no need to expose them through Apache
+    # Apache and the PHP-FPM master process are started as root
     exec apache2-fpm-foreground;
 else
     exec "sudo" "-E" "-H" "-u" "#$DOCKER_USER_ID" "$@";

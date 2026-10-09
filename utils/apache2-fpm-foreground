@@ -23,8 +23,8 @@ stop_all() {
 }
 trap stop_all TERM INT QUIT
 
-# PHP-FPM runs with the Apache user (like mod_php)
-sudo -E -H -u "$APACHE_RUN_USER" php-fpm &
+# Its workers run with the Apache user (like mod_php)
+php-fpm &
 fpm_pid=$!
 
 # Wait for PHP-FPM so that the first requests do not fail

@@ -4,6 +4,7 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Fix PHP-FPM not starting when the working directory belongs to root (`[pool www] user has not been defined`): its workers now run with the Apache user
   * fpm variant: optional built-in Apache (`PHP_FPM_WEB_SERVER=apache`): Apache (`mpm_event`) in front of PHP-FPM in the same container. Same features as the `apache` variant (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`), lower memory usage and much better handling of concurrent connections (see `benchmarks/fpm-apache`)
   * PHP-FPM: the process manager and the access log can be configured with `PHP_FPM_PM*` and `PHP_FPM_ACCESS_LOG` environment variables
   * PHP-FPM: new `php-fpm-healthcheck` command (ping endpoint), usable as a Docker healthcheck or a Kubernetes probe
