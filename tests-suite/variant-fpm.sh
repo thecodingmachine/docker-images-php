@@ -124,6 +124,17 @@ test_apacheMissingPhpFile() {
   assert_equals "404" "$RESULT" "A missing PHP file should return a 404"
 }
 ############################################################
+## Apache waits for PHP-FPM at most APACHE_PROXY_TIMEOUT seconds
+############################################################
+test_apacheProxyTimeout() {
+  docker run --name "${TIMEOUT_NAME}" ${RUN_OPTIONS} -d -e PHP_FPM_WEB_SERVER=apache -e APACHE_PROXY_TIMEOUT=1 \
+    -v "${SCRIPT_DIR}/assets/":/var/www/html "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" > /dev/null
+  wait_ready "${TIMEOUT_NAME}" apache
+  RESULT="$(docker exec "${TIMEOUT_NAME}" curl -s -o /dev/null -w '%{http_code}' http://localhost/apache/sleep.php 2>&1)"
+  docker rm -f "${TIMEOUT_NAME}" > /dev/null 2>&1
+  assert_equals "504" "$RESULT" "APACHE_PROXY_TIMEOUT was not applied"
+}
+############################################################
 ## Apache uses the threaded MPM (mod_php is not loaded)
 ############################################################
 test_apacheMpmEvent() {
@@ -206,6 +217,7 @@ setup_suite() {
   assert_equals "0" "$?" "Docker run failed"
   # Built-in Apache (PHP_FPM_WEB_SERVER=apache)
   export STOP_NAME="test-fpm-builtin-apache-stop-$(unused_port)"
+  export TIMEOUT_NAME="test-fpm-builtin-apache-timeout-$(unused_port)"
   export CRASH_NAME="test-fpm-builtin-apache-crash-$(unused_port)"
   # SETUP apache1
   export DOCKER1_PORT="$(unused_port)"
@@ -233,5 +245,5 @@ setup_suite() {
 
 teardown_suite() {
   docker stop "${FPM_CONTAINER_NAME}" "${DOCKER1_NAME}" "${DOCKER2_NAME}" "${DOCKER3_NAME}" > /dev/null 2>&1
-  docker rm -f "${FPM_STOP_CONTAINER_NAME}" "${STOP_NAME}" "${CRASH_NAME}" "${STARTUP_STOP_NAME}" "${ROOT_DIR_NAME}" > /dev/null 2>&1
+  docker rm -f "${FPM_STOP_CONTAINER_NAME}" "${STOP_NAME}" "${TIMEOUT_NAME}" "${CRASH_NAME}" "${STARTUP_STOP_NAME}" "${ROOT_DIR_NAME}" > /dev/null 2>&1
 }

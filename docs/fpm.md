@@ -122,15 +122,10 @@ See the [PHP-FPM documentation](https://www.php.net/manual/en/install.fpm.config
 `max_execution_time` (`PHP_INI_MAX_EXECUTION_TIME`) and `set_time_limit()` work as with `mod_php` (on Linux, the time
 spent in system calls, database queries or `sleep()` is not counted).
 
-But the web server in front of PHP-FPM has its own timeout: if PHP does not answer within **300 seconds** (Apache
-`Timeout`), the built-in Apache answers with a `504 Gateway Timeout` error, even with `set_time_limit(0)`. With nginx,
-the default `fastcgi_read_timeout` is 60 seconds. Long tasks should run in a CLI command, a
-[cron job](../README.md#setting-up-cron-jobs) or a queue worker. To raise the timeout of the built-in Apache:
-
-```Dockerfile
-FROM thecodingmachine/php:8.4-v5-fpm
-RUN echo "ProxyTimeout 600" | sudo tee /etc/apache2/conf-enabled/proxy-timeout.conf
-```
+But the web server in front of PHP-FPM has its own timeout: if PHP does not answer within
+`APACHE_PROXY_TIMEOUT` seconds (`300` by default), the built-in Apache answers with a `504 Gateway Timeout` error,
+even with `set_time_limit(0)`. With nginx, the default `fastcgi_read_timeout` is 60 seconds. Long tasks should run in
+a CLI command, a [cron job](../README.md#setting-up-cron-jobs) or a queue worker.
 
 ### `php_value` in `.htaccess`
 

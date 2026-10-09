@@ -340,7 +340,8 @@ you are using:
 
 With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache (`mpm_event`) in front of PHP-FPM, in the same
 container, with the Apache features of the *apache* variant (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`).
-The number of PHP workers is configured independently (see [PHP-FPM settings](#php-fpm-settings)).
+The number of PHP workers is configured independently (see [PHP-FPM settings](#php-fpm-settings)), and
+`APACHE_PROXY_TIMEOUT` sets how long Apache waits for PHP-FPM (`300` seconds by default).
 
 The [fpm variant documentation](docs/fpm.md) details
 its advantages, the constraints of PHP-FPM (number of workers and memory, timeouts, `php_value` in `.htaccess`),

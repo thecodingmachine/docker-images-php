@@ -258,7 +258,8 @@ ENV PHP_FPM_PM=dynamic \
 COPY utils/fpm-zz-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker.conf
 
 # Built-in web server: "apache" runs Apache in front of PHP-FPM (empty: PHP-FPM only)
-ENV PHP_FPM_WEB_SERVER=
+ENV PHP_FPM_WEB_SERVER= \
+    APACHE_PROXY_TIMEOUT=300
 COPY utils/apache2-fpm-foreground /usr/local/bin/
 
 EXPOSE 9000
