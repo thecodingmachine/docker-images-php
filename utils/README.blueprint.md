@@ -8,17 +8,16 @@
 > *apache* variant: same Apache features (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`), but PHP runs in
 > PHP-FPM instead of `mod_php`.
 >
-> **Why?** `mod_php` forces Apache to dedicate a whole process (embedding PHP) to each connection, including idle
-> keep-alive connections and static files. With PHP-FPM, Apache uses its threaded MPM (`mpm_event`) and only PHP
-> requests reach the PHP workers. Under the same load ([benchmark](https://github.com/thecodingmachine/docker-images-php/tree/v5/benchmarks/fpm-apache)),
-> PHP is not faster, but the container handles **3x more pages per second** with a p95 under 100 ms and a p99 under 1 s
-> (30 vs 10 pages/s on 2 CPUs) and uses **4x less memory** (~90 vs ~380 MiB).
+> **Why?** Under the same load ([benchmark](benchmarks/fpm-apache)), the container serves **2 to 3 times more traffic
+> with 4 times less memory** (30 vs 10 pages/s on 2 CPUs, ~90 vs ~380 MiB). `mod_php` forces Apache to dedicate a
+> whole process embedding PHP to each connection, including idle keep-alive connections and static files. With
+> PHP-FPM, Apache uses its threaded MPM (`mpm_event`) and only PHP requests reach the PHP workers.
 >
 > ```bash
 > $ docker run -p 80:80 -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:{{ .Orbit.Images.php_version }}-v5-fpm
 > ```
 >
-> Migrating from the *apache* variant: see [Built-in Apache of the fpm variant](#built-in-apache-of-the-fpm-variant)
+> **[Read more: advantages, constraints of PHP-FPM and migration from the *apache* variant](docs/fpm.md)**
 > (for instance, `php_value` directives are not supported in `.htaccess` files). The *apache* variant is still available.
 
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
@@ -269,22 +268,13 @@ you are using:
 
 ## Built-in Apache of the fpm variant
 
-With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache in front of PHP-FPM, in the same container:
+With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache (`mpm_event`) in front of PHP-FPM, in the same
+container, with the Apache features of the *apache* variant (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`).
+The number of PHP workers is configured independently (see [PHP-FPM settings](#php-fpm-settings)).
 
-- Apache uses the threaded `mpm_event` MPM instead of `mpm_prefork` (required by `mod_php`): static files and
-  keep-alive connections no longer hold a process embedding PHP, so the memory usage is lower and the container
-  handles more concurrent connections (see `benchmarks/fpm-apache`). HTTP/2 can also be enabled with `APACHE_EXTENSION_HTTP2=1`.
-- The Apache features of the *apache* variant are available (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`).
-- The number of PHP workers is configured independently (see [PHP-FPM settings](#php-fpm-settings)).
-- If Apache or PHP-FPM stops, the other one is stopped too and the container exits (so that your orchestrator can restart it).
-
-It is meant to replace the *apache* variant (`mod_php`). When migrating, be aware that:
-
-- `php_value` and `php_flag` directives are not supported in `.htaccess` files (Apache answers with a 500 error):
-  use the `PHP_INI_*` environment variables or a [`.user.ini` file](https://www.php.net/manual/en/configuration.file.per-user.php) instead.
-- The `Authorization` header is forwarded to PHP (`CGIPassAuth On`).
-- Environment variables are read by PHP-FPM itself: they are no longer exposed through Apache (`PassEnv`).
-- The PHP-FPM access log is disabled (Apache already writes one).
+The [fpm variant documentation](docs/fpm.md) details
+its advantages, the constraints of PHP-FPM (number of workers and memory, timeouts, `php_value` in `.htaccess`),
+how to use your own web server instead (nginx...) and how to migrate from the *apache* variant.
 
 ## PHP-FPM settings
 
