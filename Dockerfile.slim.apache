@@ -161,6 +161,7 @@ RUN composer global require bamarni/symfony-console-autocomplete && \
 USER root
 
 
+# Apache: built-in web server of the fpm variant (disabled by default, see PHP_FPM_WEB_SERVER)
 ENV APACHE_CONFDIR=/etc/apache2
 ENV APACHE_ENVVARS=$APACHE_CONFDIR/envvars
 
@@ -200,19 +201,18 @@ RUN set -eux; \
 	ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"; \
 	chown -R --no-dereference "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR"
 
-# Apache + PHP requires preforking Apache for best results
+
+# Apache + mod_php requires preforking Apache (mod_php is not thread-safe)
 RUN a2dismod mpm_event && a2enmod mpm_prefork
 
 # PHP files should be handled by PHP, and should be preferred over any other file type
 COPY utils/apache-docker-php.conf /etc/apache2/conf-available/docker-php.conf
 
-RUN a2enconf docker-php
-
-ENV PHP_EXTRA_BUILD_DEPS=apache2-dev
-ENV PHP_EXTRA_CONFIGURE_ARGS="--with-apxs2 --disable-cgi"
-
 # https://httpd.apache.org/docs/2.4/stopping.html#gracefulstop
 STOPSIGNAL SIGWINCH
+
+
+RUN a2enconf docker-php
 
 COPY utils/apache2-foreground /usr/local/bin/
 
@@ -223,8 +223,10 @@ ENV APACHE_DOCUMENT_ROOT=
 RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
     sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+
 # Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
+
 
 # |--------------------------------------------------------------------------
 # | Apache mod_rewrite
@@ -318,6 +320,8 @@ COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
 COPY utils/enable_apache_mods.php /usr/local/bin/enable_apache_mods.php
+
+
 COPY utils/apache-expose-envvars.sh /usr/local/bin/apache-expose-envvars.sh
 
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
@@ -333,7 +337,9 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf && \
     a2enconf servername
 
+
 CMD ["apache2-foreground"]
+
 
 # |--------------------------------------------------------------------------
 # | Entrypoint

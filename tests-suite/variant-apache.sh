@@ -52,6 +52,16 @@ test_enableApacheModule() {
   assert_not_matches "does not exist" "$RESULT" "a2enmod/a2dismod received an unknown module"
 }
 ############################################################
+## The MPM can be switched with APACHE_EXTENSION_*
+############################################################
+test_switchMpm() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_EXTENSION_MPM_EVENT=1 -e APACHE_EXTENSION_MPM_PREFORK=0 -e "APACHE_EXTENSION_PHP${PHP_VERSION}=0" \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" ls /etc/apache2/mods-enabled 2>&1)"
+  assert_matches "mpm_event.load" "$RESULT" "mpm_event is not enabled"
+  assert_not_matches "mpm_prefork.load" "$RESULT" "mpm_prefork should be disabled"
+  assert_not_matches "ERROR" "$RESULT" "a2enmod/a2dismod failed"
+}
+############################################################
 ## A stop requested during the initialization is not lost
 ############################################################
 test_stopDuringStartup() {

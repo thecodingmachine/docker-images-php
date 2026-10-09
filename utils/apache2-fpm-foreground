@@ -1,0 +1,69 @@
+#!/bin/bash
+# Runs PHP-FPM and Apache side by side (fpm variant with PHP_FPM_WEB_SERVER=apache).
+# If one of them stops, the other one is stopped too: the container exits and can be restarted by its supervisor.
+
+# The access log is written by Apache
+if [[ "$PHP_FPM_ACCESS_LOG" == "/proc/self/fd/2" ]]; then
+    export PHP_FPM_ACCESS_LOG=/dev/null
+fi
+
+stopping=0
+stop_all() {
+    stopping=1
+    # Graceful stops: running requests are completed
+    if [[ -n "$apache_pid" ]]; then
+        if [[ "$(cat "/proc/${apache_pid}/comm" 2>/dev/null)" == "apache2" ]]; then
+            kill -WINCH "$apache_pid" 2>/dev/null
+        else
+            # apache2-foreground has not exec'd Apache yet (and ignores SIGWINCH): nothing to drain
+            kill -TERM "$apache_pid" 2>/dev/null
+        fi
+    fi
+    [[ -n "$fpm_pid" ]] && kill -QUIT "$fpm_pid" 2>/dev/null
+}
+trap stop_all TERM INT QUIT
+
+# Its workers run with the Apache user (like mod_php)
+php-fpm &
+fpm_pid=$!
+
+# Wait for PHP-FPM so that the first requests do not fail
+for _ in $(seq 1 50); do
+    if php-fpm-healthcheck || ! kill -0 "$fpm_pid" 2>/dev/null; then
+        break
+    fi
+    sleep 0.1
+done
+
+apache2-foreground &
+apache_pid=$!
+
+# A stop signal may have been received before Apache was started
+if [[ "$stopping" == "1" ]]; then
+    stop_all
+fi
+
+# Wait for the first process to exit (or for a stop signal)
+wait -n "$fpm_pid" "$apache_pid"
+status=$?
+
+if [[ "$stopping" == "0" ]]; then
+    if kill -0 "$fpm_pid" 2>/dev/null; then
+        >&2 echo "Apache exited (code ${status}), stopping PHP-FPM"
+    else
+        >&2 echo "PHP-FPM exited (code ${status}), stopping Apache"
+    fi
+    stop_all
+    stopping=2
+fi
+
+# Wait for both processes (a trapped signal interrupts "wait")
+while kill -0 "$fpm_pid" 2>/dev/null || kill -0 "$apache_pid" 2>/dev/null; do
+    wait
+done
+
+if [[ "$stopping" == "2" ]]; then
+    # Unexpected stop: always report a failure
+    exit $(( status == 0 ? 1 : status ))
+fi
+exit 0

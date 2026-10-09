@@ -2,12 +2,30 @@
 
 # General purpose PHP images for Docker
 
+> **New: built-in Apache in the fpm variant (`PHP_FPM_WEB_SERVER=apache`)**
+>
+> The *fpm* variant can now run Apache in front of PHP-FPM, in the same container. It is a drop-in alternative to the
+> *apache* variant: same Apache features (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`), but PHP runs in
+> PHP-FPM instead of `mod_php`.
+>
+> **Why?** Under the same load ([benchmark](benchmarks/fpm-apache)), the container serves **2 to 3 times more traffic
+> with 4 times less memory** (30 vs 10 pages/s on 2 CPUs, ~90 vs ~380 MiB). `mod_php` forces Apache to dedicate a
+> whole process embedding PHP to each connection, including idle keep-alive connections and static files. With
+> PHP-FPM, Apache uses its threaded MPM (`mpm_event`) and only PHP requests reach the PHP workers.
+>
+> ```bash
+> $ docker run -p 80:80 -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:{{ .Orbit.Images.php_version }}-v5-fpm
+> ```
+>
+> **[Read more: advantages, constraints of PHP-FPM and migration from the *apache* variant](docs/fpm.md)**
+> (for instance, `php_value` directives are not supported in `.htaccess` files). The *apache* variant is still available.
+
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
 
  - You can enable or disable the extensions using environment variables.
  - You can also modify the `php.ini` settings using environment variables.
  - 2 types available: `slim` (no extensions preloaded) or `fat` (most common PHP extensions are built-in)
- - 3 variants available: `CLI`, `apache` and `fpm`
+ - 3 variants available: `CLI`, `apache` and `fpm` (with an optional built-in Apache)
  - Fat images are bundled with [Supercronic](https://github.com/aptible/supercronic) which is a Cron compatible task runner. Cron jobs can be configured using environment variables
  - Fat images come with [Composer](https://getcomposer.org/) and [Prestissimo](https://github.com/hirak/prestissimo) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
@@ -22,15 +40,15 @@ This repository contains a set of developer-friendly, general purpose PHP images
 
 | Name                                                                    | PHP version                                                                                                                                        | type                                       |variant | NodeJS version  | Size 
 |-------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|--------|-----------------|------
-{{range $phpV := $versions}}{{ $nodes := $nodeVersions }}{{ if has $phpV $legacyVersions }}{{ $nodes = $legacyNodeVersions }}{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-apache](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.apache)                      | `{{ $phpV }}.x` | fat  | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-apache)
-{{range $nodeV := $nodes}}| [thecodingmachine/php:{{ $phpV }}-v5-apache-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.apache.node) | `{{ $phpV }}.x` | fat  | apache   | `{{ $nodeV }}.x`  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-apache-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-apache-node{{ $nodeV }})
-{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.fpm)                            | `{{ $phpV }}.x` | fat  | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-fpm)
-{{range $nodeV := $nodes}}| [thecodingmachine/php:{{ $phpV }}-v5-fpm-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.fpm.node)      | `{{ $phpV }}.x` | fat  | fpm      | `{{ $nodeV }}.x`  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-fpm-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-fpm-node{{ $nodeV }})
-{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-cli](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.cli)                            | `{{ $phpV }}.x` | fat  | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-cli)
-{{range $nodeV := $nodes}}| [thecodingmachine/php:{{ $phpV }}-v5-cli-node{{ $nodeV }}](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.cli.node)      | `{{ $phpV }}.x` | fat  | cli      | `{{ $nodeV }}.x`  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-cli-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-cli-node{{ $nodeV }})
-{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-slim-apache](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.slim.apache)            | `{{ $phpV }}.x` | slim | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-slim-apache)
-| [thecodingmachine/php:{{ $phpV }}-v5-slim-fpm](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.slim.fpm)                                                                | `{{ $phpV }}.x`                                                                                                    | slim                                       | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-slim-fpm)
-| [thecodingmachine/php:{{ $phpV }}-v5-slim-cli](https://github.com/thecodingmachine/docker-images-php/blob/v5/Dockerfile.slim.cli)                                                                | `{{ $phpV }}.x`                                                                                                    | slim                                       | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-slim-cli)
+{{range $phpV := $versions}}{{ $nodes := $nodeVersions }}{{ if has $phpV $legacyVersions }}{{ $nodes = $legacyNodeVersions }}{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-apache](Dockerfile.apache)                      | `{{ $phpV }}.x` | fat  | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-apache)
+{{range $nodeV := $nodes}}| [thecodingmachine/php:{{ $phpV }}-v5-apache-node{{ $nodeV }}](Dockerfile.apache.node) | `{{ $phpV }}.x` | fat  | apache   | `{{ $nodeV }}.x`  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-apache-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-apache-node{{ $nodeV }})
+{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-fpm](Dockerfile.fpm)                            | `{{ $phpV }}.x` | fat  | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-fpm)
+{{range $nodeV := $nodes}}| [thecodingmachine/php:{{ $phpV }}-v5-fpm-node{{ $nodeV }}](Dockerfile.fpm.node)      | `{{ $phpV }}.x` | fat  | fpm      | `{{ $nodeV }}.x`  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-fpm-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-fpm-node{{ $nodeV }})
+{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-cli](Dockerfile.cli)                            | `{{ $phpV }}.x` | fat  | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-cli)
+{{range $nodeV := $nodes}}| [thecodingmachine/php:{{ $phpV }}-v5-cli-node{{ $nodeV }}](Dockerfile.cli.node)      | `{{ $phpV }}.x` | fat  | cli      | `{{ $nodeV }}.x`  | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-cli-node{{ $nodeV }}.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-cli-node{{ $nodeV }})
+{{ end }}| [thecodingmachine/php:{{ $phpV }}-v5-slim-apache](Dockerfile.slim.apache)            | `{{ $phpV }}.x` | slim | apache   | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-slim-apache.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-slim-apache)
+| [thecodingmachine/php:{{ $phpV }}-v5-slim-fpm](Dockerfile.slim.fpm)                                                                | `{{ $phpV }}.x`                                                                                                    | slim                                       | fpm      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-slim-fpm.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-slim-fpm)
+| [thecodingmachine/php:{{ $phpV }}-v5-slim-cli](Dockerfile.slim.cli)                                                                | `{{ $phpV }}.x`                                                                                                    | slim                                       | cli      | *N/A*                                                | [![](https://images.microbadger.com/badges/image/thecodingmachine/php:{{ $phpV }}-v5-slim-cli.svg)](https://microbadger.com/images/thecodingmachine/php:{{ $phpV }}-v5-slim-cli)
 {{end}}
  
 
@@ -86,6 +104,12 @@ Example with PHP-FPM:
 
 ```bash
 $ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:{{ $image.php_version }}-v5-fpm
+```
+
+Example with PHP-FPM and its built-in Apache (in the same container):
+
+```bash
+$ docker run -p 80:80 --rm --name my-apache-fpm-app -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:{{ $image.php_version }}-v5-fpm
 ```
 
 Example with Apache + Node {{ $image.node_version }}.x in a Dockerfile:
@@ -242,10 +266,49 @@ you are using:
 | apache  | `/var/www/html`   |
 | fpm     | `/var/www/html`   |
 
+## Built-in Apache of the fpm variant
+
+With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache (`mpm_event`) in front of PHP-FPM, in the same
+container, with the Apache features of the *apache* variant (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`).
+The number of PHP workers is configured independently (see [PHP-FPM settings](#php-fpm-settings)), and
+`APACHE_PROXY_TIMEOUT` sets how long Apache waits for PHP-FPM (`300` seconds by default).
+
+The [fpm variant documentation](docs/fpm.md) details
+its advantages, the constraints of PHP-FPM (number of workers and memory, timeouts, `php_value` in `.htaccess`),
+how to use your own web server instead (nginx...) and how to migrate from the *apache* variant.
+
+## PHP-FPM settings
+
+For the *fpm* variant, the PHP-FPM process manager can be configured with environment variables
+(the defaults are the ones of the Ubuntu package):
+
+| Environment variable           | `php-fpm.conf` setting  | Default   |
+|--------------------------------|-------------------------|-----------|
+| `PHP_FPM_PM`                   | `pm`                    | `dynamic` |
+| `PHP_FPM_PM_MAX_CHILDREN`      | `pm.max_children`       | `5`       |
+| `PHP_FPM_PM_START_SERVERS`     | `pm.start_servers`      | `2`       |
+| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `pm.min_spare_servers`  | `1`       |
+| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `pm.max_spare_servers`  | `3`       |
+| `PHP_FPM_PM_MAX_REQUESTS`      | `pm.max_requests`       | `0`       |
+| `PHP_FPM_ACCESS_LOG`           | `access.log`            | `/proc/self/fd/2` |
+
+The `php-fpm-healthcheck` command checks that PHP-FPM answers (on its `/ping` endpoint). You can use it as a Docker
+healthcheck or as a Kubernetes probe:
+
+```yml
+services:
+  my_app:
+    image: thecodingmachine/php:{{ $image.php_version }}-v5-fpm
+    healthcheck:
+      test: ["CMD", "php-fpm-healthcheck"]
+```
+
+The *fpm* variant (with or without Apache) is stopped gracefully (`SIGQUIT`): requests being processed are completed before the container stops.
+
 
 ## Changing Apache document root
 
-For the *apache* variant, you can change the document root of Apache (i.e. your "public" directory) by using the 
+For the *apache* variant and the built-in Apache of the *fpm* variant, you can change the document root of Apache (i.e. your "public" directory) by using the 
 `APACHE_DOCUMENT_ROOT` variable:
 
 ```bash
@@ -287,6 +350,8 @@ APACHE_EXTENSIONS="dav ssl"
 ```
 
 **Apache modules enabled by default:** `access_compat` `alias` `auth_basic` `authn_core` `authn_file` `authz_core` `authz_host` `authz_user` `autoindex` `deflate` `dir` `env` `expires` `filter` `mime` `mpm_prefork` `negotiation` `php{{ $image.php_version }} (depend of your active version)` `reqtimeout` `rewrite` `setenvif` `status`
+
+For the built-in Apache of the *fpm* variant, `mpm_event` `proxy` `proxy_fcgi` are enabled instead of `mpm_prefork` and `php{{ $image.php_version }}` (`mod_php` is not available).
 
 **Apache modules available:** `access_compat` `actions` `alias` `allowmethods` `asis` `auth_basic` `auth_digest` `auth_form` `authn_anon` `authn_core` `authn_dbd` `authn_dbm` `authn_file` `authn_socache` `authnz_fcgi` `authnz_ldap` `authz_core` `authz_dbd` `authz_dbm` `authz_groupfile` `authz_host` `authz_owner` `authz_user` `autoindex` `brotli` `buffer` `cache` `cache_disk` `cache_socache` `cern_meta` `cgi` `cgid` `charset_lite` `data` `dav` `dav_fs` `dav_lock` `dbd` `deflate` `dialup` `dir` `dump_io` `echo` `env` `ext_filter` `expires` `file_cache` `filter` `headers` `heartbeat` `heartmonitor` `http2` `ident` `imagemap` `include` `info` `lbmethod_bybusyness` `lbmethod_byrequests` `lbmethod_bytraffic` `lbmethod_heartbeat` `ldap` `log_debug` `log_forensic` `lua` `macro` `md` `mime` `mime_magic` `mpm_event` `mpm_prefork` `mpm_worker` `negotiation` `php{{ $image.php_version }} (depend of your active version)` `proxy` `proxy_ajp` `proxy_balancer` `proxy_connect` `proxy_express` `proxy_fcgi` `proxy_fdpass` `proxy_ftp` `proxy_hcheck` `proxy_html` `proxy_http` `proxy_http2` `proxy_scgi` `proxy_wstunnel` `ratelimit` `reflector` `remoteip` `reqtimeout` `request` `rewrite` `sed` `session` `session_cookie` `session_crypto` `session_dbd` `setenvif` `slotmem_plain` `slotmem_shm` `socache_dbm` `socache_memcache` `socache_redis` `socache_shmcb` `speling` `ssl` `status` `substitute` `suexec` `unique_id` `userdir` `usertrack` `vhost_alias` `xml2enc`
 
