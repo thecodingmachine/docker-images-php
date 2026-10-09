@@ -119,27 +119,18 @@ completed.
 
 ### Built-in Apache
 
-With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache in front of PHP-FPM, in the same container:
+With `PHP_FPM_WEB_SERVER=apache`, the *fpm* variant runs Apache (`mpm_event`) in front of PHP-FPM, in the same
+container, with the Apache features of the *apache* variant (`.htaccess`, [document root](#document-root),
+[ports](#ports), [modules](#apache-modules)). The number of PHP workers is configured independently (see
+[PHP-FPM settings](#php-fpm-settings)).
 
 ```bash
 $ docker run -p 80:80 --rm -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
 ```
 
-- Apache uses the threaded `mpm_event` MPM instead of `mpm_prefork` (required by `mod_php`): static files and
-  keep-alive connections no longer hold a process embedding PHP, so the memory usage is lower and the container
-  handles more concurrent connections (see [the benchmark](../benchmarks/fpm-apache)). HTTP/2 can also be enabled with `APACHE_EXTENSION_HTTP2=1`.
-- The Apache features of the *apache* variant are available (`.htaccess`, [document root](#document-root),
-  [ports](#ports), [modules](#apache-modules)).
-- The number of PHP workers is configured independently (see [PHP-FPM settings](#php-fpm-settings)).
-- If Apache or PHP-FPM stops, the other one is stopped too and the container exits (so that your orchestrator can restart it).
-
-It is meant to replace the *apache* variant (`mod_php`). When migrating, be aware that:
-
-- `php_value` and `php_flag` directives are not supported in `.htaccess` files (Apache answers with a 500 error):
-  use the `PHP_INI_*` environment variables or a [`.user.ini` file](https://www.php.net/manual/en/configuration.file.per-user.php) instead.
-- The `Authorization` header is forwarded to PHP (`CGIPassAuth On`).
-- Environment variables are read by PHP-FPM itself: they are no longer exposed through Apache (`PassEnv`).
-- The PHP-FPM access log is disabled (Apache already writes one).
+[Serving an application with the fpm variant](fpm.md) details its advantages, the constraints of PHP-FPM (number of
+workers and memory, timeouts, `php_value` in `.htaccess`), how to use your own web server instead (nginx...) and how to
+migrate from the *apache* variant.
 
 ### PHP-FPM settings
 

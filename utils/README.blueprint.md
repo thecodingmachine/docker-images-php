@@ -8,17 +8,16 @@
 > *apache* variant: same Apache features (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`), but PHP runs in
 > PHP-FPM instead of `mod_php`.
 >
-> **Why?** `mod_php` forces Apache to dedicate a whole process (embedding PHP) to each connection, including idle
-> keep-alive connections and static files. With PHP-FPM, Apache uses its threaded MPM (`mpm_event`) and only PHP
-> requests reach the PHP workers. Under the same load ([benchmark](https://github.com/thecodingmachine/docker-images-php/tree/v5/benchmarks/fpm-apache)),
-> PHP is not faster, but the container handles **3x more pages per second** with a p95 under 100 ms and a p99 under 1 s
-> (30 vs 10 pages/s on 2 CPUs) and uses **4x less memory** (~90 vs ~380 MiB).
+> **Why?** Under the same load ([benchmark](benchmarks/fpm-apache)), the container serves **2 to 3 times more traffic
+> with 4 times less memory** (30 vs 10 pages/s on 2 CPUs, ~90 vs ~380 MiB). `mod_php` forces Apache to dedicate a
+> whole process embedding PHP to each connection, including idle keep-alive connections and static files. With
+> PHP-FPM, Apache uses its threaded MPM (`mpm_event`) and only PHP requests reach the PHP workers.
 >
 > ```bash
 > $ docker run -p 80:80 -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:{{ .Orbit.Images.php_version }}-v5-fpm
 > ```
 >
-> Migrating from the *apache* variant: see [Built-in Apache of the fpm variant](docs/variants.md#built-in-apache)
+> **[Read more: advantages, constraints of PHP-FPM and migration from the *apache* variant](docs/fpm.md)**
 > (for instance, `php_value` directives are not supported in `.htaccess` files). The *apache* variant is still available.
 
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
@@ -136,6 +135,7 @@ Most features are configured with environment variables:
 | [PHP extensions](docs/extensions.md)               | Extensions of the slim and fat images, enabling them, compiling them in a slim image           | `PHP_EXTENSION_*`, `PHP_EXTENSIONS`                                |
 | [PHP configuration](docs/php-configuration.md)     | Base `php.ini` file and `php.ini` parameters                                                   | `TEMPLATE_PHP_INI`, `PHP_INI_*`                                    |
 | [Variants](docs/variants.md)                       | *cli*, *apache* (document root, ports, modules, user) and *fpm* (built-in Apache, PHP-FPM)     | `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`, `PHP_FPM_WEB_SERVER` |
+| [Serving with the fpm variant](docs/fpm.md)        | Built-in Apache or your own web server, constraints of PHP-FPM, migration from *apache*        | `PHP_FPM_WEB_SERVER`, `PHP_FPM_PM_*`                               |
 | [Processes](docs/processes.md)                     | Startup commands, cron jobs and daemons run along with the main command                        | `STARTUP_COMMAND_*`, `CRON_*`, `DAEMON_*`                          |
 | [Debugging and profiling](docs/debugging.md)       | Xdebug and Blackfire                                                                           | `PHP_EXTENSION_XDEBUG`, `XDEBUG_CLIENT_HOST`, `BLACKFIRE_AGENT`    |
 | [Advanced features](docs/advanced.md)              | Permissions, NodeJS, Composer version, locales, SSH keys, Kubernetes                           | `DOCKER_USER`, `COMPOSER_VERSION`, `LOCALES`                       |
