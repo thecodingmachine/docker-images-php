@@ -4,6 +4,9 @@
 ### Minor changes
 
 * **2026-10-09**
+  * Upgrade Supercronic from 0.1.9 to 0.2.49 (built with an up-to-date Go version)
+  * Fix Composer and NodeJS binaries (`vendor/bin`, `node_modules/.bin` and global Composer binaries) not found by `docker exec` / `docker compose exec` when run without their path
+  * Fix extensions that could not be loaded without another extension: the required extensions are now enabled with them (`memcached` requires `igbinary` and `msgpack`, `redis` requires `igbinary`, `mailparse` requires `mbstring` and `swoole` requires `curl`)
   * Fix the container start when the mounted directory belongs to an ID used by a system account of the image (e.g. 998 for a `gitlab-runner` user): the commands were run with this account (no home directory, no sudo) instead of the `docker` user
   * Fix `DOCKER_USER` set to an ID used by a system account of the image (`usermod: UID already exists`)
   * Fix `php` run by a user that cannot use sudo (e.g. `sudo -u www-data php ...`): sudo password errors, and failure when a `PHP_*` variable had changed
