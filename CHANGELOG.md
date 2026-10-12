@@ -4,6 +4,7 @@
 ### Minor changes
 
 * **2026-10-12**
+  * The README only describes the images and links to the documentation of each topic in the `docs` directory (extensions, php.ini, variants, processes, debugging, advanced features, contributing)
   * Add `APACHE_HTTP_PORT` and `APACHE_HTTPS_PORT` to change the ports Apache listens on (e.g. unprivileged ports)
   * Add `COMPOSER_VERSION` to install another Composer version (exact version or `1`, `2`, `2.2` channel), at the container start or at the build of a slim image
   * Add `LOCALES` to generate locales at the container start (e.g. `LOCALES=fr_FR.UTF-8 de_DE.UTF-8`): the `locales` package is installed in the fat images (~17MB) and with `ARG INSTALL_LOCALES=1` in the slim images
