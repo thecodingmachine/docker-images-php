@@ -434,6 +434,25 @@ ARG COMPOSER_VERSION=2.4.4
 FROM thecodingmachine/php:8.4-v5-slim-apache
 ```
 
+## Locales
+
+Only the `C`, `C.UTF-8` and `POSIX` locales are available by default. The `LOCALES` environment variable lists the
+locales to generate at the container start:
+
+```bash
+LOCALES=fr_FR.UTF-8 de_DE.UTF-8
+# Optional: the default locale of the intl extension
+PHP_INI_INTL__DEFAULT_LOCALE=fr_FR.UTF-8
+```
+
+The locales tools are **installed by default in the fat images**. If you are using the "*slim*" images, you need to
+install them with an ARG before the `FROM`:
+
+```Dockerfile
+ARG INSTALL_LOCALES=1
+FROM thecodingmachine/php:8.4-v5-slim-apache
+```
+
 ## Permissions
 
 Ever faced file permission issues with Docker? Good news, this is a thing of the past!

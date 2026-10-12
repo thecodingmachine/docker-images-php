@@ -1,6 +1,7 @@
 #syntax=docker/dockerfile-upstream:1
 ARG INSTALL_CRON=1
 ARG INSTALL_COMPOSER=1
+ARG INSTALL_LOCALES=1
 ARG PHP_VERSION="8.4"
 ARG GLOBAL_VERSION="v5"
 ARG REPO="thecodingmachine/php"

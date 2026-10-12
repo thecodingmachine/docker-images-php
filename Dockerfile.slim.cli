@@ -306,6 +306,20 @@ ONBUILD RUN if [ -n "$COMPOSER_VERSION" ]; then \
  fi
 
 # |--------------------------------------------------------------------------
+# | Locales
+# |--------------------------------------------------------------------------
+# |
+# | Installs the tools generating the locales listed in LOCALES at the container start.
+# |
+ONBUILD ARG INSTALL_LOCALES
+ONBUILD RUN if [ -n "$INSTALL_LOCALES" ]; then \
+    sudo apt-get update \
+    && sudo apt-get install -y --no-install-recommends locales \
+    && sudo apt-get clean \
+    && sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin /tmp/* /var/tmp/* /usr/share/doc/*; \
+ fi
+
+# |--------------------------------------------------------------------------
 # | NodeJS
 # |--------------------------------------------------------------------------
 # |
