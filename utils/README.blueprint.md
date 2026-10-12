@@ -264,6 +264,17 @@ APACHE_DOCUMENT_ROOT=public/
 APACHE_DOCUMENT_ROOT=/var/www/html/public
 ```
 
+## Changing Apache ports
+
+For the *apache* variant, Apache listens on port 80 (and 443 when the `ssl` extension is enabled).
+You can change these ports with the `APACHE_HTTP_PORT` and `APACHE_HTTPS_PORT` variables, for instance to use
+unprivileged ports:
+
+```bash
+APACHE_HTTP_PORT=8080
+APACHE_HTTPS_PORT=8443
+```
+
 ## Enabling/disabling Apache extensions
 
 You can enable/disable Apache extensions using the `APACHE_EXTENSION_[extension_name]` environment variable.
@@ -335,6 +346,42 @@ FROM thecodingmachine/php:{{ $image.php_version }}-v5-slim-apache
 Beware! The `ARG NODE_VERSION` command must be written before the `FROM`. This is not a typo.
 
 `NODE_VERSION` can take any valid node versions (tested only with the versions provided here but should work too for some previous versions)
+
+## Composer version
+
+The images come with the latest Composer version. You can install another one with the `COMPOSER_VERSION` environment
+variable: an exact version (e.g. `2.4.4`) or a channel (`1`, `2`, or `2.2` for the LTS version).
+
+```bash
+COMPOSER_VERSION=2.4.4
+```
+
+The version is installed when the container starts (this requires a network access). With the *slim* images, you can
+install it during the build instead, with an ARG before the `FROM`:
+
+```Dockerfile
+ARG COMPOSER_VERSION=2.4.4
+FROM thecodingmachine/php:{{ $image.php_version }}-v5-slim-apache
+```
+
+## Locales
+
+Only the `C`, `C.UTF-8` and `POSIX` locales are available by default. The `LOCALES` environment variable lists the
+locales to generate at the container start:
+
+```bash
+LOCALES=fr_FR.UTF-8 de_DE.UTF-8
+# Optional: the default locale of the intl extension
+PHP_INI_INTL__DEFAULT_LOCALE=fr_FR.UTF-8
+```
+
+The locales tools are **installed by default in the fat images**. If you are using the "*slim*" images, you need to
+install them with an ARG before the `FROM`:
+
+```Dockerfile
+ARG INSTALL_LOCALES=1
+FROM thecodingmachine/php:{{ $image.php_version }}-v5-slim-apache
+```
 
 ## Permissions
 
@@ -483,6 +530,26 @@ If such a file is mounted in the image, it will be executed on container startup
 docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp \ 
        -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:{{ $image.php_version }}-v5-cli php your-script.php 
 ```
+
+## Running other processes in the container
+
+**Prefer one container per process.** For instance, run a Laravel queue worker in its own container (the *cli* image,
+with `php artisan queue:work` as command) rather than in the Apache container: Docker and your orchestrator can then
+restart, scale, limit and monitor each process.
+
+When a separate container is not an option, the `DAEMON_COMMAND_XXX` environment variables start long-running
+processes along with the main command. They are run by the `docker` user (see [Permissions](#permissions)), or by the
+user set in the `DAEMON_USER_XXX` variable with the same suffix (a user name or an ID):
+
+```bash
+DAEMON_COMMAND_1=php artisan queue:work
+DAEMON_COMMAND_2=php artisan horizon
+DAEMON_USER_2=www-data
+```
+
+These processes are not restarted: **as soon as one of them (or the main command) exits, the other ones are stopped
+and the container stops** with the exit code of this process. Use a restart policy (e.g. `restart: unless-stopped`)
+to restart the container. Supercronic (see [Setting up CRON jobs](#setting-up-cron-jobs)) runs the same way.
 
 ## Using the CLI variant
 

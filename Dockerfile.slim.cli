@@ -110,6 +110,7 @@ RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
 RUN curl -sS --retry 5 --retry-delay 2 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
     chmod +x /usr/local/bin/composer
+COPY utils/select_composer_version.sh /usr/local/bin/select_composer_version.sh
 
 # TODO: utils.php in /usr/local/bin... bof!
 COPY utils/utils.php /usr/local/bin/utils.php
@@ -245,6 +246,7 @@ COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
+COPY utils/supervise.sh /usr/local/bin/supervise.sh
 
 COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
 RUN ln -s ${PHP_VERSION} /usr/local/lib/thecodingmachine-php/extensions/current
@@ -293,6 +295,30 @@ ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
      && sudo ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic; \
  fi
 
+# |--------------------------------------------------------------------------
+# | Composer version
+# |--------------------------------------------------------------------------
+# |
+# | Installs the Composer version COMPOSER_VERSION instead of the latest one.
+# |
+ONBUILD ARG COMPOSER_VERSION
+ONBUILD RUN if [ -n "$COMPOSER_VERSION" ]; then \
+    sudo /usr/local/bin/select_composer_version.sh "$COMPOSER_VERSION"; \
+ fi
+
+# |--------------------------------------------------------------------------
+# | Locales
+# |--------------------------------------------------------------------------
+# |
+# | Installs the tools generating the locales listed in LOCALES at the container start.
+# |
+ONBUILD ARG INSTALL_LOCALES
+ONBUILD RUN if [ -n "$INSTALL_LOCALES" ]; then \
+    sudo apt-get update \
+    && sudo apt-get install -y --no-install-recommends locales \
+    && sudo apt-get clean \
+    && sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin /tmp/* /var/tmp/* /usr/share/doc/*; \
+ fi
 
 # |--------------------------------------------------------------------------
 # | NodeJS

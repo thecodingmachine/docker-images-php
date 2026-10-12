@@ -36,3 +36,11 @@ test_twoCommandInOneRow() {
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" sleep 1 2>&1 | grep -oP 'msg=docker' | wc -l)"
   assert '[ "$RESULT" -gt "1" ]'
 }
+############################################################
+## Let's check that the processes left in background by the cron jobs do not become zombies.
+############################################################
+test_noZombie() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e CRON_SCHEDULE_1="* * * * * * *" -e CRON_COMMAND_1="sleep 1 &" -e CRON_USER_1="docker" \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" bash -c 'sleep 8; ps -eo stat= | grep -c "^Z"' 2>/dev/null | tail -n 1)"
+  assert '[ "$RESULT" -le "1" ]' "${RESULT} zombie processes"
+}

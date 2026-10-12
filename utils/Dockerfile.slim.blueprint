@@ -109,6 +109,7 @@ RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
 RUN curl -sS --retry 5 --retry-delay 2 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
     chmod +x /usr/local/bin/composer
+COPY utils/select_composer_version.sh /usr/local/bin/select_composer_version.sh
 
 # TODO: utils.php in /usr/local/bin... bof!
 COPY utils/utils.php /usr/local/bin/utils.php
@@ -221,6 +222,13 @@ ENV APACHE_DOCUMENT_ROOT=
 
 RUN sed -ri -e 's!/var/www/html!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
     sed -ri -e 's!/var/www/!${ABSOLUTE_APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+ENV APACHE_HTTP_PORT=80 \
+    APACHE_HTTPS_PORT=443
+
+RUN sed -ri -e 's/^Listen 80$/Listen ${APACHE_HTTP_PORT}/' -e 's/^(\s*)Listen 443$/\1Listen ${APACHE_HTTPS_PORT}/' /etc/apache2/ports.conf && \
+    sed -i 's/<VirtualHost \*:80>/<VirtualHost *:${APACHE_HTTP_PORT}>/' /etc/apache2/sites-available/000-default.conf && \
+    sed -i 's/<VirtualHost \*:443>/<VirtualHost *:${APACHE_HTTPS_PORT}>/' /etc/apache2/sites-available/default-ssl.conf
 
 # Let's remove the default Apache php.ini file (it will be copied from TEMPLATE_PHP_INI)
 RUN rm /etc/php/${PHP_VERSION}/apache2/php.ini
@@ -345,6 +353,7 @@ COPY utils/apache-expose-envvars.sh /usr/local/bin/apache-expose-envvars.sh
 {{end}}
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
+COPY utils/supervise.sh /usr/local/bin/supervise.sh
 
 COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
 RUN ln -s ${PHP_VERSION} /usr/local/lib/thecodingmachine-php/extensions/current
@@ -421,6 +430,30 @@ ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
      && sudo ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic; \
  fi
 
+# |--------------------------------------------------------------------------
+# | Composer version
+# |--------------------------------------------------------------------------
+# |
+# | Installs the Composer version COMPOSER_VERSION instead of the latest one.
+# |
+ONBUILD ARG COMPOSER_VERSION
+ONBUILD RUN if [ -n "$COMPOSER_VERSION" ]; then \
+    sudo /usr/local/bin/select_composer_version.sh "$COMPOSER_VERSION"; \
+ fi
+
+# |--------------------------------------------------------------------------
+# | Locales
+# |--------------------------------------------------------------------------
+# |
+# | Installs the tools generating the locales listed in LOCALES at the container start.
+# |
+ONBUILD ARG INSTALL_LOCALES
+ONBUILD RUN if [ -n "$INSTALL_LOCALES" ]; then \
+    sudo apt-get update \
+    && sudo apt-get install -y --no-install-recommends locales \
+    && sudo apt-get clean \
+    && sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin /tmp/* /var/tmp/* /usr/share/doc/*; \
+ fi
 
 # |--------------------------------------------------------------------------
 # | NodeJS
