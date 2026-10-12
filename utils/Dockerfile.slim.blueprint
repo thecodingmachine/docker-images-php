@@ -353,6 +353,7 @@ COPY utils/apache-expose-envvars.sh /usr/local/bin/apache-expose-envvars.sh
 {{end}}
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY utils/docker-entrypoint-as-root.sh /usr/local/bin/docker-entrypoint-as-root.sh
+COPY utils/supervise.sh /usr/local/bin/supervise.sh
 
 COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
 RUN ln -s ${PHP_VERSION} /usr/local/lib/thecodingmachine-php/extensions/current

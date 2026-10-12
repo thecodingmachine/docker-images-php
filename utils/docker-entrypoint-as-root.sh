@@ -163,11 +163,6 @@ TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
 /usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
 chmod 0644 /tmp/generated_crontab
 
-# If generated_crontab is not empty, start supercronic
-if [[ -s /tmp/generated_crontab ]]; then
-    supercronic ${SUPERCRONIC_OPTIONS} /tmp/generated_crontab &
-fi
-
 if [[ "$IMAGE_VARIANT" == "apache" ]]; then
     /usr/bin/real_php -d display_errors=stderr /usr/local/bin/enable_apache_mods.php | bash
 fi
@@ -186,7 +181,38 @@ fi
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
 if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
-    exec "$@";
+    MAIN_COMMAND=("$@")
 else
-    exec "sudo" "-E" "-H" "-u" "#$DOCKER_USER_ID" "$@";
+    MAIN_COMMAND=("sudo" "-E" "-H" "-u" "#$DOCKER_USER_ID" "$@")
 fi
+
+# Processes run along with the main command: Supercronic and the DAEMON_COMMAND* commands
+: > /tmp/generated_processes
+if [[ -s /tmp/generated_crontab ]]; then
+    printf '%s\0' 'Supercronic' 'exec supercronic $SUPERCRONIC_OPTIONS /tmp/generated_crontab' >> /tmp/generated_processes
+fi
+for DAEMON_COMMAND_VAR in "${!DAEMON_COMMAND@}"; do
+    DAEMON_USER_VAR="DAEMON_USER${DAEMON_COMMAND_VAR#DAEMON_COMMAND}"
+    DAEMON_USER="${!DAEMON_USER_VAR:-#$DOCKER_USER_ID}"
+    if [[ "$DAEMON_USER" =~ ^[0-9]+$ ]]; then
+        DAEMON_USER="#$DAEMON_USER"
+    fi
+    printf '%s\0' "$DAEMON_COMMAND_VAR (${!DAEMON_COMMAND_VAR})" \
+        "exec sudo -E -H -u $(printf '%q' "$DAEMON_USER") bash -c $(printf '%q' "${!DAEMON_COMMAND_VAR}")" >> /tmp/generated_processes
+done
+
+if [[ ! -s /tmp/generated_processes ]]; then
+    exec "${MAIN_COMMAND[@]}"
+fi
+
+case "$IMAGE_VARIANT" in
+    apache) IMAGE_STOP_SIGNAL=WINCH ;;
+    fpm) IMAGE_STOP_SIGNAL=QUIT ;;
+    *) IMAGE_STOP_SIGNAL=TERM ;;
+esac
+case "$1" in
+    apache2-foreground) STOP_SIGNAL=WINCH ;;
+    php-fpm*) STOP_SIGNAL=QUIT ;;
+    *) STOP_SIGNAL=TERM ;;
+esac
+exec /usr/local/bin/supervise.sh /tmp/generated_processes "$IMAGE_STOP_SIGNAL" "$STOP_SIGNAL" "${MAIN_COMMAND[@]}"

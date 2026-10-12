@@ -601,6 +601,26 @@ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/myapp -w /usr/sr
        -v $PWD/my-startup-script.sh:/etc/container/startup.sh thecodingmachine/php:8.4-v5-cli php your-script.php 
 ```
 
+## Running other processes in the container
+
+**Prefer one container per process.** For instance, run a Laravel queue worker in its own container (the *cli* image,
+with `php artisan queue:work` as command) rather than in the Apache container: Docker and your orchestrator can then
+restart, scale, limit and monitor each process.
+
+When a separate container is not an option, the `DAEMON_COMMAND_XXX` environment variables start long-running
+processes along with the main command. They are run by the `docker` user (see [Permissions](#permissions)), or by the
+user set in the `DAEMON_USER_XXX` variable with the same suffix (a user name or an ID):
+
+```bash
+DAEMON_COMMAND_1=php artisan queue:work
+DAEMON_COMMAND_2=php artisan horizon
+DAEMON_USER_2=www-data
+```
+
+These processes are not restarted: **as soon as one of them (or the main command) exits, the other ones are stopped
+and the container stops** with the exit code of this process. Use a restart policy (e.g. `restart: unless-stopped`)
+to restart the container. Supercronic (see [Setting up CRON jobs](#setting-up-cron-jobs)) runs the same way.
+
 ## Using the CLI variant
 
 The CLI images (thecodingmachine/php:8.4-v5-cli) expect a command to be passed in parameter.
