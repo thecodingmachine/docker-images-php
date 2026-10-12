@@ -118,7 +118,7 @@ Below is a list of extensions available in this image:
 
 **Enabled by default (in addition to extensions enabled in Slim image):** `apcu`, `hash`, `iconv`, `igbinary`, `mysqli`, `mysqlnd`, `redis`, `soap`, `xsl`, `zlib` and all enabled in slim. 
 
-**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `decimal` `ds` `enchant` `exif` `excimer` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `inotify` `intl` `ldap` `lz4` `mcrypt` `memcached` `mongodb` `odbc` `pcov` `pdo_dblib` `pdo_odbc` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `rdkafka` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `xdebug` `xmlrpc` `xsl` `yaml` `zstd`
+**Available (can be enabled using environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `decimal` `ds` `enchant` `exif` `excimer` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick` `imap` `inotify` `intl` `ldap` `lz4` `mcrypt` `memcached` `mongodb` `odbc` `opentelemetry` `pcov` `pdo_dblib` `pdo_odbc` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `rdkafka` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy` `uploadprogress` `uuid` `xdebug` `xmlrpc` `xsl` `yaml` `zstd`
 
 This list can be outdated, you can verify by executing : `docker run --rm -it thecodingmachine/php:{{ $image.php_version }}-v5-cli php -m`
 
@@ -126,6 +126,8 @@ This list can be outdated, you can verify by executing : `docker run --rm -it th
 
 - *ev* is not available in PHP 8.1+
 - *mcrypt* is deprecated and its usage is discouraged: it is provided for legacy applications only
+- *imagick* supports SVG, WMF, DjVu and OpenEXR images in addition to the common formats. If you process
+  untrusted images, you can restrict the allowed formats in the ImageMagick policy (`/etc/ImageMagick-6/policy.xml`)
 - The extensions required by an enabled extension are enabled with it, even if they are disabled: `igbinary` and `msgpack` for *memcached*, `igbinary` for *redis*, `mbstring` for *mailparse*, `curl` and `mysqlnd` for *swoole*, `mysqlnd` for *mysqli* and *pdo_mysql*
 
 ### Enabling/disabling extensions in the fat image
