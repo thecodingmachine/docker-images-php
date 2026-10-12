@@ -417,6 +417,23 @@ Beware! The `ARG NODE_VERSION` command must be written before the `FROM`. This i
 
 `NODE_VERSION` can take any valid node versions (tested only with the versions provided here but should work too for some previous versions)
 
+## Composer version
+
+The images come with the latest Composer version. You can install another one with the `COMPOSER_VERSION` environment
+variable: an exact version (e.g. `2.4.4`) or a channel (`1`, `2`, or `2.2` for the LTS version).
+
+```bash
+COMPOSER_VERSION=2.4.4
+```
+
+The version is installed when the container starts (this requires a network access). With the *slim* images, you can
+install it during the build instead, with an ARG before the `FROM`:
+
+```Dockerfile
+ARG COMPOSER_VERSION=2.4.4
+FROM thecodingmachine/php:8.4-v5-slim-apache
+```
+
 ## Permissions
 
 Ever faced file permission issues with Docker? Good news, this is a thing of the past!

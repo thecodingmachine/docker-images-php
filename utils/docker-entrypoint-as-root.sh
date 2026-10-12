@@ -146,6 +146,10 @@ sudo chown docker:docker /opt/php_env_var_cache.php
 /usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
 PHP_VERSION="${PHP_VERSION}" /usr/bin/real_php -d display_errors=stderr /usr/local/bin/setup_extensions.php | sudo bash
 
+if [[ -n "$COMPOSER_VERSION" ]]; then
+    /usr/local/bin/select_composer_version.sh "$COMPOSER_VERSION"
+fi
+
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
 /usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab

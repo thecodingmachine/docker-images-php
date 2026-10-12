@@ -110,6 +110,7 @@ RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
 
 RUN curl -sS --retry 5 --retry-delay 2 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
     chmod +x /usr/local/bin/composer
+COPY utils/select_composer_version.sh /usr/local/bin/select_composer_version.sh
 
 # TODO: utils.php in /usr/local/bin... bof!
 COPY utils/utils.php /usr/local/bin/utils.php
@@ -293,6 +294,16 @@ ONBUILD RUN if [ -n "$INSTALL_CRON" ]; then \
      && sudo ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic; \
  fi
 
+# |--------------------------------------------------------------------------
+# | Composer version
+# |--------------------------------------------------------------------------
+# |
+# | Installs the Composer version COMPOSER_VERSION instead of the latest one.
+# |
+ONBUILD ARG COMPOSER_VERSION
+ONBUILD RUN if [ -n "$COMPOSER_VERSION" ]; then \
+    sudo /usr/local/bin/select_composer_version.sh "$COMPOSER_VERSION"; \
+ fi
 
 # |--------------------------------------------------------------------------
 # | NodeJS
