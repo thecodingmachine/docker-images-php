@@ -3,6 +3,9 @@
 
 ### Minor changes
 
+* **2026-10-12**
+  * Add `APACHE_HTTP_PORT` and `APACHE_HTTPS_PORT` to change the ports Apache listens on (e.g. unprivileged ports)
+
 * **2026-10-09**
   * Imagick can read SVG images (also WMF, DjVu and OpenEXR): the fat images are ~17MB larger
   * Add the `opentelemetry` extension on PHP 8.2+

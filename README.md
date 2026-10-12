@@ -334,6 +334,17 @@ APACHE_DOCUMENT_ROOT=public/
 APACHE_DOCUMENT_ROOT=/var/www/html/public
 ```
 
+## Changing Apache ports
+
+For the *apache* variant, Apache listens on port 80 (and 443 when the `ssl` extension is enabled).
+You can change these ports with the `APACHE_HTTP_PORT` and `APACHE_HTTPS_PORT` variables, for instance to use
+unprivileged ports:
+
+```bash
+APACHE_HTTP_PORT=8080
+APACHE_HTTPS_PORT=8443
+```
+
 ## Enabling/disabling Apache extensions
 
 You can enable/disable Apache extensions using the `APACHE_EXTENSION_[extension_name]` environment variable.

@@ -52,6 +52,13 @@ test_enableApacheModule() {
   assert_not_matches "does not exist" "$RESULT" "a2enmod/a2dismod received an unknown module"
 }
 ############################################################
+## Apache listens on APACHE_HTTP_PORT
+############################################################
+test_httpPort() {
+  RESULT="$(curl -sq http://localhost:${DOCKER4_PORT}/apache/ 2>&1)"
+  assert_equals "foo" "$RESULT" "Apache does not listen on APACHE_HTTP_PORT"
+}
+############################################################
 ## A stop requested during the initialization is not lost
 ############################################################
 test_stopDuringStartup() {
@@ -85,13 +92,20 @@ setup_suite() {
   docker run --name "${DOCKER3_NAME}" ${RUN_OPTIONS} --rm -e MYVAR=foo -e APACHE_DOCUMENT_ROOT=/var/www/foo/apache -p "${DOCKER3_PORT}:80" -d -v "${SCRIPT_DIR}/assets/":/var/www/foo  \
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" > /dev/null
   assert_equals "0" "$?" "Docker run failed"
+  # SETUP apache4
+  export DOCKER4_PORT="$(unused_port)"
+  export DOCKER4_NAME="test-apache4-${DOCKER4_PORT}"
+  docker run --name "${DOCKER4_NAME}" ${RUN_OPTIONS} --rm -e MYVAR=foo -e APACHE_HTTP_PORT=8080 -p "${DOCKER4_PORT}:8080" -d -v "${SCRIPT_DIR}/assets/":/var/www/html \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" > /dev/null
+  assert_equals "0" "$?" "Docker run failed"
   # Let's wait for Apache to start
   waitfor http://localhost:${DOCKER1_PORT}
   waitfor http://localhost:${DOCKER2_PORT}
   waitfor http://localhost:${DOCKER3_PORT}
+  waitfor http://localhost:${DOCKER4_PORT}
 }
 
 teardown_suite() {
-  docker stop "${DOCKER1_NAME}" "${DOCKER2_NAME}" "${DOCKER3_NAME}" > /dev/null 2>&1
+  docker stop "${DOCKER1_NAME}" "${DOCKER2_NAME}" "${DOCKER3_NAME}" "${DOCKER4_NAME}" > /dev/null 2>&1
   docker rm -f "${STOP_NAME}" > /dev/null 2>&1
 }
