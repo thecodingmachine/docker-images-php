@@ -25,6 +25,15 @@ if [[ "$IMAGE_VARIANT" == "fpm" ]]; then
     ln -sf /usr/lib/php/${PHP_VERSION}/php.ini-${TEMPLATE_PHP_INI} /etc/php/${PHP_VERSION}/fpm/php.ini
 fi
 
+# Built-in web server of the fpm variant
+if [[ -n "$PHP_FPM_WEB_SERVER" ]] && [[ "$PHP_FPM_WEB_SERVER" != "apache" ]]; then
+    >&2 echo "Invalid PHP_FPM_WEB_SERVER value: '$PHP_FPM_WEB_SERVER' (supported: 'apache', or empty to disable it)"
+    exit 1
+fi
+if [[ "$IMAGE_VARIANT" == "apache" ]] || [[ "$PHP_FPM_WEB_SERVER" == "apache" ]]; then
+    WITH_APACHE=1
+fi
+
 # Let's find the user to use for commands.
 # If $DOCKER_USER, let's use this. Otherwise, let's find it.
 if [[ "$DOCKER_USER" == "" ]]; then
@@ -163,7 +172,7 @@ TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
 /usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
 chmod 0644 /tmp/generated_crontab
 
-if [[ "$IMAGE_VARIANT" == "apache" ]]; then
+if [[ "$WITH_APACHE" == "1" ]]; then
     /usr/bin/real_php -d display_errors=stderr /usr/local/bin/enable_apache_mods.php | bash
 fi
 
@@ -178,10 +187,23 @@ else
   export ABSOLUTE_APACHE_DOCUMENT_ROOT="/var/www/html/$APACHE_DOCUMENT_ROOT"
 fi
 
+# When the PHP-FPM master process runs as root, its workers run with the Apache user
+if [[ "$@" == "php-fpm" ]]; then
+    FPM_USER_CONF="/etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker-user.conf"
+    if [[ "$WITH_APACHE" == "1" ]] || [[ "$DOCKER_USER_ID" == "0" ]]; then
+        printf '[www]\nuser = %s\ngroup = %s\n' "$APACHE_RUN_USER" "$APACHE_RUN_GROUP" > "$FPM_USER_CONF"
+    else
+        rm -f "$FPM_USER_CONF"
+    fi
+fi
+
 # We should run the command with the user of the directory... (unless this is Apache, that must run as root...)
 if [[ "$@" == "apache2-foreground" ]]; then
     /usr/local/bin/apache-expose-envvars.sh;
     MAIN_COMMAND=("$@")
+elif [[ "$@" == "php-fpm" ]] && [[ "$WITH_APACHE" == "1" ]]; then
+    # Apache and the PHP-FPM master process are started as root
+    MAIN_COMMAND=(apache2-fpm-foreground)
 else
     MAIN_COMMAND=("sudo" "-E" "-H" "-u" "#$DOCKER_USER_ID" "$@")
 fi
