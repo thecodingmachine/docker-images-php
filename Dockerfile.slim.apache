@@ -33,10 +33,12 @@ ENV PHP_VERSION=${PHP_VERSION}
 # Install php an other packages
 RUN apt update \
     && apt upgrade -y \
-    && apt install -y software-properties-common --no-install-recommends \
-    && add-apt-repository ppa:ondrej/php \
-    && apt remove --purge -y software-properties-common \
-    && apt autoremove -y \
+    && apt install -y --no-install-recommends curl ca-certificates \
+    && curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
+    && dpkg -i /tmp/debsuryorg-archive-keyring.deb \
+    && . /etc/os-release \
+    && echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
+    && apt update \
     && apt install -y --no-install-recommends \
         nano \
         sudo \

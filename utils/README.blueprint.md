@@ -88,7 +88,7 @@ Images of non-maintained versions are still available but no longer receive fixe
 
 ## Usage
 
-The images are based on Ubuntu 24.04, with PHP from the [ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php) repository.
+The images are based on Ubuntu 24.04, with PHP from the [Ondřej Surý's PHP repository](https://packages.sury.org/php/).
 
 Example with CLI:
 
