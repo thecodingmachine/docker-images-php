@@ -3,23 +3,12 @@
 
 # General purpose PHP images for Docker
 
-> **New: built-in Apache in the fpm variant (`PHP_FPM_WEB_SERVER=apache`)**
+> **Security: php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) is fixed in all the v5 amd64 images**
 >
-> The *fpm* variant can now run Apache in front of PHP-FPM, in the same container. It is a drop-in alternative to the
-> *apache* variant: same Apache features (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`), but PHP runs in
-> PHP-FPM instead of `mod_php`.
->
-> **Why?** Under the same load ([benchmark](benchmarks/fpm-apache)), the container serves **2 to 3 times more traffic
-> with 4 times less memory** (30 vs 10 pages/s on 2 CPUs, ~90 vs ~380 MiB). `mod_php` forces Apache to dedicate a
-> whole process embedding PHP to each connection, including idle keep-alive connections and static files. With
-> PHP-FPM, Apache uses its threaded MPM (`mpm_event`) and only PHP requests reach the PHP workers.
->
-> ```bash
-> $ docker run -p 80:80 -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
-> ```
->
-> **[Read more: advantages, constraints of PHP-FPM and migration from the *apache* variant](docs/fpm.md)**
-> (for instance, `php_value` directives are not supported in `.htaccess` files). The *apache* variant is still available.
+> Pull the images again, recreate your containers and rebuild the images built from ours. The **arm64** images
+> (Apple Silicon, AWS Graviton...) are **not fixed yet**: the fixed PHP packages for arm64 are still being built
+> upstream, and the images will be updated as soon as they are published. The v4 images are **not** fixed: migrate to
+> v5. See [what to do](docs/security-php2shell.md).
 
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
 
@@ -155,6 +144,7 @@ Bugs are fixed on maintained versions only.
 | 20             | **Not maintained** (end of life: 2026-04-30)  |
 
 Images of non-maintained versions are still available but no longer receive fixes: use them at your own risk and plan your upgrade.
+Critical vulnerabilities may get an exceptional fix (e.g. [php2shell](docs/security-php2shell.md)).
 
 ## Usage
 
@@ -209,6 +199,7 @@ Most features are configured with environment variables:
 | [Processes](docs/processes.md)                     | Startup commands, cron jobs and daemons run along with the main command                        | `STARTUP_COMMAND_*`, `CRON_*`, `DAEMON_*`                          |
 | [Debugging and profiling](docs/debugging.md)       | Xdebug and Blackfire                                                                           | `PHP_EXTENSION_XDEBUG`, `XDEBUG_CLIENT_HOST`, `BLACKFIRE_AGENT`    |
 | [Advanced features](docs/advanced.md)              | Permissions, NodeJS, Composer version, locales, SSH keys, Kubernetes                           | `DOCKER_USER`, `COMPOSER_VERSION`, `LOCALES`                       |
+| [php2shell](docs/security-php2shell.md)            | What to do about CVE-2026-109618 / CVE-2026-109619                                             |                                                                    |
 
 The slim images install some tools during the build of your image with an ARG before the `FROM`: `PHP_EXTENSIONS`,
 `INSTALL_CRON`, `INSTALL_LOCALES`, `NODE_VERSION` and `COMPOSER_VERSION`.

@@ -38,6 +38,9 @@ built with `TAG_PREFIX=mytest- docker buildx bake ...`) or `PLATFORM` (e.g. `lin
 a `linux/arm64` image can fail on a Mac, while the images work as expected. Run the tests in a `linux/arm64` virtual
 machine instead.
 
+**Non-maintained versions:** PHP 7.4, 8.0 and 8.1 (all their images) and NodeJS 18 and 20 (`-legacy-node` bake
+groups of the maintained PHP versions) are built and tested by the `legacy-v5.yml` workflow, started manually.
+
 ## Adding a PHP or NodeJS version
 
 - `utils/README.blueprint.md`: the version lists of the "Images" section

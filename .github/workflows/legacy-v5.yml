@@ -8,11 +8,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.1', '8.0', '7.4']
+        php_version: ['8.5', '8.4', '8.3', '8.2', '8.1', '8.0', '7.4']
         variant: ['apache','cli','fpm']
         builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
-    name: Build ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }}
+    env:
+      # Non-maintained PHP versions: all the images. Maintained PHP versions: only the non-maintained NodeJS versions
+      BAKE_GROUP: php${{ matrix.php_version }}-${{ matrix.variant }}-${{ contains(fromJSON('["8.1", "8.0", "7.4"]'), matrix.php_version) && 'all' || 'legacy-node' }}
+    name: Build&test ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -26,35 +29,49 @@ jobs:
         uses: docker/setup-buildx-action@v4
       - name: Build
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-          # Get last cached successful builds
-          TARGETS=$(REPO="ghcr.io/${{ github.repository_owner }}/php" TAG_PREFIX="" docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --progress=quiet --print | jq -r '.target[].tags[]')
-          for TARGET in $TARGETS; do
-             docker pull --quiet ${TARGET} || echo ""
-          done;
-          # Build the current builds
           REPO="ghcr.io/${{ github.repository_owner }}/php" \
           ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
-            --set "*.output=type=registry" \
-            --progress=quiet \
-            --load \
-            php${PHP_VERSION//.}-${{ matrix.variant }}-all
+            --set "*.output=type=docker" \
+            --load --progress=quiet \
+            ${BAKE_GROUP//.}
       - name: Display tags built
         run: |
           docker image ls --filter="reference=ghcr.io/${{ github.repository_owner }}/php"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
+      - name: Test
+        run: |
+          REPO="ghcr.io/${{ github.repository_owner }}/php" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          PHP_VERSION="${{ matrix.php_version }}" \
+          ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
+          BRANCH="v5" \
+          VARIANT="${{ matrix.variant }}" \
+          PLATFORM="linux/${{ matrix.builder.arch }}" \
+          ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
+      - name: Publish specific arch version
+        run: |
+          TAGS=$(REPO="ghcr.io/${{ github.repository_owner }}/php" \
+              ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
+              TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+              docker buildx bake \
+                --print --progress=quiet \
+                ${BAKE_GROUP//.} | jq -r '.target[].tags[]');
+          for TAG in $TAGS; do docker push --quiet ${TAG}; done;
 
   merge-and-publish:
     needs:
       - build
     runs-on: ubuntu-latest
+    env:
+      # Non-maintained PHP versions: all the images. Maintained PHP versions: only the non-maintained NodeJS versions
+      BAKE_GROUP: php${{ matrix.php_version }}-${{ matrix.variant }}-${{ contains(fromJSON('["8.1", "8.0", "7.4"]'), matrix.php_version) && 'all' || 'legacy-node' }}
     name: Merge and publish ${{ matrix.php_version }}-${{ matrix.variant }}
     strategy:
       fail-fast: false
       matrix:
-        php_version: ['8.1', '8.0', '7.4']
+        php_version: ['8.5', '8.4', '8.3', '8.2', '8.1', '8.0', '7.4']
         variant: ['apache','cli','fpm']
     steps:
       - name: Checkout
@@ -88,18 +105,19 @@ jobs:
       - name: Get list of images for this variant
         id: get-images
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
           REPO="ghcr.io/${{ github.repository_owner }}/php" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --print --progress=quiet \
-            php${PHP_VERSION//.}-${{ matrix.variant }}-all | jq '.target[].tags[]'
+            ${BAKE_GROUP//.} | jq '.target[].tags[]'
       - name: Create multiarch manifests
         run: |
-          PHP_VERSION="${{ matrix.php_version }}"
-
           # Get all targets from the bake group
-          TARGETS=$(docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --progress=quiet --print | jq -r ".group[\"php${PHP_VERSION//.}-${{ matrix.variant }}-all\"].targets[]")
+          TARGETS=$(docker buildx bake ${BAKE_GROUP//.} --progress=quiet --print | jq -r ".group[\"${BAKE_GROUP//.}\"].targets[]")
+          # The slim and fat images of the maintained PHP versions are published by the main workflow
+          if [[ "${BAKE_GROUP}" == *-legacy-node ]]; then
+            TARGETS=$(echo "${TARGETS}" | grep -- '-node')
+          fi
 
           for TARGET in $TARGETS; do
             TAG_ORI=$(REPO="ghcr.io/${{ github.repository_owner }}/php" TAG_PREFIX="rc${GITHUB_RUN_ID}-" docker buildx bake ${TARGET} --progress=quiet --print | jq -r ".target | to_entries[] | select(.key == \"${TARGET}\") | .value.tags[0]")
