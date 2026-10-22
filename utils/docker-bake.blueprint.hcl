@@ -1,4 +1,4 @@
-{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" "7.4" }}{{ $nodeVersions := list "26" "24" "22" }}{{ $legacyVersions := list "8.1" "8.0" "7.4" }}{{ $legacyNodeVersions := list "26" "24" "22" "20" }}
+{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" "7.4" }}{{ $nodeVersions := list "26" "24" "22" }}{{ $legacyVersions := list "8.1" "8.0" "7.4" }}{{ $legacyNodeVersions := list "26" "24" "22" "20" "18" }}{{ $oldNodeVersions := list "20" "18" }}
 group "default" {
    targets = [
      {{range $phpV := $versions}}
@@ -12,7 +12,15 @@ group "php{{ $phpV | replace "." "" }}-{{ $variant }}-all" {
      "php{{ $phpV | replace "." "" }}-{{ $variant }}",
      {{range $nodeV := $nodes}}"php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}",{{end}}
    ]
-}{{end}}{{end}}
+}{{ if not (has $phpV $legacyVersions) }}
+# NodeJS versions no longer maintained, built by the legacy workflow
+group "php{{ $phpV | replace "." "" }}-{{ $variant }}-legacy-node" {
+   targets = [
+     "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}",
+     "php{{ $phpV | replace "." "" }}-{{ $variant }}",
+     {{range $nodeV := $oldNodeVersions}}"php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}",{{end}}
+   ]
+}{{ end }}{{end}}{{end}}
 
 {{range $phpV := $versions}}
 group "php{{ $phpV | replace "." "" }}" {
@@ -46,7 +54,7 @@ target "default" {
   output = ["type=docker"] # export in local docker
 }
 
-{{range $phpV := $versions}}{{range $variant := $variants}}{{ $nodes := $nodeVersions }}{{ if has $phpV $legacyVersions }}{{ $nodes = $legacyNodeVersions }}{{ end }}
+{{range $phpV := $versions}}{{range $variant := $variants}}{{ $nodes := $legacyNodeVersions }}
 ###########################
 ##    PHP {{ $phpV }}
 ###########################

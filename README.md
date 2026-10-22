@@ -3,30 +3,10 @@
 
 # General purpose PHP images for Docker
 
-> **Security: the v5 images are fixed against php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2)**
+> **Security: php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) is fixed in all the v5 images**
 >
-> PHP 8.2 to 8.5 images contain the fixed releases (8.2.35, 8.3.36, 8.4.27, 8.5.12). PHP 7.4, 8.0 and 8.1 images were
-> rebuilt with the backport of the fix, without change of the PHP version. The NodeJS variants that are no longer
-> built (`-node18`, and `-node20` on PHP 8.2+) are not fixed. **The v4 images are not fixed**: migrate to v5. Pull the images
-> again and rebuild yours: see [php2shell](docs/security-php2shell.md).
-
-> **New: built-in Apache in the fpm variant (`PHP_FPM_WEB_SERVER=apache`)**
->
-> The *fpm* variant can now run Apache in front of PHP-FPM, in the same container. It is a drop-in alternative to the
-> *apache* variant: same Apache features (`.htaccess`, `APACHE_DOCUMENT_ROOT`, `APACHE_EXTENSION_*`), but PHP runs in
-> PHP-FPM instead of `mod_php`.
->
-> **Why?** Under the same load ([benchmark](benchmarks/fpm-apache)), the container serves **2 to 3 times more traffic
-> with 4 times less memory** (30 vs 10 pages/s on 2 CPUs, ~90 vs ~380 MiB). `mod_php` forces Apache to dedicate a
-> whole process embedding PHP to each connection, including idle keep-alive connections and static files. With
-> PHP-FPM, Apache uses its threaded MPM (`mpm_event`) and only PHP requests reach the PHP workers.
->
-> ```bash
-> $ docker run -p 80:80 -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
-> ```
->
-> **[Read more: advantages, constraints of PHP-FPM and migration from the *apache* variant](docs/fpm.md)**
-> (for instance, `php_value` directives are not supported in `.htaccess` files). The *apache* variant is still available.
+> Pull the images again, recreate your containers and rebuild the images built from ours. The v4 images are **not**
+> fixed: migrate to v5. See [what to do](docs/security-php2shell.md).
 
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
 
@@ -217,7 +197,7 @@ Most features are configured with environment variables:
 | [Processes](docs/processes.md)                     | Startup commands, cron jobs and daemons run along with the main command                        | `STARTUP_COMMAND_*`, `CRON_*`, `DAEMON_*`                          |
 | [Debugging and profiling](docs/debugging.md)       | Xdebug and Blackfire                                                                           | `PHP_EXTENSION_XDEBUG`, `XDEBUG_CLIENT_HOST`, `BLACKFIRE_AGENT`    |
 | [Advanced features](docs/advanced.md)              | Permissions, NodeJS, Composer version, locales, SSH keys, Kubernetes                           | `DOCKER_USER`, `COMPOSER_VERSION`, `LOCALES`                       |
-| [php2shell](docs/security-php2shell.md)            | Fix of CVE-2026-109618 / CVE-2026-109619: PHP versions, NodeJS images, v4 images               |                                                                    |
+| [php2shell](docs/security-php2shell.md)            | What to do about CVE-2026-109618 / CVE-2026-109619                                             |                                                                    |
 
 The slim images install some tools during the build of your image with an ARG before the `FROM`: `PHP_EXTENSIONS`,
 `INSTALL_CRON`, `INSTALL_LOCALES`, `NODE_VERSION` and `COMPOSER_VERSION`.

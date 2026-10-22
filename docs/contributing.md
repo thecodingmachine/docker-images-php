@@ -38,7 +38,8 @@ built with `TAG_PREFIX=mytest- docker buildx bake ...`) or `PLATFORM` (e.g. `lin
 a `linux/arm64` image can fail on a Mac, while the images work as expected. Run the tests in a `linux/arm64` virtual
 machine instead.
 
-**Non-maintained versions (7.4, 8.0, 8.1):** they are built by the `legacy-v5.yml` workflow, started manually. Only
+**Non-maintained versions:** PHP 7.4, 8.0 and 8.1 (all their images) and NodeJS 18 and 20 (`-legacy-node` bake
+groups of the maintained PHP versions) are built by the `legacy-v5.yml` workflow, started manually. Only
 the test files of its `vital_tests` input must pass to publish an image, the other tests are informative. Each
 version/variant that passed on all the architectures is published, even if others failed.
 
