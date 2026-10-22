@@ -43,6 +43,11 @@ groups of the maintained PHP versions) are built by the `legacy-v5.yml` workflow
 the test files of its `vital_tests` input must pass to publish an image, the other tests are informative. Each
 version/variant that passed on all the architectures is published, even if others failed.
 
+**arm64 failures:** when only arm64 fails (e.g. PHP packages not yet published for arm64), start `workflow.yml` or
+`legacy-v5.yml` manually with `allow_arm64_failure`: the amd64 images are published, the `X.Y` tags keep their current
+arm64 image and the tags of the new PHP patch version only have amd64. Start the workflow again, without this input,
+once arm64 passes.
+
 ## Adding a PHP or NodeJS version
 
 - `utils/README.blueprint.md`: the version lists of the "Images" section
