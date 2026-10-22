@@ -9,6 +9,8 @@
   * New test checking that the images are not vulnerable to php2shell
   * Legacy build (`legacy-v5.yml`): the images are tested before being published (vital tests required, other tests informative), and each version/variant validated on all architectures is published even if others failed
   * Main and legacy builds: the `allow_arm64_failure` input publishes the amd64 images when arm64 failed, the `X.Y` tags keeping their current arm64 image
+  * PHP 8.0 and 8.1: the `swoole` extension is removed, packages.sury.org does not provide it for these versions
+  * The build of an extension fails when its package does not exist for the PHP version, instead of installing the package of another PHP version
 
 * **2026-10-19**
   * New documentation page for the fpm variant: serving HTTP (built-in Apache or another web server), constraints of PHP-FPM and migration from the apache variant

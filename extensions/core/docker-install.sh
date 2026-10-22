@@ -21,8 +21,9 @@ if [ -n "$EXTENSION" ]; then
       set -e
       apt install -y --no-install-recommends php${PHP_VERSION}-$PACKAGE_NAME
     else
-      set -e
-      apt install -y --no-install-recommends php-$PACKAGE_NAME
+      # The unversioned php-* package would install another PHP version
+      echo "Package php${PHP_VERSION}-${PACKAGE_NAME} not found" >&2
+      exit 1
     fi
   fi
 fi
