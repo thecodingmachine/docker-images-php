@@ -3,7 +3,8 @@
 Two critical vulnerabilities of PHP (CVSS 9.2), disclosed on 2026-10-21, allow remote code execution without
 authentication. Exploits are public: update now.
 
-All the v5 images are fixed, from PHP 7.4 to 8.5, with or without NodeJS (`-node18` to `-node26`).
+All the v5 images are fixed on amd64, from PHP 7.4 to 8.5, with or without NodeJS (`-node18` to `-node26`). The
+arm64 images are not fixed yet: see [arm64 images](#arm64-images).
 
 ## What to do
 
@@ -25,6 +26,25 @@ All the v5 images are fixed, from PHP 7.4 to 8.5, with or without NodeJS (`-node
    not fixed.
 
 PHP 7.4, 8.0 and 8.1 images still show 7.4.33, 8.0.30 and 8.1.34 in `php -v`: the fix does not change the version.
+
+## arm64 images
+
+The images install PHP from the packages of [packages.sury.org](https://packages.sury.org/php/), which publishes the
+fixed packages for amd64 first: the arm64 packages are still being built. Until they are published, the arm64
+images of the `X.Y-v5-*` tags stay vulnerable, and the tags of the fixed PHP patch versions (e.g. `8.4.27-v5-apache`)
+only exist for amd64. The arm64 images will be rebuilt as soon as the packages are available.
+
+Check the PHP version of your image: 8.2.35, 8.3.36, 8.4.27, 8.5.12 or newer are fixed. PHP 7.4, 8.0 and 8.1 keep
+their version number, and are fixed when the PHP binary contains the fix:
+
+```bash
+$ docker run --rm thecodingmachine/php:8.1-v5-cli bash -c 'grep -c zend_mm_safe_error_ex /usr/bin/php${PHP_VERSION}'
+```
+
+`0` means that the image is vulnerable.
+
+In the meantime, an arm64 host can run the amd64 image through emulation (`--platform linux/amd64`, or
+`platform: linux/amd64` in a Compose file), which is much slower.
 
 ## NodeJS 16 and older
 
