@@ -6,9 +6,8 @@
 * **2026-10-21**
   * Security: fix of php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) in all the v5 amd64 images. PHP 7.4, 8.0 and 8.1 images are rebuilt with the backport of the fix (same PHP version: 7.4.33, 8.0.30, 8.1.34). The arm64 images will be fixed when the fixed PHP packages are published for arm64. See [php2shell](docs/security-php2shell.md)
   * NodeJS 18 and 20 variants are built again for all the PHP versions, by the legacy workflow
-  * New test checking that the images are not vulnerable to php2shell
-  * Legacy build (`legacy-v5.yml`): the images are tested before being published (vital tests required, other tests informative), and each version/variant validated on all architectures is published even if others failed
-  * Main and legacy builds: the `allow_arm64_failure` input publishes the amd64 images when arm64 failed, the `X.Y` tags keeping their current arm64 image
+  * New test checking that the images are not vulnerable to php2shell (only a warning on arm64 until the fixed packages are published)
+  * Legacy build (`legacy-v5.yml`): the images are tested before being published, like in the main build
   * PHP 8.0 and 8.1: the `swoole` extension is removed, packages.sury.org does not provide it for these versions
   * The build of an extension fails when its package does not exist for the PHP version, instead of installing the package of another PHP version
 

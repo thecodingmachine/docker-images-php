@@ -10,11 +10,6 @@ on:
   schedule:
     - cron: '42 3 * * 0'
   workflow_dispatch:
-    inputs:
-      allow_arm64_failure:
-        description: 'Publish the amd64 images even if arm64 failed (the X.Y tags keep their current arm64 image)'
-        type: boolean
-        default: false
 
 jobs:
   build:
@@ -82,9 +77,7 @@ jobs:
           for TAG in $TAGS; do docker push --quiet ${TAG}; done;
 
   merge-and-publish:
-    if: >
-          !cancelled() && (needs.build.result == 'success' || inputs.allow_arm64_failure) &&
-          (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     needs:
       - build
     runs-on: ubuntu-latest
@@ -111,23 +104,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Check the validated architectures
-        run: |
-          # The images of an architecture are pushed only when all its tests passed
-          TAG="ghcr.io/${{ github.repository_owner }}/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }}"
-          if ! docker buildx imagetools inspect "${TAG}-amd64" > /dev/null; then
-            echo "::error::${{ matrix.php_version }}-${{ matrix.variant }} amd64 did not pass the tests: not published"
-            exit 1
-          fi
-          if docker buildx imagetools inspect "${TAG}-arm64" > /dev/null; then
-            echo "ARM64_VALIDATED=true" >> $GITHUB_ENV
-          elif [ "${{ inputs.allow_arm64_failure }}" == "true" ]; then
-            echo "::warning::${{ matrix.php_version }}-${{ matrix.variant }} arm64 did not pass the tests: only amd64 is updated"
-            echo "ARM64_VALIDATED=false" >> $GITHUB_ENV
-          else
-            echo "::error::${{ matrix.php_version }}-${{ matrix.variant }} arm64 did not pass the tests: not published"
-            exit 1
-          fi
       - name: Install regctl
         uses: regclient/actions/regctl-installer@main
         with:
@@ -152,8 +128,6 @@ jobs:
       - name: Create multiarch manifests
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          # Registry the users pull the images from
-          PUBLISHED_REPO=$([ "${{ github.repository_owner }}" == "thecodingmachine" ] && echo "docker.io/thecodingmachine" || echo "ghcr.io/${{ github.repository_owner }}")
 
           # Get all targets from the bake group
           TARGETS=$(docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --progress=quiet --print | jq -r ".group[\"php${PHP_VERSION//.}-${{ matrix.variant }}-all\"].targets[]")
@@ -165,31 +139,18 @@ jobs:
 
             # Create manifest for rc tag (always)
             echo "Creating manifest: ${TARGET} - ${TAG_ORI}"
-            TAG_ORI_MINOR="${TAG_ORI}"
-            if [ "${ARM64_VALIDATED}" == "true" ]; then
-              docker buildx imagetools create --progress=plain -t "${TAG_ORI}" "${TAG_ORI}-amd64" "${TAG_ORI}-arm64"
-            else
-              # The PHP_PATCH tag only has amd64, the PHP_MINOR tag keeps the arm64 image it currently has
-              docker buildx imagetools create --progress=plain -t "${TAG_ORI}" "${TAG_ORI}-amd64"
-              ARM64_DIGEST=$(docker buildx imagetools inspect --raw "${PUBLISHED_REPO}/${TAG_MINOR}" 2>/dev/null \
-                | jq -r '.manifests[]? | select(.platform.architecture == "arm64") | .digest' | head -n1)
-              if [ -n "${ARM64_DIGEST}" ]; then
-                regctl image copy "${PUBLISHED_REPO}/${TAG_MINOR%%:*}@${ARM64_DIGEST}" "${TAG_ORI}-arm64-published"
-                TAG_ORI_MINOR="${TAG_ORI}-minor"
-                docker buildx imagetools create --progress=plain -t "${TAG_ORI_MINOR}" "${TAG_ORI}-amd64" "${TAG_ORI}-arm64-published"
-              fi
-            fi
+            docker buildx imagetools create --progress=plain -t "${TAG_ORI}" "${TAG_ORI}-amd64" "${TAG_ORI}-arm64"
 
             # Create manifest for PHP_PATCH
             regctl image copy "${TAG_ORI}" "ghcr.io/${{ github.repository_owner }}/${TAG_PATH}"
             # Create manifest for PHP_MINOR
-            regctl image copy "${TAG_ORI_MINOR}" "ghcr.io/${{ github.repository_owner }}/${TAG_MINOR}"
+            regctl image copy "${TAG_ORI}" "ghcr.io/${{ github.repository_owner }}/${TAG_MINOR}"
 
             # SAME FOR DOCKERHUB (for the official repository)
             if [ "${{ github.repository_owner }}" == "thecodingmachine" ]; then
                 # Create manifest for PHP_PATCH_MINOR
                 regctl image copy "${TAG_ORI}" "thecodingmachine/${TAG_PATH}"
                 # Create manifest for PHP_VERSION
-                regctl image copy "${TAG_ORI_MINOR}" "thecodingmachine/${TAG_MINOR}"
+                regctl image copy "${TAG_ORI}" "thecodingmachine/${TAG_MINOR}"
             fi
           done

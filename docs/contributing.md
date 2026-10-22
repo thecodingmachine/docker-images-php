@@ -39,14 +39,7 @@ a `linux/arm64` image can fail on a Mac, while the images work as expected. Run 
 machine instead.
 
 **Non-maintained versions:** PHP 7.4, 8.0 and 8.1 (all their images) and NodeJS 18 and 20 (`-legacy-node` bake
-groups of the maintained PHP versions) are built by the `legacy-v5.yml` workflow, started manually. Only
-the test files of its `vital_tests` input must pass to publish an image, the other tests are informative. Each
-version/variant that passed on all the architectures is published, even if others failed.
-
-**arm64 failures:** when only arm64 fails (e.g. PHP packages not yet published for arm64), start `workflow.yml` or
-`legacy-v5.yml` manually with `allow_arm64_failure`: the amd64 images are published, the `X.Y` tags keep their current
-arm64 image and the tags of the new PHP patch version only have amd64. Start the workflow again, without this input,
-once arm64 passes.
+groups of the maintained PHP versions) are built and tested by the `legacy-v5.yml` workflow, started manually.
 
 ## Adding a PHP or NodeJS version
 

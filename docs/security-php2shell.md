@@ -30,9 +30,9 @@ PHP 7.4, 8.0 and 8.1 images still show 7.4.33, 8.0.30 and 8.1.34 in `php -v`: th
 ## arm64 images
 
 The images install PHP from the packages of [packages.sury.org](https://packages.sury.org/php/), which publishes the
-fixed packages for amd64 first: the arm64 packages are still being built. Until they are published, the arm64
-images of the `X.Y-v5-*` tags stay vulnerable, and the tags of the fixed PHP patch versions (e.g. `8.4.27-v5-apache`)
-only exist for amd64. The arm64 images will be rebuilt as soon as the packages are available.
+fixed packages for amd64 first: the arm64 packages are still being built. Until they are published, all the arm64
+images stay vulnerable, including those of the tags of the fixed PHP patch versions (on arm64, `8.4.27-v5-apache`
+still contains PHP 8.4.26). The arm64 images will be rebuilt as soon as the packages are available.
 
 Check the PHP version of your image: 8.2.35, 8.3.36, 8.4.27, 8.5.12 or newer are fixed. PHP 7.4, 8.0 and 8.1 keep
 their version number, and are fixed when the PHP binary contains the fix:
