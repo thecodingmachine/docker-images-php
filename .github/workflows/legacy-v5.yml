@@ -2,6 +2,15 @@ name: Direct build v5 of legacy php
 
 on:
   workflow_dispatch:
+    inputs:
+      vital_tests:
+        description: 'Test files that must pass before publishing (tests-suite/*.sh, space separated)'
+        default: 'php-security-patches.sh php-ini.sh php-extensions.sh users-rights.sh variant-apache.sh variant-fpm.sh'
+        required: true
+      no_cache:
+        description: 'Build without cache, to get the latest PHP packages (security rebuild)'
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -12,7 +21,7 @@ jobs:
         variant: ['apache','cli','fpm']
         builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
-    name: Build ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }}
+    name: Build&test ${{ matrix.php_version }}-${{ matrix.variant }} ${{ matrix.builder.arch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -27,26 +36,65 @@ jobs:
       - name: Build
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          # Get last cached successful builds
-          TARGETS=$(REPO="ghcr.io/${{ github.repository_owner }}/php" TAG_PREFIX="" docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --progress=quiet --print | jq -r '.target[].tags[]')
-          for TARGET in $TARGETS; do
-             docker pull --quiet ${TARGET} || echo ""
-          done;
-          # Build the current builds
           REPO="ghcr.io/${{ github.repository_owner }}/php" \
           ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
             --set "*.output=type=registry" \
+            --set "*.no-cache=${{ inputs.no_cache }}" \
             --progress=quiet \
             --load \
             php${PHP_VERSION//.}-${{ matrix.variant }}-all
       - name: Display tags built
         run: |
           docker image ls --filter="reference=ghcr.io/${{ github.repository_owner }}/php"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
+          docker run --rm --platform=linux/${{ matrix.builder.arch }} \
+            ghcr.io/${{ github.repository_owner }}/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }}-${{ matrix.builder.arch }} \
+            bash -c 'php -v | head -n1; dpkg-query -W "php${PHP_VERSION}-*" | sort' || true
+      - name: Vital tests
+        env:
+          VITAL_TESTS: ${{ inputs.vital_tests }}
+        run: |
+          cd tests-suite
+          REPO="ghcr.io/${{ github.repository_owner }}/php" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          PHP_VERSION="${{ matrix.php_version }}" \
+          ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
+          BRANCH="v5" \
+          VARIANT="${{ matrix.variant }}" \
+          PLATFORM="linux/${{ matrix.builder.arch }}" \
+          ./bash_unit -f tap ${VITAL_TESTS}
+      - name: Other tests (informative)
+        continue-on-error: true
+        env:
+          VITAL_TESTS: ${{ inputs.vital_tests }}
+        run: |
+          cd tests-suite
+          OTHER_TESTS=""
+          for TEST in *.sh; do
+            [[ " ${VITAL_TESTS} " == *" ${TEST} "* ]] || OTHER_TESTS="${OTHER_TESTS} ${TEST}"
+          done
+          REPO="ghcr.io/${{ github.repository_owner }}/php" \
+          TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
+          PHP_VERSION="${{ matrix.php_version }}" \
+          ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
+          BRANCH="v5" \
+          VARIANT="${{ matrix.variant }}" \
+          PLATFORM="linux/${{ matrix.builder.arch }}" \
+          ./bash_unit -f tap ${OTHER_TESTS}
+      - name: Mark as validated
+        run: echo "${{ matrix.php_version }}-${{ matrix.variant }}-${{ matrix.builder.arch }}" > validated.txt
+      - name: Upload validation
+        uses: actions/upload-artifact@v7
+        with:
+          name: validated-${{ matrix.php_version }}-${{ matrix.variant }}-${{ matrix.builder.arch }}
+          path: validated.txt
+          retention-days: 1
 
   merge-and-publish:
+    # Publish each version/variant validated on every architecture, even if others failed
+    if: ${{ !cancelled() }}
     needs:
       - build
     runs-on: ubuntu-latest
@@ -57,6 +105,21 @@ jobs:
         php_version: ['8.1', '8.0', '7.4']
         variant: ['apache','cli','fpm']
     steps:
+      - name: Download validations
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          pattern: validated-${{ matrix.php_version }}-${{ matrix.variant }}-*
+          path: validated
+          merge-multiple: false
+      - name: Check that all architectures are validated
+        run: |
+          for ARCH in amd64 arm64; do
+            if [ ! -f "validated/validated-${{ matrix.php_version }}-${{ matrix.variant }}-${ARCH}/validated.txt" ]; then
+              echo "::error::${{ matrix.php_version }}-${{ matrix.variant }} ${ARCH} did not pass the vital tests: not published"
+              exit 1
+            fi
+          done
       - name: Checkout
         uses: actions/checkout@v7
       - name: Set up Docker Buildx
