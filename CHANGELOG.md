@@ -6,7 +6,7 @@
 * **2026-10-21**
   * Security: rebuild of the PHP 7.4, 8.0 and 8.1 images with the backport of php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2). These end-of-life versions did not get an official release: the fix is shipped in the packages of packages.sury.org with the same PHP version (7.4.33, 8.0.30, 8.1.34)
   * New test checking that the images are not vulnerable to php2shell (PHP 8.2.35, 8.3.36, 8.4.27 and 8.5.12 or later, the backport for older versions)
-  * New documentation page [Security updates](docs/security.md): status of the v5 and v4 images, how to check and update them
+  * New documentation page [php2shell](docs/security-php2shell.md): status of the v5 images (PHP and NodeJS versions) and of the v4 images, how to check and update them
   * Legacy build (`legacy-v5.yml`): the images are tested before being published (vital tests required, other tests informative), and each version/variant validated on all architectures is published even if others failed
 
 * **2026-10-19**
