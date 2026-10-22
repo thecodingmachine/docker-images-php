@@ -3,6 +3,12 @@
 
 # General purpose PHP images for Docker
 
+> **Security: all the v5 images are fixed against php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2)**
+>
+> PHP 8.2 to 8.5 images contain the fixed releases (8.2.35, 8.3.36, 8.4.27, 8.5.12). PHP 7.4, 8.0 and 8.1 images were
+> rebuilt with the backport of the fix, without change of the PHP version. **The v4 images are not fixed**: migrate to
+> v5. Pull the images again and rebuild yours: see [Security updates](docs/security.md).
+
 > **New: built-in Apache in the fpm variant (`PHP_FPM_WEB_SERVER=apache`)**
 >
 > The *fpm* variant can now run Apache in front of PHP-FPM, in the same container. It is a drop-in alternative to the
@@ -155,6 +161,7 @@ Bugs are fixed on maintained versions only.
 | 20             | **Not maintained** (end of life: 2026-04-30)  |
 
 Images of non-maintained versions are still available but no longer receive fixes: use them at your own risk and plan your upgrade.
+Critical vulnerabilities may get an exceptional fix (see [Security updates](docs/security.md)).
 
 ## Usage
 
@@ -209,6 +216,7 @@ Most features are configured with environment variables:
 | [Processes](docs/processes.md)                     | Startup commands, cron jobs and daemons run along with the main command                        | `STARTUP_COMMAND_*`, `CRON_*`, `DAEMON_*`                          |
 | [Debugging and profiling](docs/debugging.md)       | Xdebug and Blackfire                                                                           | `PHP_EXTENSION_XDEBUG`, `XDEBUG_CLIENT_HOST`, `BLACKFIRE_AGENT`    |
 | [Advanced features](docs/advanced.md)              | Permissions, NodeJS, Composer version, locales, SSH keys, Kubernetes                           | `DOCKER_USER`, `COMPOSER_VERSION`, `LOCALES`                       |
+| [Security updates](docs/security.md)               | Security fixes of the images, maintained and non-maintained PHP versions, v4 images            |                                                                    |
 
 The slim images install some tools during the build of your image with an ARG before the `FROM`: `PHP_EXTENSIONS`,
 `INSTALL_CRON`, `INSTALL_LOCALES`, `NODE_VERSION` and `COMPOSER_VERSION`.
