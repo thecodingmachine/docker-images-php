@@ -5,6 +5,10 @@ authentication. Exploits are public: update now.
 
 All the v5 images are fixed, from PHP 7.4 to 8.5, on amd64 and arm64, with or without NodeJS (`-node18` to `-node26`).
 
+> **Update: the arm64 images are now fixed too.** They were first published without the fix, the fixed PHP packages
+> being published later for arm64. On arm64 (Apple Silicon, AWS Graviton...), pull the images again and recreate your
+> containers, even if you already did it after 2026-10-21.
+
 ## What to do
 
 1. Pull the images again and recreate your containers:
