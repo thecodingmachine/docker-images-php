@@ -3,8 +3,7 @@
 Two critical vulnerabilities of PHP (CVSS 9.2), disclosed on 2026-10-21, allow remote code execution without
 authentication. Exploits are public: update now.
 
-All the v5 images are fixed on amd64, from PHP 7.4 to 8.5, with or without NodeJS (`-node18` to `-node26`). The
-arm64 images are not fixed yet: see [arm64 images](#arm64-images).
+All the v5 images are fixed, from PHP 7.4 to 8.5, on amd64 and arm64, with or without NodeJS (`-node18` to `-node26`).
 
 ## What to do
 
@@ -22,17 +21,14 @@ arm64 images are not fixed yet: see [arm64 images](#arm64-images).
 
    In your CI, check that the base image is pulled again and not taken from a cache.
 
-3. Use the `X.Y-v5-*` tags (e.g. `8.4-v5-apache`). The tags of older PHP patch versions (e.g. `8.4.26-v5-apache`) are
-   not fixed.
+3. Use the `X.Y-v5-*` tags (e.g. `8.4-v5-apache`), or the tags of the fixed PHP patch versions (e.g.
+   `8.4.27-v5-apache`). The tags of older PHP patch versions (e.g. `8.4.26-v5-apache`) are not fixed.
 
 PHP 7.4, 8.0 and 8.1 images still show 7.4.33, 8.0.30 and 8.1.34 in `php -v`: the fix does not change the version.
+Their existing patch version tags (e.g. `7.4.33-v5-apache`) are kept unchanged and are **not** fixed: the fixed images
+are tagged `7.4.33-php2shell-v5-*`, `8.0.30-php2shell-v5-*` and `8.1.34-php2shell-v5-*`.
 
-## arm64 images
-
-The images install PHP from the packages of [packages.sury.org](https://packages.sury.org/php/), which publishes the
-fixed packages for amd64 first: the arm64 packages are still being built. Until they are published, all the arm64
-images stay vulnerable, including those of the tags of the fixed PHP patch versions (on arm64, `8.4.27-v5-apache`
-still contains PHP 8.4.26). The arm64 images will be rebuilt as soon as the packages are available.
+## Check an image
 
 Check the PHP version of your image: 8.2.35, 8.3.36, 8.4.27, 8.5.12 or newer are fixed. PHP 7.4, 8.0 and 8.1 keep
 their version number, and are fixed when the PHP binary contains the fix:
@@ -42,9 +38,6 @@ $ docker run --rm thecodingmachine/php:8.1-v5-cli bash -c 'grep -c zend_mm_safe_
 ```
 
 `0` means that the image is vulnerable.
-
-In the meantime, an arm64 host can run the amd64 image through emulation (`--platform linux/amd64`, or
-`platform: linux/amd64` in a Compose file), which is much slower.
 
 ## NodeJS 16 and older
 

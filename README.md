@@ -3,12 +3,10 @@
 
 # General purpose PHP images for Docker
 
-> **Security: php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) is fixed in all the v5 amd64 images**
+> **Security: php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) is fixed in all the v5 images**
 >
-> Pull the images again, recreate your containers and rebuild the images built from ours. The **arm64** images
-> (Apple Silicon, AWS Graviton...) are **not fixed yet**: the fixed PHP packages for arm64 are still being built
-> upstream, and the images will be updated as soon as they are published. The v4 images are **not** fixed: migrate to
-> v5. See [what to do](docs/security-php2shell.md).
+> Pull the images again, recreate your containers and rebuild the images built from ours. The v4 images are **not**
+> fixed: migrate to v5. See [what to do](docs/security-php2shell.md).
 
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
 

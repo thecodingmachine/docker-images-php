@@ -4,7 +4,9 @@
 ### Minor changes
 
 * **2026-10-23**
+  * Security: php2shell is fixed in the arm64 images too, now that the fixed PHP packages are published for arm64. The php2shell test fails again for a vulnerable image on every architecture
   * The tags of the PHP patch versions (e.g. `8.5.12-v5-cli`) are published again: they were no longer published since 2025-12-10. The `X.Y-v5-*` tags are not affected
+  * PHP 7.4, 8.0 and 8.1: the images fixed against php2shell are tagged `7.4.33-php2shell-v5-*`, `8.0.30-php2shell-v5-*` and `8.1.34-php2shell-v5-*`, the existing `7.4.33-v5-*`, `8.0.30-v5-*` tags being kept unchanged
 
 * **2026-10-21**
   * Security: fix of php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) in all the v5 amd64 images. PHP 7.4, 8.0 and 8.1 images are rebuilt with the backport of the fix (same PHP version: 7.4.33, 8.0.30, 8.1.34). The arm64 images will be fixed when the fixed PHP packages are published for arm64. See [php2shell](docs/security-php2shell.md)
