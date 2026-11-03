@@ -118,8 +118,8 @@ COPY utils/select_composer_version.sh /usr/local/bin/select_composer_version.sh
 COPY utils/utils.php /usr/local/bin/utils.php
 RUN mv /usr/bin/php /usr/bin/real_php
 COPY utils/php_proxy.sh /usr/bin/php
-COPY utils/check_php_env_var_changes.php /usr/local/bin/check_php_env_var_changes.php
-COPY utils/php_env_var_cache.php /opt/php_env_var_cache.php
+COPY utils/php_env_fingerprint.sh /usr/local/bin/php_env_fingerprint.sh
+RUN touch /opt/php_env_fingerprint
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/setup_extensions.php /usr/local/bin/setup_extensions.php
 
