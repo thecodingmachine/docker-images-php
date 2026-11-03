@@ -35,12 +35,6 @@ jobs:
       - name: Build
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
-          # Get last cached successful builds
-          TAGS=$(REPO="ghcr.io/${{ github.repository_owner }}/php" TAG_PREFIX="" docker buildx bake php${PHP_VERSION//.}-${{ matrix.variant }}-all --progress=quiet --print | jq -r '.target[].tags[]')
-          for TAG in $TAGS; do
-             docker pull --quiet ${TAG} || echo ""
-          done;
-          # Build the current builds
           REPO="ghcr.io/${{ github.repository_owner }}/php" \
           ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
