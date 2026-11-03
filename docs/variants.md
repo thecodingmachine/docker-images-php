@@ -30,6 +30,10 @@ services:
 
 Apache runs PHP with `mod_php`. The sections below also apply to the [built-in Apache of the *fpm* variant](#built-in-apache).
 
+To serve a new application, prefer the *fpm* variant with its built-in Apache: the same features, with 2 to 3 times
+more traffic served and 4 times less memory ([benchmark](../benchmarks/fpm-apache/README.md)). See
+[Serving with the fpm variant](fpm.md) and its [migration notes](fpm.md#migrating-from-the-apache-variant).
+
 ### Document root
 
 `APACHE_DOCUMENT_ROOT` sets the document root (your "public" directory). A relative path is relative to
