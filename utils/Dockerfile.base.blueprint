@@ -1,0 +1,163 @@
+#syntax=docker/dockerfile-upstream:1
+FROM ubuntu:24.04
+LABEL authors="Mistral Oz <m.oz@thecodingmachine.com>, Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Fixes some weird terminal issues such as broken clear / CTRL+L
+#ENV TERM=linux
+
+# Ensure apt doesn't ask questions when installing stuff
+ENV DEBIAN_FRONTEND=noninteractive
+
+ARG PHP_VERSION
+ARG TARGETOS
+ARG TARGETARCH
+ARG BLACKFIRE_VERSION=2
+
+ENV TARGETOS=${TARGETOS}
+ENV TARGETARCH=${TARGETARCH}
+ENV BLACKFIRE_VERSION=${BLACKFIRE_VERSION}
+ENV PHP_VERSION=${PHP_VERSION}
+
+# |--------------------------------------------------------------------------
+# | Main PHP extensions
+# |--------------------------------------------------------------------------
+# |
+# | Installs the main PHP extensions
+# |
+
+# Install php an other packages
+RUN apt update \
+    && apt upgrade -y \
+    && apt install -y --no-install-recommends curl ca-certificates \
+    && curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
+    && dpkg -i /tmp/debsuryorg-archive-keyring.deb \
+    && . /etc/os-release \
+    && echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
+    && apt update \
+    && apt install -y --no-install-recommends \
+        nano \
+        sudo \
+        git \
+        iproute2 \
+        procps \
+        curl \
+        unzip \
+        ca-certificates \
+        openssh-client \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+# Note: From PHP 8.5, opcache is built-in and php${PHP_VERSION}-opcache package doesn't exist
+RUN OPCACHE_PACKAGE="" \
+    && if [ "${PHP_VERSION}" != "8.5" ]; then \
+        OPCACHE_PACKAGE="php${PHP_VERSION}-opcache"; \
+    fi \
+    && apt update \
+    && apt install -y --no-install-recommends \
+        php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-curl \
+        php${PHP_VERSION}-mbstring \
+        ${OPCACHE_PACKAGE} \
+        php${PHP_VERSION}-readline \
+        php${PHP_VERSION}-xml \
+        php${PHP_VERSION}-zip \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+# |--------------------------------------------------------------------------
+# | User
+# |--------------------------------------------------------------------------
+# |
+# | Define a default user with sudo rights.
+# |
+
+RUN userdel ubuntu && rm -rf /home/ubuntu
+RUN useradd -ms /bin/bash docker && adduser docker sudo
+# Users in the sudoers group can sudo as root without password.
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo
+
+# |--------------------------------------------------------------------------
+# | Default php.ini file
+# |--------------------------------------------------------------------------
+# |
+# | For some reasons, the official image has a php.ini-production.cli file
+# | but no php.ini-development.cli file. Let's create this one.
+# |
+
+RUN cp /usr/lib/php/${PHP_VERSION}/php.ini-development /usr/lib/php/${PHP_VERSION}/php.ini-development.cli && \
+    sed -i 's/^disable_functions/;disable_functions/g' /usr/lib/php/${PHP_VERSION}/php.ini-development.cli && \
+    sed -i 's/^memory_limit = .*/memory_limit = -1/g' /usr/lib/php/${PHP_VERSION}/php.ini-development.cli
+
+#ADD https://raw.githubusercontent.com/php/php-src/PHP-${PHP_VERSION}/php.ini-production /usr/local/etc/php/php.ini-production
+#ADD https://raw.githubusercontent.com/php/php-src/PHP-${PHP_VERSION}/php.ini-development /usr/local/etc/php/php.ini-development
+#RUN chmod 644 /usr/local/etc/php/php.ini-*
+
+ENV TEMPLATE_PHP_INI=development
+
+# Let's remove the default CLI php.ini file (it will be copied from TEMPLATE_PHP_INI)
+RUN rm /etc/php/${PHP_VERSION}/cli/php.ini
+
+# |--------------------------------------------------------------------------
+# | Composer
+# |--------------------------------------------------------------------------
+# |
+# | Installs Composer to easily manage your PHP dependencies.
+# |
+
+#ENV COMPOSER_ALLOW_SUPERUSER 1
+
+RUN curl -sS --retry 5 --retry-delay 2 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
+    chmod +x /usr/local/bin/composer
+COPY utils/select_composer_version.sh /usr/local/bin/select_composer_version.sh
+
+# TODO: utils.php in /usr/local/bin... bof!
+COPY utils/utils.php /usr/local/bin/utils.php
+RUN mv /usr/bin/php /usr/bin/real_php
+COPY utils/php_proxy.sh /usr/bin/php
+COPY utils/php_env_fingerprint.sh /usr/local/bin/php_env_fingerprint.sh
+RUN touch /opt/php_env_fingerprint
+COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
+COPY utils/setup_extensions.php /usr/local/bin/setup_extensions.php
+
+# |--------------------------------------------------------------------------
+# | Default PHP extensions to be enabled
+# | By default, enable all the extensions that are enabled on a base Ubuntu install
+# |--------------------------------------------------------------------------
+ENV PHP_EXTENSION_CALENDAR=1 \
+    PHP_EXTENSION_CTYPE=1 \
+    PHP_EXTENSION_CURL=1 \
+    PHP_EXTENSION_DOM=1 \
+    PHP_EXTENSION_EXIF=1 \
+    PHP_EXTENSION_FILEINFO=1 \
+    PHP_EXTENSION_FTP=1 \
+    PHP_EXTENSION_GETTEXT=1 \
+    PHP_EXTENSION_ICONV=1 \
+    PHP_EXTENSION_JSON=1 \
+    PHP_EXTENSION_MBSTRING=1 \
+    PHP_EXTENSION_OPCACHE=1 \
+    PHP_EXTENSION_PDO=1 \
+    PHP_EXTENSION_PHAR=1 \
+    PHP_EXTENSION_POSIX=1 \
+    PHP_EXTENSION_READLINE=1 \
+    PHP_EXTENSION_SHMOP=1 \
+    PHP_EXTENSION_SIMPLEXML=1 \
+    PHP_EXTENSION_SOCKETS=1 \
+    PHP_EXTENSION_SYSVMSG=1 \
+    PHP_EXTENSION_SYSVSEM=1 \
+    PHP_EXTENSION_SYSVSHM=1 \
+    PHP_EXTENSION_TOKENIZER=1 \
+    PHP_EXTENSION_WDDX=1 \
+    PHP_EXTENSION_XML=1 \
+    PHP_EXTENSION_XMLREADER=1 \
+    PHP_EXTENSION_XMLWRITER=1 \
+    PHP_EXTENSION_XSL=1 \
+    PHP_EXTENSION_ZIP=1
+
+USER docker
+RUN composer global require bamarni/symfony-console-autocomplete && \
+    rm -rf ~/.composer/cache
+
+USER root
+
+COPY extensions/ /usr/local/lib/thecodingmachine-php/extensions
+RUN ln -s ${PHP_VERSION} /usr/local/lib/thecodingmachine-php/extensions/current

@@ -14,6 +14,14 @@ $ make blueprint
 
 The pages of the `docs` directory are not generated: edit them directly.
 
+The images of a PHP version share their first layers (see `utils/docker-bake.blueprint.hcl`):
+
+- `Dockerfile.base`: the layers common to all the images;
+- `Dockerfile.slim.<variant>`: the *slim* image of the variant, built on `Dockerfile.base`;
+- `Dockerfile.extensions`: the extensions, installed once for the 3 variants on `Dockerfile.base`;
+- `Dockerfile.<variant>`: the *fat* image, built on `Dockerfile.slim.<variant>` applied on `Dockerfile.extensions`;
+- `Dockerfile.<variant>.node`: the *node* images, built on the *fat* image.
+
 ## Building and testing
 
 The tests use [bash_unit](https://github.com/pgrange/bash_unit) (see the [test suite](../tests-suite/README.md)).
@@ -29,6 +37,13 @@ To test images already built, run the test suite directly:
 
 ```bash
 $ PHP_VERSION=8.4 BRANCH=v5 VARIANT=apache ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
+```
+
+To run the test files of several variants in parallel, as the CI does (`TEST_JOBS` test files at the same time, 2 by
+default, with one log per test file):
+
+```bash
+$ PHP_VERSION=8.4 BRANCH=v5 VARIANTS="apache cli fpm" NODE_VERSIONS="22 24 26" ./tests-suite/run_tests.sh
 ```
 
 The variables of [`tests-suite/config`](../tests-suite/config) select the images to test, e.g. `TAG_PREFIX` (images

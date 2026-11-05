@@ -34,8 +34,7 @@ jobs:
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
-            --set "*.output=type=docker" \
-            --load --progress=quiet \
+            --progress=quiet \
             ${BAKE_GROUP//.}
       - name: Display tags built
         run: |
@@ -57,7 +56,7 @@ jobs:
               TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
               docker buildx bake \
                 --print --progress=quiet \
-                ${BAKE_GROUP//.} | jq -r '.target[].tags[]');
+                ${BAKE_GROUP//.} | jq -r '.target[].tags // [] | .[]');
           for TAG in $TAGS; do docker push --quiet ${TAG}; done;
 
   merge-and-publish:
@@ -113,7 +112,7 @@ jobs:
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --print --progress=quiet \
-            ${BAKE_GROUP//.} | jq '.target[].tags[]'
+            ${BAKE_GROUP//.} | jq '.target[].tags // [] | .[]'
       - name: Create multiarch manifests
         run: |
           # Get all targets from the bake group

@@ -54,18 +54,52 @@ target "default" {
   output = ["type=docker"] # export in local docker
 }
 
-{{range $phpV := $versions}}{{range $variant := $variants}}{{ $nodes := $legacyNodeVersions }}
+{{range $phpV := $versions}}
 ###########################
 ##    PHP {{ $phpV }}
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php{{ $phpV | replace "." "" }}-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "{{ $phpV }}"
+  }
+}
+
+target "php{{ $phpV | replace "." "" }}-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php{{ $phpV | replace "." "" }}-base"
+  }
+}
+{{range $variant := $variants}}{{ $nodes := $legacyNodeVersions }}
 # thecodingmachine/php:{{ $phpV }}-v5-slim-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
   inherits = ["default"]
   tags = tag("{{ $phpV }}", "slim-{{ $variant }}")
   dockerfile = "Dockerfile.slim.{{ $variant }}"
   args = {
-    PHP_VERSION = "{{ $phpV }}"
     VARIANT = "{{ $variant }}"
+  }
+  contexts = {
+    base = "target:php{{ $phpV | replace "." "" }}-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.{{ $variant }}"
+  args = {
+    VARIANT = "{{ $variant }}"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php{{ $phpV | replace "." "" }}-extensions"
   }
 }
 
@@ -75,12 +109,10 @@ target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
   tags = tag("{{ $phpV }}", "{{ $variant }}")
   dockerfile = "Dockerfile.{{ $variant }}"
   args = {
-    PHP_VERSION = "{{ $phpV }}"
     VARIANT = "{{ $variant }}"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}"
+    slim-with-extensions = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}-with-extensions"
   }
 }
 {{range $nodeV := $nodes}}

@@ -311,14 +311,48 @@ target "default" {
 ###########################
 ##    PHP 8.5
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php85-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "8.5"
+  }
+}
+
+target "php85-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php85-base"
+  }
+}
+
 # thecodingmachine/php:8.5-v5-slim-apache
 target "php85-slim-apache" {
   inherits = ["default"]
   tags = tag("8.5", "slim-apache")
   dockerfile = "Dockerfile.slim.apache"
   args = {
-    PHP_VERSION = "8.5"
     VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php85-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php85-slim-apache-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php85-extensions"
   }
 }
 
@@ -328,12 +362,10 @@ target "php85-apache" {
   tags = tag("8.5", "apache")
   dockerfile = "Dockerfile.apache"
   args = {
-    PHP_VERSION = "8.5"
     VARIANT = "apache"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php85-slim-apache"
+    slim-with-extensions = "target:php85-slim-apache-with-extensions"
   }
 }
 
@@ -417,17 +449,29 @@ target "php85-apache-node18" {
   }
 }
 
-###########################
-##    PHP 8.5
-###########################
 # thecodingmachine/php:8.5-v5-slim-fpm
 target "php85-slim-fpm" {
   inherits = ["default"]
   tags = tag("8.5", "slim-fpm")
   dockerfile = "Dockerfile.slim.fpm"
   args = {
-    PHP_VERSION = "8.5"
     VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php85-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php85-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php85-extensions"
   }
 }
 
@@ -437,12 +481,10 @@ target "php85-fpm" {
   tags = tag("8.5", "fpm")
   dockerfile = "Dockerfile.fpm"
   args = {
-    PHP_VERSION = "8.5"
     VARIANT = "fpm"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php85-slim-fpm"
+    slim-with-extensions = "target:php85-slim-fpm-with-extensions"
   }
 }
 
@@ -526,17 +568,29 @@ target "php85-fpm-node18" {
   }
 }
 
-###########################
-##    PHP 8.5
-###########################
 # thecodingmachine/php:8.5-v5-slim-cli
 target "php85-slim-cli" {
   inherits = ["default"]
   tags = tag("8.5", "slim-cli")
   dockerfile = "Dockerfile.slim.cli"
   args = {
-    PHP_VERSION = "8.5"
     VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php85-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php85-slim-cli-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php85-extensions"
   }
 }
 
@@ -546,12 +600,10 @@ target "php85-cli" {
   tags = tag("8.5", "cli")
   dockerfile = "Dockerfile.cli"
   args = {
-    PHP_VERSION = "8.5"
     VARIANT = "cli"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php85-slim-cli"
+    slim-with-extensions = "target:php85-slim-cli-with-extensions"
   }
 }
 
@@ -638,14 +690,48 @@ target "php85-cli-node18" {
 ###########################
 ##    PHP 8.4
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php84-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "8.4"
+  }
+}
+
+target "php84-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php84-base"
+  }
+}
+
 # thecodingmachine/php:8.4-v5-slim-apache
 target "php84-slim-apache" {
   inherits = ["default"]
   tags = tag("8.4", "slim-apache")
   dockerfile = "Dockerfile.slim.apache"
   args = {
-    PHP_VERSION = "8.4"
     VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php84-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php84-slim-apache-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php84-extensions"
   }
 }
 
@@ -655,12 +741,10 @@ target "php84-apache" {
   tags = tag("8.4", "apache")
   dockerfile = "Dockerfile.apache"
   args = {
-    PHP_VERSION = "8.4"
     VARIANT = "apache"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php84-slim-apache"
+    slim-with-extensions = "target:php84-slim-apache-with-extensions"
   }
 }
 
@@ -744,17 +828,29 @@ target "php84-apache-node18" {
   }
 }
 
-###########################
-##    PHP 8.4
-###########################
 # thecodingmachine/php:8.4-v5-slim-fpm
 target "php84-slim-fpm" {
   inherits = ["default"]
   tags = tag("8.4", "slim-fpm")
   dockerfile = "Dockerfile.slim.fpm"
   args = {
-    PHP_VERSION = "8.4"
     VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php84-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php84-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php84-extensions"
   }
 }
 
@@ -764,12 +860,10 @@ target "php84-fpm" {
   tags = tag("8.4", "fpm")
   dockerfile = "Dockerfile.fpm"
   args = {
-    PHP_VERSION = "8.4"
     VARIANT = "fpm"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php84-slim-fpm"
+    slim-with-extensions = "target:php84-slim-fpm-with-extensions"
   }
 }
 
@@ -853,17 +947,29 @@ target "php84-fpm-node18" {
   }
 }
 
-###########################
-##    PHP 8.4
-###########################
 # thecodingmachine/php:8.4-v5-slim-cli
 target "php84-slim-cli" {
   inherits = ["default"]
   tags = tag("8.4", "slim-cli")
   dockerfile = "Dockerfile.slim.cli"
   args = {
-    PHP_VERSION = "8.4"
     VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php84-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php84-slim-cli-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php84-extensions"
   }
 }
 
@@ -873,12 +979,10 @@ target "php84-cli" {
   tags = tag("8.4", "cli")
   dockerfile = "Dockerfile.cli"
   args = {
-    PHP_VERSION = "8.4"
     VARIANT = "cli"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php84-slim-cli"
+    slim-with-extensions = "target:php84-slim-cli-with-extensions"
   }
 }
 
@@ -965,14 +1069,48 @@ target "php84-cli-node18" {
 ###########################
 ##    PHP 8.3
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php83-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "8.3"
+  }
+}
+
+target "php83-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php83-base"
+  }
+}
+
 # thecodingmachine/php:8.3-v5-slim-apache
 target "php83-slim-apache" {
   inherits = ["default"]
   tags = tag("8.3", "slim-apache")
   dockerfile = "Dockerfile.slim.apache"
   args = {
-    PHP_VERSION = "8.3"
     VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php83-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php83-slim-apache-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php83-extensions"
   }
 }
 
@@ -982,12 +1120,10 @@ target "php83-apache" {
   tags = tag("8.3", "apache")
   dockerfile = "Dockerfile.apache"
   args = {
-    PHP_VERSION = "8.3"
     VARIANT = "apache"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php83-slim-apache"
+    slim-with-extensions = "target:php83-slim-apache-with-extensions"
   }
 }
 
@@ -1071,17 +1207,29 @@ target "php83-apache-node18" {
   }
 }
 
-###########################
-##    PHP 8.3
-###########################
 # thecodingmachine/php:8.3-v5-slim-fpm
 target "php83-slim-fpm" {
   inherits = ["default"]
   tags = tag("8.3", "slim-fpm")
   dockerfile = "Dockerfile.slim.fpm"
   args = {
-    PHP_VERSION = "8.3"
     VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php83-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php83-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php83-extensions"
   }
 }
 
@@ -1091,12 +1239,10 @@ target "php83-fpm" {
   tags = tag("8.3", "fpm")
   dockerfile = "Dockerfile.fpm"
   args = {
-    PHP_VERSION = "8.3"
     VARIANT = "fpm"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php83-slim-fpm"
+    slim-with-extensions = "target:php83-slim-fpm-with-extensions"
   }
 }
 
@@ -1180,17 +1326,29 @@ target "php83-fpm-node18" {
   }
 }
 
-###########################
-##    PHP 8.3
-###########################
 # thecodingmachine/php:8.3-v5-slim-cli
 target "php83-slim-cli" {
   inherits = ["default"]
   tags = tag("8.3", "slim-cli")
   dockerfile = "Dockerfile.slim.cli"
   args = {
-    PHP_VERSION = "8.3"
     VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php83-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php83-slim-cli-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php83-extensions"
   }
 }
 
@@ -1200,12 +1358,10 @@ target "php83-cli" {
   tags = tag("8.3", "cli")
   dockerfile = "Dockerfile.cli"
   args = {
-    PHP_VERSION = "8.3"
     VARIANT = "cli"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php83-slim-cli"
+    slim-with-extensions = "target:php83-slim-cli-with-extensions"
   }
 }
 
@@ -1292,14 +1448,48 @@ target "php83-cli-node18" {
 ###########################
 ##    PHP 8.2
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php82-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "8.2"
+  }
+}
+
+target "php82-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php82-base"
+  }
+}
+
 # thecodingmachine/php:8.2-v5-slim-apache
 target "php82-slim-apache" {
   inherits = ["default"]
   tags = tag("8.2", "slim-apache")
   dockerfile = "Dockerfile.slim.apache"
   args = {
-    PHP_VERSION = "8.2"
     VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php82-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php82-slim-apache-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php82-extensions"
   }
 }
 
@@ -1309,12 +1499,10 @@ target "php82-apache" {
   tags = tag("8.2", "apache")
   dockerfile = "Dockerfile.apache"
   args = {
-    PHP_VERSION = "8.2"
     VARIANT = "apache"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php82-slim-apache"
+    slim-with-extensions = "target:php82-slim-apache-with-extensions"
   }
 }
 
@@ -1398,17 +1586,29 @@ target "php82-apache-node18" {
   }
 }
 
-###########################
-##    PHP 8.2
-###########################
 # thecodingmachine/php:8.2-v5-slim-fpm
 target "php82-slim-fpm" {
   inherits = ["default"]
   tags = tag("8.2", "slim-fpm")
   dockerfile = "Dockerfile.slim.fpm"
   args = {
-    PHP_VERSION = "8.2"
     VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php82-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php82-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php82-extensions"
   }
 }
 
@@ -1418,12 +1618,10 @@ target "php82-fpm" {
   tags = tag("8.2", "fpm")
   dockerfile = "Dockerfile.fpm"
   args = {
-    PHP_VERSION = "8.2"
     VARIANT = "fpm"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php82-slim-fpm"
+    slim-with-extensions = "target:php82-slim-fpm-with-extensions"
   }
 }
 
@@ -1507,17 +1705,29 @@ target "php82-fpm-node18" {
   }
 }
 
-###########################
-##    PHP 8.2
-###########################
 # thecodingmachine/php:8.2-v5-slim-cli
 target "php82-slim-cli" {
   inherits = ["default"]
   tags = tag("8.2", "slim-cli")
   dockerfile = "Dockerfile.slim.cli"
   args = {
-    PHP_VERSION = "8.2"
     VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php82-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php82-slim-cli-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php82-extensions"
   }
 }
 
@@ -1527,12 +1737,10 @@ target "php82-cli" {
   tags = tag("8.2", "cli")
   dockerfile = "Dockerfile.cli"
   args = {
-    PHP_VERSION = "8.2"
     VARIANT = "cli"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php82-slim-cli"
+    slim-with-extensions = "target:php82-slim-cli-with-extensions"
   }
 }
 
@@ -1619,14 +1827,48 @@ target "php82-cli-node18" {
 ###########################
 ##    PHP 8.1
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php81-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "8.1"
+  }
+}
+
+target "php81-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php81-base"
+  }
+}
+
 # thecodingmachine/php:8.1-v5-slim-apache
 target "php81-slim-apache" {
   inherits = ["default"]
   tags = tag("8.1", "slim-apache")
   dockerfile = "Dockerfile.slim.apache"
   args = {
-    PHP_VERSION = "8.1"
     VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php81-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php81-slim-apache-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php81-extensions"
   }
 }
 
@@ -1636,12 +1878,10 @@ target "php81-apache" {
   tags = tag("8.1", "apache")
   dockerfile = "Dockerfile.apache"
   args = {
-    PHP_VERSION = "8.1"
     VARIANT = "apache"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php81-slim-apache"
+    slim-with-extensions = "target:php81-slim-apache-with-extensions"
   }
 }
 
@@ -1725,17 +1965,29 @@ target "php81-apache-node18" {
   }
 }
 
-###########################
-##    PHP 8.1
-###########################
 # thecodingmachine/php:8.1-v5-slim-fpm
 target "php81-slim-fpm" {
   inherits = ["default"]
   tags = tag("8.1", "slim-fpm")
   dockerfile = "Dockerfile.slim.fpm"
   args = {
-    PHP_VERSION = "8.1"
     VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php81-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php81-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php81-extensions"
   }
 }
 
@@ -1745,12 +1997,10 @@ target "php81-fpm" {
   tags = tag("8.1", "fpm")
   dockerfile = "Dockerfile.fpm"
   args = {
-    PHP_VERSION = "8.1"
     VARIANT = "fpm"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php81-slim-fpm"
+    slim-with-extensions = "target:php81-slim-fpm-with-extensions"
   }
 }
 
@@ -1834,17 +2084,29 @@ target "php81-fpm-node18" {
   }
 }
 
-###########################
-##    PHP 8.1
-###########################
 # thecodingmachine/php:8.1-v5-slim-cli
 target "php81-slim-cli" {
   inherits = ["default"]
   tags = tag("8.1", "slim-cli")
   dockerfile = "Dockerfile.slim.cli"
   args = {
-    PHP_VERSION = "8.1"
     VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php81-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php81-slim-cli-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php81-extensions"
   }
 }
 
@@ -1854,12 +2116,10 @@ target "php81-cli" {
   tags = tag("8.1", "cli")
   dockerfile = "Dockerfile.cli"
   args = {
-    PHP_VERSION = "8.1"
     VARIANT = "cli"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php81-slim-cli"
+    slim-with-extensions = "target:php81-slim-cli-with-extensions"
   }
 }
 
@@ -1946,14 +2206,48 @@ target "php81-cli-node18" {
 ###########################
 ##    PHP 8.0
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php80-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "8.0"
+  }
+}
+
+target "php80-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php80-base"
+  }
+}
+
 # thecodingmachine/php:8.0-v5-slim-apache
 target "php80-slim-apache" {
   inherits = ["default"]
   tags = tag("8.0", "slim-apache")
   dockerfile = "Dockerfile.slim.apache"
   args = {
-    PHP_VERSION = "8.0"
     VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php80-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php80-slim-apache-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php80-extensions"
   }
 }
 
@@ -1963,12 +2257,10 @@ target "php80-apache" {
   tags = tag("8.0", "apache")
   dockerfile = "Dockerfile.apache"
   args = {
-    PHP_VERSION = "8.0"
     VARIANT = "apache"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php80-slim-apache"
+    slim-with-extensions = "target:php80-slim-apache-with-extensions"
   }
 }
 
@@ -2052,17 +2344,29 @@ target "php80-apache-node18" {
   }
 }
 
-###########################
-##    PHP 8.0
-###########################
 # thecodingmachine/php:8.0-v5-slim-fpm
 target "php80-slim-fpm" {
   inherits = ["default"]
   tags = tag("8.0", "slim-fpm")
   dockerfile = "Dockerfile.slim.fpm"
   args = {
-    PHP_VERSION = "8.0"
     VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php80-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php80-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php80-extensions"
   }
 }
 
@@ -2072,12 +2376,10 @@ target "php80-fpm" {
   tags = tag("8.0", "fpm")
   dockerfile = "Dockerfile.fpm"
   args = {
-    PHP_VERSION = "8.0"
     VARIANT = "fpm"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php80-slim-fpm"
+    slim-with-extensions = "target:php80-slim-fpm-with-extensions"
   }
 }
 
@@ -2161,17 +2463,29 @@ target "php80-fpm-node18" {
   }
 }
 
-###########################
-##    PHP 8.0
-###########################
 # thecodingmachine/php:8.0-v5-slim-cli
 target "php80-slim-cli" {
   inherits = ["default"]
   tags = tag("8.0", "slim-cli")
   dockerfile = "Dockerfile.slim.cli"
   args = {
-    PHP_VERSION = "8.0"
     VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php80-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php80-slim-cli-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php80-extensions"
   }
 }
 
@@ -2181,12 +2495,10 @@ target "php80-cli" {
   tags = tag("8.0", "cli")
   dockerfile = "Dockerfile.cli"
   args = {
-    PHP_VERSION = "8.0"
     VARIANT = "cli"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php80-slim-cli"
+    slim-with-extensions = "target:php80-slim-cli-with-extensions"
   }
 }
 
@@ -2273,14 +2585,48 @@ target "php80-cli-node18" {
 ###########################
 ##    PHP 7.4
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php74-base" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "7.4"
+  }
+}
+
+target "php74-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php74-base"
+  }
+}
+
 # thecodingmachine/php:7.4-v5-slim-apache
 target "php74-slim-apache" {
   inherits = ["default"]
   tags = tag("7.4", "slim-apache")
   dockerfile = "Dockerfile.slim.apache"
   args = {
-    PHP_VERSION = "7.4"
     VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php74-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php74-slim-apache-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php74-extensions"
   }
 }
 
@@ -2290,12 +2636,10 @@ target "php74-apache" {
   tags = tag("7.4", "apache")
   dockerfile = "Dockerfile.apache"
   args = {
-    PHP_VERSION = "7.4"
     VARIANT = "apache"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php74-slim-apache"
+    slim-with-extensions = "target:php74-slim-apache-with-extensions"
   }
 }
 
@@ -2379,17 +2723,29 @@ target "php74-apache-node18" {
   }
 }
 
-###########################
-##    PHP 7.4
-###########################
 # thecodingmachine/php:7.4-v5-slim-fpm
 target "php74-slim-fpm" {
   inherits = ["default"]
   tags = tag("7.4", "slim-fpm")
   dockerfile = "Dockerfile.slim.fpm"
   args = {
-    PHP_VERSION = "7.4"
     VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php74-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php74-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php74-extensions"
   }
 }
 
@@ -2399,12 +2755,10 @@ target "php74-fpm" {
   tags = tag("7.4", "fpm")
   dockerfile = "Dockerfile.fpm"
   args = {
-    PHP_VERSION = "7.4"
     VARIANT = "fpm"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php74-slim-fpm"
+    slim-with-extensions = "target:php74-slim-fpm-with-extensions"
   }
 }
 
@@ -2488,17 +2842,29 @@ target "php74-fpm-node18" {
   }
 }
 
-###########################
-##    PHP 7.4
-###########################
 # thecodingmachine/php:7.4-v5-slim-cli
 target "php74-slim-cli" {
   inherits = ["default"]
   tags = tag("7.4", "slim-cli")
   dockerfile = "Dockerfile.slim.cli"
   args = {
-    PHP_VERSION = "7.4"
     VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php74-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php74-slim-cli-with-extensions" {
+  inherits = ["default"]
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php74-extensions"
   }
 }
 
@@ -2508,12 +2874,10 @@ target "php74-cli" {
   tags = tag("7.4", "cli")
   dockerfile = "Dockerfile.cli"
   args = {
-    PHP_VERSION = "7.4"
     VARIANT = "cli"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php74-slim-cli"
+    slim-with-extensions = "target:php74-slim-cli-with-extensions"
   }
 }
 

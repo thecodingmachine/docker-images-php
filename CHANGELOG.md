@@ -6,6 +6,8 @@
 * **2026-11-05**
   * The *apache* and *fpm* images stop right away when a `docker stop` is requested during a long startup step (e.g. a `STARTUP_COMMAND_*`, or the configuration of the extensions on a loaded host): they were killed after the stop timeout (exit code 137 after 10 s)
   * Apache `mod_cgid` (`APACHE_EXTENSION_CGID=1`) starts in the *slim-apache* image and with the built-in Apache of the *fpm* variant: its socket directory was missing
+  * The images of a PHP version are built from common layers: the extensions are installed once for the 3 variants. The *fat* images no longer contain the layers of the *slim* image of their variant, their content is unchanged
+  * The NodeJS images are tested by the CI
 
 * **2026-11-03**
   * The `php` command is about 20 ms faster on each call: it detects the changes of the `PHP_*` environment variables without starting PHP a first time. The configuration is now also regenerated when a `PHP_*` variable is removed
