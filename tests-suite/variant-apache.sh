@@ -69,6 +69,16 @@ test_switchMpm() {
   assert_not_matches "ERROR" "$RESULT" "a2enmod/a2dismod failed"
 }
 ############################################################
+## mod_cgid starts (its socket directory exists)
+############################################################
+test_cgid() {
+  for image in "slim-${BRANCH_VARIANT}" "${BRANCH_VARIANT}"; do
+    RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_EXTENSION_CGID=1 \
+      "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${image}${ARCH_SUFFIX}" bash -c 'timeout 3 apache2-foreground 2>&1')"
+    assert_not_matches "cgid:(error|crit)" "$RESULT" "mod_cgid does not start in the ${image} image"
+  done
+}
+############################################################
 ## A stop requested during the initialization is not lost
 ############################################################
 test_stopDuringStartup() {

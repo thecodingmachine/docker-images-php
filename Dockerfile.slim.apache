@@ -186,6 +186,7 @@ RUN set -eux; \
 	for dir in \
 		"$APACHE_LOCK_DIR" \
 		"$APACHE_RUN_DIR" \
+		"$APACHE_RUN_DIR/socks" \
 		"$APACHE_LOG_DIR" \
 	; do \
 		rm -rvf "$dir"; \
