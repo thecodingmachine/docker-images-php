@@ -35,3 +35,20 @@ test_phpStartupWarning() {
   assert_equals "0" "$?" "Docker run failed"
   assert_equals "startup-ok" "$RESULT"
 }
+############################################################
+## A docker stop during a long startup command stops the container right away
+############################################################
+test_stopDuringStartupCommand() {
+  NAME="test-startup-stop-$(unused_port)"
+  docker run --name "${NAME}" ${RUN_OPTIONS} -d -e STARTUP_COMMAND_1="sleep 30" \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" sleep 300 > /dev/null
+  for _ in $(seq 1 60); do
+    docker exec "${NAME}" pgrep -fx "sleep 30" > /dev/null 2>&1 && break
+    sleep 0.5
+  done
+  START=$(date +%s)
+  docker stop "${NAME}" > /dev/null 2>&1
+  DURATION=$(( $(date +%s) - START ))
+  docker rm -f "${NAME}" > /dev/null 2>&1
+  assert "test ${DURATION} -lt 5" "Stopping during the startup command took ${DURATION}s (killed by timeout?)"
+}
