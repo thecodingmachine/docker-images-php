@@ -3,6 +3,9 @@
 
 ### Minor changes
 
+* **2026-11-03**
+  * The `php` command is about 20 ms faster on each call: it detects the changes of the `PHP_*` environment variables without starting PHP a first time. The configuration is now also regenerated when a `PHP_*` variable is removed
+
 * **2026-10-23**
   * Security: php2shell is fixed in the arm64 images too, now that the fixed PHP packages are published for arm64. The php2shell test fails again for a vulnerable image on every architecture
   * The tags of the PHP patch versions (e.g. `8.5.12-v5-cli`) are published again: they were no longer published since 2025-12-10. The `X.Y-v5-*` tags are not affected

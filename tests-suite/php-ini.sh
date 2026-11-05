@@ -38,6 +38,12 @@ test_environmentErrorReporting() {
   [[ "$RESULT" == "error_reporting => 3 => 3" ]]
   assert_equals "error_reporting => 3 => 3" "$RESULT" "Wrong Environment error reporting"
 }
+test_environmentChangedAfterStart() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    bash -c 'PHP_INI_MEMORY_LIMIT=512M php -r "echo ini_get(\"memory_limit\"), \" \";"; php -r "echo ini_get(\"memory_limit\");"')"
+  assert_equals "512M -1" "$RESULT" "The configuration is not regenerated when a PHP_* variable is added or removed"
+}
 ############################################################
 ## PHP_INI_SESSION__SAVE_PATH
 ## Tests that environment variables with an equal sign are correctly handled

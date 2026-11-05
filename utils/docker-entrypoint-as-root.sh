@@ -149,8 +149,8 @@ fi
 unset DOCKER_FOR_MAC_REMOTE_HOST
 unset REMOTE_HOST_FOUND
 
-sudo chown docker:docker /opt/php_env_var_cache.php
-/usr/bin/real_php -d display_errors=stderr /usr/local/bin/check_php_env_var_changes.php &> /dev/null
+source /usr/local/bin/php_env_fingerprint.sh
+php_env_fingerprint > /opt/php_env_fingerprint
 
 /usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
 PHP_VERSION="${PHP_VERSION}" /usr/bin/real_php -d display_errors=stderr /usr/local/bin/setup_extensions.php | sudo bash
