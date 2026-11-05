@@ -3,18 +3,16 @@
 
 # General purpose PHP images for Docker
 
-> **Security: php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) is fixed in all the v5 images**
->
-> Pull the images again, recreate your containers and rebuild the images built from ours. **Update:** the arm64 images,
-> first published without the fix, are now fixed too: pull them again. The v4 images are **not** fixed: migrate to
-> v5. See [what to do](docs/security-php2shell.md).
+> **The fpm variant has a built-in Apache** (`PHP_FPM_WEB_SERVER=apache`): the same features as the `apache` variant,
+> with 2 to 3 times more traffic served and 4 times less memory ([benchmark](benchmarks/fpm-apache/README.md)). It is
+> the recommended variant to serve a web application: see [Serving with the fpm variant](docs/fpm.md).
 
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
 
  - You can enable or disable the extensions using environment variables.
  - You can also modify the `php.ini` settings using environment variables.
  - 2 types available: `slim` (no extensions preloaded) or `fat` (most common PHP extensions are built-in)
- - 3 variants available: `CLI`, `apache` and `fpm` (with an optional built-in Apache)
+ - 3 variants available: `CLI`, `apache` and `fpm` (with an optional built-in Apache, recommended for web applications)
  - Fat images are bundled with [Supercronic](https://github.com/aptible/supercronic) which is a Cron compatible task runner. Cron jobs can be configured using environment variables
  - All images come with [Composer](https://getcomposer.org/) installed
  - All variants can be installed with or without NodeJS (if you need to build your static assets).
@@ -143,7 +141,8 @@ Bugs are fixed on maintained versions only.
 | 20             | **Not maintained** (end of life: 2026-04-30)  |
 
 Images of non-maintained versions are still available but no longer receive fixes: use them at your own risk and plan your upgrade.
-Critical vulnerabilities may get an exceptional fix (e.g. [php2shell](docs/security-php2shell.md)).
+Critical vulnerabilities may get an exceptional fix: [php2shell](docs/security-php2shell.md) (CVE-2026-109618 and
+CVE-2026-109619) is fixed in all the v5 images, not in the v4 ones.
 
 ## Usage
 
@@ -155,22 +154,22 @@ Example with CLI:
 $ docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app thecodingmachine/php:8.4-v5-cli php your-script.php
 ```
 
-Example with Apache:
+Example with PHP-FPM and its built-in Apache (in the same container), recommended to serve a web application:
 
 ```bash
-$ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-apache
+$ docker run -p 80:80 --rm --name my-apache-fpm-app -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
 ```
 
-Example with PHP-FPM:
+Example with PHP-FPM alone, behind your own web server:
 
 ```bash
 $ docker run -p 9000:9000 --rm --name my-php-fpm -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
 ```
 
-Example with PHP-FPM and its built-in Apache (in the same container):
+Example with Apache and `mod_php`:
 
 ```bash
-$ docker run -p 80:80 --rm --name my-apache-fpm-app -e PHP_FPM_WEB_SERVER=apache -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-fpm
+$ docker run -p 80:80 --rm --name my-apache-php-app -v "$PWD":/var/www/html thecodingmachine/php:8.4-v5-apache
 ```
 
 Example with Apache + Node 24.x in a Dockerfile:
@@ -198,7 +197,6 @@ Most features are configured with environment variables:
 | [Processes](docs/processes.md)                     | Startup commands, cron jobs and daemons run along with the main command                        | `STARTUP_COMMAND_*`, `CRON_*`, `DAEMON_*`                          |
 | [Debugging and profiling](docs/debugging.md)       | Xdebug and Blackfire                                                                           | `PHP_EXTENSION_XDEBUG`, `XDEBUG_CLIENT_HOST`, `BLACKFIRE_AGENT`    |
 | [Advanced features](docs/advanced.md)              | Permissions, NodeJS, Composer version, locales, SSH keys, Kubernetes                           | `DOCKER_USER`, `COMPOSER_VERSION`, `LOCALES`                       |
-| [php2shell](docs/security-php2shell.md)            | What to do about CVE-2026-109618 / CVE-2026-109619                                             |                                                                    |
 
 The slim images install some tools during the build of your image with an ARG before the `FROM`: `PHP_EXTENSIONS`,
 `INSTALL_CRON`, `INSTALL_LOCALES`, `NODE_VERSION` and `COMPOSER_VERSION`.
@@ -206,6 +204,12 @@ The slim images install some tools during the build of your image with an ARG be
 ## Migrating from older image versions
 
 Check the [migration notes](MIGRATING.md).
+
+## Roadmap
+
+The v5 images keep receiving fixes and backward compatible features. The next major version, v6, is planned for 2027:
+Ubuntu 26.04, a FrankenPHP variant and much faster builds. Follow and discuss it in the
+[roadmap issue](https://github.com/thecodingmachine/docker-images-php/issues/359).
 
 ## Contributing
 

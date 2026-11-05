@@ -5,6 +5,8 @@
 
 * **2026-11-03**
   * The `php` command is about 20 ms faster on each call: it detects the changes of the `PHP_*` environment variables without starting PHP a first time. The configuration is now also regenerated when a `PHP_*` variable is removed
+  * The README recommends the fpm variant with its built-in Apache to serve a web application, and links to the v6 roadmap. The php2shell fix is now mentioned in the supported versions
+  * New documentation of the fpm variant: application outside `/var/www/html` and additional PHP-FPM pools (#190)
 
 * **2026-10-23**
   * Security: php2shell is fixed in the arm64 images too, now that the fixed PHP packages are published for arm64. The php2shell test fails again for a vulnerable image on every architecture

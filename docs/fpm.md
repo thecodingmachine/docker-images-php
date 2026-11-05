@@ -93,6 +93,72 @@ server {
 }
 ```
 
+## Application directory
+
+The application does not have to be in `/var/www/html`: PHP-FPM runs the script whose path it receives from the web
+server. Mount the application in another directory and give its path to the web server: `APACHE_DOCUMENT_ROOT` with
+the built-in Apache (an absolute path), the `root` of nginx... Also set the working directory: by default, the
+commands run with the owner of the working directory (see [Permissions](advanced.md#permissions)).
+
+```yml
+services:
+  app:
+    image: thecodingmachine/php:8.4-v5-fpm
+    working_dir: /var/www
+    environment:
+      PHP_FPM_WEB_SERVER: apache
+      APACHE_DOCUMENT_ROOT: /var/www/public
+    volumes:
+      - .:/var/www
+```
+
+## Several pools
+
+The `www` pool of PHP-FPM processes all the PHP requests. Another pool can process some of them with its own
+settings: number of workers, `php.ini` parameters... for instance the back office of a WordPress site, with more
+memory and fewer workers. Add a pool file listening on another port:
+
+```ini
+; admin-pool.conf
+[admin]
+listen = 9001
+; Same user as the www pool (with the built-in Apache, the PHP-FPM master process runs as root)
+user = ${APACHE_RUN_USER}
+group = ${APACHE_RUN_GROUP}
+clear_env = no
+catch_workers_output = yes
+decorate_workers_output = no
+pm = ondemand
+pm.max_children = 2
+php_admin_value[memory_limit] = 512M
+```
+
+With the built-in Apache, send the requests of the back office to this pool:
+
+```apache
+# apache-admin-pool.conf
+<LocationMatch "^/wp-admin/.*\.php$">
+    <If "-f %{REQUEST_FILENAME}">
+        SetHandler "proxy:fcgi://127.0.0.1:9001"
+    </If>
+</LocationMatch>
+```
+
+```yml
+services:
+  app:
+    image: thecodingmachine/php:8.4-v5-fpm
+    environment:
+      PHP_FPM_WEB_SERVER: apache
+    volumes:
+      - .:/var/www/html
+      - ./admin-pool.conf:/etc/php/8.4/fpm/pool.d/admin.conf:ro
+      - ./apache-admin-pool.conf:/etc/apache2/conf-enabled/admin-pool.conf:ro
+```
+
+With your own web server, send these requests to the port of the pool (`fastcgi_pass php:9001;` in a `location` of
+nginx).
+
 ## Constraints of PHP-FPM
 
 ### Number of workers and memory
