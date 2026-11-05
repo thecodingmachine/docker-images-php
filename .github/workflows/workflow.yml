@@ -31,9 +31,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+        with:
+          # The layers of the targets built from another target are only found in the registry cache from BuildKit 0.35
+          driver-opts: image=moby/buildkit:v0.35.0-rc1
       - name: Build
         run: |
           PHP_VERSION="${{ matrix.php_version }}"
+          # The pull requests only read the cache of v5
+          CACHE_REPO="ghcr.io/${{ github.repository_owner }}/php-cache" \
+          CACHE_WRITE="${{ github.event_name != 'pull_request' && '1' || '0' }}" \
           REPO="ghcr.io/${{ github.repository_owner }}/php" \
           ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
