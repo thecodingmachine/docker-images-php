@@ -3,6 +3,9 @@
 
 ### Minor changes
 
+* **2026-11-05**
+  * The *apache* and *fpm* images stop right away when a `docker stop` is requested during a long startup step (e.g. a `STARTUP_COMMAND_*`, or the configuration of the extensions on a loaded host): they were killed after the stop timeout (exit code 137 after 10 s)
+
 * **2026-11-03**
   * The `php` command is about 20 ms faster on each call: it detects the changes of the `PHP_*` environment variables without starting PHP a first time. The configuration is now also regenerated when a `PHP_*` variable is removed
   * The README recommends the fpm variant with its built-in Apache to serve a web application, and links to the v6 roadmap. The php2shell fix is now mentioned in the supported versions

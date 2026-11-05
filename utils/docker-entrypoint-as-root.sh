@@ -8,6 +8,13 @@ if [[ "$IMAGE_VARIANT" == "apache" ]]; then
     trap 'exit 0' WINCH
 fi
 
+# Runs a startup step in the background and waits for it, so that a stop signal interrupts a long step (e.g. a
+# STARTUP_COMMAND): bash only runs a trap once the foreground command ends
+startup_step() {
+    "$@" <&0 &
+    wait $!
+}
+
 # Let's write a file saying the container is started (we are no longer in build mode, useful for php_proxy.sh)
 touch /opt/container_started
 
@@ -152,11 +159,11 @@ unset REMOTE_HOST_FOUND
 source /usr/local/bin/php_env_fingerprint.sh
 php_env_fingerprint > /opt/php_env_fingerprint
 
-/usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
-PHP_VERSION="${PHP_VERSION}" /usr/bin/real_php -d display_errors=stderr /usr/local/bin/setup_extensions.php | sudo bash
+startup_step /usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_conf.php > /etc/php/${PHP_VERSION}/mods-available/generated_conf.ini
+startup_step bash -c '/usr/bin/real_php -d display_errors=stderr /usr/local/bin/setup_extensions.php | sudo bash'
 
 if [[ -n "$COMPOSER_VERSION" ]]; then
-    /usr/local/bin/select_composer_version.sh "$COMPOSER_VERSION"
+    startup_step /usr/local/bin/select_composer_version.sh "$COMPOSER_VERSION"
 fi
 
 if [[ -n "$LOCALES" ]]; then
@@ -164,22 +171,22 @@ if [[ -n "$LOCALES" ]]; then
         echo 'Locales are not available in this image. If you are using the thecodingmachine/php "slim" variant, do not forget to add "ARG INSTALL_LOCALES=1" in your Dockerfile. Check the documentation for more details.' >&2
         exit 1
     fi
-    locale-gen --keep-existing $LOCALES > /dev/null
+    startup_step locale-gen --keep-existing $LOCALES > /dev/null
 fi
 
 # output on the logs can be done by writing on the "tini" PID. Useful for CRONTAB
 TINI_PID=`ps -e | grep tini | awk '{print $1;}'`
-/usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
+startup_step /usr/bin/real_php -d display_errors=stderr /usr/local/bin/generate_cron.php $TINI_PID > /tmp/generated_crontab
 chmod 0644 /tmp/generated_crontab
 
 if [[ "$WITH_APACHE" == "1" ]]; then
-    /usr/bin/real_php -d display_errors=stderr /usr/local/bin/enable_apache_mods.php | bash
+    startup_step bash -c '/usr/bin/real_php -d display_errors=stderr /usr/local/bin/enable_apache_mods.php | bash'
 fi
 
 if [ -e /etc/container/startup.sh ]; then
-    sudo -E -u "#$DOCKER_USER_ID" /etc/container/startup.sh
+    startup_step sudo -E -u "#$DOCKER_USER_ID" /etc/container/startup.sh
 fi
-sudo -E -u "#$DOCKER_USER_ID" sh -c "/usr/bin/real_php -d display_errors=stderr /usr/local/bin/startup_commands.php | bash"
+startup_step sudo -E -u "#$DOCKER_USER_ID" sh -c "/usr/bin/real_php -d display_errors=stderr /usr/local/bin/startup_commands.php | bash"
 
 if [[ "$APACHE_DOCUMENT_ROOT" == /* ]]; then
   export ABSOLUTE_APACHE_DOCUMENT_ROOT="$APACHE_DOCUMENT_ROOT"
