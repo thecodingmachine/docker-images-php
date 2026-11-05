@@ -68,7 +68,8 @@ jobs:
               docker buildx bake \
                 --print --progress=quiet \
                 php${PHP_VERSION//.} | jq -r '.target[].tags // [] | .[]');
-          for TAG in $TAGS; do docker push --quiet ${TAG}; done;
+          # 4 images at the same time, with retries: ghcr.io sometimes answers "unknown blob"
+          printf '%s\n' $TAGS | xargs -P 4 -I {} bash -c 'for i in 1 2 3; do docker push --quiet "{}" && exit 0; sleep 5; done; exit 1'
 
   merge-and-publish:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
