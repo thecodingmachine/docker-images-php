@@ -1,5 +1,8 @@
 # Benchmark: `apache` (mod_php) vs `fpm` with its built-in Apache
 
+> This benchmark compares the v5 default settings. The [capacity benchmark](../capacity/README.md) compares tuned
+> settings on one CPU, behind a reverse proxy and with HTTPS, and sets the new defaults of the images.
+
 Both variants run the same application with their default Apache settings and the same resources (2 CPUs, 2 GB),
 and receive exactly the same load: a constant number of pages per second. A page is a PHP request (~3 ms of CPU and
 20 ms of I/O) and 10 static assets, like a browser. A variant handles a rate when its p95 stays under 100 ms and its
