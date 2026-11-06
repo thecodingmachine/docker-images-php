@@ -4,8 +4,9 @@
 # General purpose PHP images for Docker
 
 > **The fpm variant has a built-in Apache** (`PHP_FPM_WEB_SERVER=apache`): the same features as the `apache` variant,
-> with 2 to 3 times more traffic served and 4 times less memory ([benchmark](benchmarks/fpm-apache/README.md)). It is
-> the recommended variant to serve a web application: see [Serving with the fpm variant](docs/fpm.md).
+> with 63% more traffic served with HTTPS and up to 29% more during a traffic peak
+> ([benchmark](benchmarks/capacity/README.md)). It is the recommended variant to serve a web application: see
+> [Serving with the fpm variant](docs/fpm.md) and the [tuning page](https://mistraloz.github.io/docker-images-php/tuning/).
 
 This repository contains a set of developer-friendly, general purpose PHP images for Docker.
 

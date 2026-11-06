@@ -59,6 +59,27 @@ test_httpPort() {
   assert_equals "foo" "$RESULT" "Apache does not listen on APACHE_HTTP_PORT"
 }
 ############################################################
+## Keep-alive is off by default and can be enabled with APACHE_KEEPALIVE
+############################################################
+test_keepAlive() {
+  RESULT="$(curl -sI http://localhost:${DOCKER1_PORT}/apache/ 2>&1)"
+  assert_matches "Connection: close" "$RESULT" "Keep-alive should be off by default"
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_KEEPALIVE=On \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    bash -c '(apache2-foreground > /dev/null 2>&1 &); for i in $(seq 1 20); do curl -sI http://localhost/ 2>/dev/null && break; sleep 0.25; done')"
+  assert_matches "^HTTP" "$RESULT" "Apache did not answer"
+  assert_not_matches "Connection: close" "$RESULT" "APACHE_KEEPALIVE was not applied"
+}
+############################################################
+## Fixed pool of APACHE_MAX_REQUEST_WORKERS processes
+############################################################
+test_maxRequestWorkers() {
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_MAX_REQUEST_WORKERS=3 \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    bash -c '(apache2-foreground > /dev/null 2>&1 &); sleep 2; pgrep -c apache2')"
+  assert_equals "4" "$RESULT" "APACHE_MAX_REQUEST_WORKERS was not applied (3 children + the parent)"
+}
+############################################################
 ## The MPM can be switched with APACHE_EXTENSION_*
 ############################################################
 test_switchMpm() {

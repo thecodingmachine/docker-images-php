@@ -3,6 +3,12 @@
 
 ### Minor changes
 
+* **2026-11-06**
+  * *apache* variant: keep-alive is off by default (`APACHE_KEEPALIVE`) and Apache runs a fixed pool of 30 mod_php processes (`APACHE_MAX_REQUEST_WORKERS`) instead of up to 150. With keep-alive, idle connections (of the browsers or of a reverse proxy) held all the processes; with 150 processes, a traffic peak could exhaust the memory of the container
+  * *fpm* variant: 10 PHP-FPM workers by default instead of 5, and the built-in Apache accepts up to 1024 threads (`APACHE_MAX_REQUEST_WORKERS`) instead of 150
+  * Apache: `ListenBacklog 4096`: an overload no longer makes the kernel drop connections
+  * New [capacity benchmark](benchmarks/capacity/README.md) and [tuning page](https://mistraloz.github.io/docker-images-php/tuning/) to size the settings for an application
+
 * **2026-11-05**
   * The *apache* and *fpm* images stop right away when a `docker stop` is requested during a long startup step (e.g. a `STARTUP_COMMAND_*`, or the configuration of the extensions on a loaded host): they were killed after the stop timeout (exit code 137 after 10 s)
   * Apache `mod_cgid` (`APACHE_EXTENSION_CGID=1`) starts in the *slim-apache* image and with the built-in Apache of the *fpm* variant: its socket directory was missing

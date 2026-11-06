@@ -143,6 +143,16 @@ test_apacheMpmEvent() {
   assert_not_matches "mpm_prefork.load" "$RESULT" "mpm_prefork should not be enabled"
 }
 ############################################################
+## The built-in Apache keeps the connections alive, with up to APACHE_MAX_REQUEST_WORKERS threads
+############################################################
+test_apacheConnections() {
+  RESULT="$(curl -sI http://localhost:${DOCKER1_PORT}/apache/ 2>&1)"
+  assert_matches "^HTTP" "$RESULT" "Apache did not answer"
+  assert_not_matches "Connection: close" "$RESULT" "Keep-alive should be on with mpm_event"
+  RESULT="$(docker exec "${DOCKER1_NAME}" bash -c 'ps -o nlwp= -p "$(pgrep -n apache2)"' | tr -d ' ')"
+  assert "test ${RESULT:-0} -gt 64" "An Apache process should run 64 worker threads (${RESULT} threads)"
+}
+############################################################
 ## PHP-FPM healthcheck
 ############################################################
 test_apacheHealthcheck() {

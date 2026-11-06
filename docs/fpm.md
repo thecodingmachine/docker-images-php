@@ -42,9 +42,11 @@ With `mod_php` (the *apache* variant), Apache must use `mpm_prefork`: each conne
 embedding PHP, including idle keep-alive connections (a browser opens up to 6) and static files. With PHP-FPM, Apache
 keeps the connections with a few threads, and only PHP requests reach the PHP workers.
 
-Under the same load ([benchmark](../benchmarks/fpm-apache), 2 CPUs, default settings), the container serves
-**2 to 3 times more traffic with 4 times less memory**: 30 vs 10 pages per second, 200 vs less than 100 PHP requests
-per second, ~90 vs ~380 MiB.
+Both reach the same CPU-bound capacity when nothing holds a connection (fast clients, or a reverse proxy in front of
+the container). As soon as connections live longer than PHP requests, the *fpm* variant serves more
+([benchmark](../benchmarks/capacity/README.md), 1 CPU): **+63% with HTTPS** terminated in the container (keep-alive
+and HTTP/2), and **+16% to +29% of pages served during a traffic peak** behind a reverse proxy, without the risk of
+running out of memory with many mod_php processes.
 
 Other differences:
 
@@ -164,8 +166,9 @@ nginx).
 ### Number of workers and memory
 
 PHP requests are processed by a fixed pool of PHP-FPM workers: **at most `PHP_FPM_PM_MAX_CHILDREN` requests are
-processed at the same time** (`5` by default, the Ubuntu default). The other ones wait for a free worker.
-With the *apache* variant, this limit was the number of Apache processes (`MaxRequestWorkers`, `150`).
+processed at the same time** (`10` by default). The other ones wait for a free worker.
+With the *apache* variant, this limit is the number of Apache processes (`APACHE_MAX_REQUEST_WORKERS`, `30`), which also
+serve the static files.
 
 `memory_limit` (`PHP_INI_MEMORY_LIMIT`) is a limit per request: in the worst case, PHP uses
 `PHP_FPM_PM_MAX_CHILDREN` x `memory_limit`. Size the number of workers for the memory of the container, for instance
@@ -175,13 +178,15 @@ your requests use much less memory (check the memory of the workers with `docker
 | Environment variable           | Default   | Description |
 |--------------------------------|-----------|-------------|
 | `PHP_FPM_PM`                   | `dynamic` | `static` (fixed number of workers), `dynamic` or `ondemand` |
-| `PHP_FPM_PM_MAX_CHILDREN`      | `5`       | Maximum number of workers (requests processed at the same time) |
-| `PHP_FPM_PM_START_SERVERS`     | `2`       | Workers started with PHP-FPM (`dynamic`) |
-| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `1`       | Minimum number of idle workers (`dynamic`) |
-| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `3`       | Maximum number of idle workers (`dynamic`) |
+| `PHP_FPM_PM_MAX_CHILDREN`      | `10`      | Maximum number of workers (requests processed at the same time) |
+| `PHP_FPM_PM_START_SERVERS`     | `4`       | Workers started with PHP-FPM (`dynamic`) |
+| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `2`       | Minimum number of idle workers (`dynamic`) |
+| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `6`       | Maximum number of idle workers (`dynamic`) |
 | `PHP_FPM_PM_MAX_REQUESTS`      | `0`       | Requests processed by a worker before it is restarted (`0`: never), useful if your application leaks memory |
 
-See the [PHP-FPM documentation](https://www.php.net/manual/en/install.fpm.configuration.php) for the details.
+See the [PHP-FPM documentation](https://www.php.net/manual/en/install.fpm.configuration.php) for the details, and the
+[tuning page](https://mistraloz.github.io/docker-images-php/tuning/) to estimate the number of workers for your
+application.
 
 ### Execution time
 
