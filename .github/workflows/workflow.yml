@@ -45,8 +45,30 @@ jobs:
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
-            --progress=quiet \
-            php${PHP_VERSION//.}
+            --progress=plain \
+            php${PHP_VERSION//.} > build.log 2>&1 || { tail -n 50 build.log; exit 1; }
+      - name: Upload the build log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-log-${{ matrix.php_version }}-${{ matrix.builder.arch }}
+          path: build.log
+          retention-days: 7
+      - name: Check the cache tags
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          PHP_VERSION="${{ matrix.php_version }}"
+          CACHE_REPO="${{ github.repository_owner }}/php-cache"
+          EXPECTED=$(CACHE_REPO="ghcr.io/${CACHE_REPO}" CACHE_WRITE=1 ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
+            docker buildx bake --print --progress=quiet php${PHP_VERSION//.} \
+            | jq -r '.target[]."cache-to"[]?.ref | sub(".*:"; "")' | sort)
+          # Anonymous token: the cache package is public
+          TOKEN=$(curl -fsS "https://ghcr.io/token?scope=repository:${CACHE_REPO}:pull" | jq -r .token)
+          EXISTING=$(curl -fsS -H "Authorization: Bearer ${TOKEN}" "https://ghcr.io/v2/${CACHE_REPO}/tags/list?n=1000" | jq -r '.tags[]' | sort)
+          MISSING=$(comm -23 <(echo "${EXPECTED}") <(echo "${EXISTING}"))
+          if [ -n "${MISSING}" ]; then
+            echo "::warning::Cache tags not written (see the export lines of build.log): $(echo ${MISSING})"
+          fi
       - name: Display tags built
         run: |
           docker image ls --filter="reference=ghcr.io/${{ github.repository_owner }}/php"  --format "{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"
