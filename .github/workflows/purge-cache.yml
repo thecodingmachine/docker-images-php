@@ -27,5 +27,7 @@ jobs:
           docker buildx imagetools create -t "${CACHE_REPO}:keep" docker.io/library/hello-world:latest
           OWNER_TYPE=$(gh api "users/${{ github.repository_owner }}" --jq 'if .type == "Organization" then "orgs" else "users" end')
           VERSIONS="${OWNER_TYPE}/${{ github.repository_owner }}/packages/container/php-cache/versions"
-          gh api --paginate "${VERSIONS}" --jq '.[] | select(.metadata.container.tags | index("keep") | not) | .id' \
-            | xargs -r -I {} gh api --silent -X DELETE "${VERSIONS}/{}"
+          # The whole list is read before the deletions, which shift the next pages
+          IDS=$(gh api --paginate "${VERSIONS}" --jq '.[] | select(.metadata.container.tags | index("keep") | not) | .id')
+          printf '%s\n' ${IDS} | xargs -r -I {} gh api --silent -X DELETE "${VERSIONS}/{}"
+          echo "$(printf '%s\n' ${IDS} | grep -c .) versions deleted"
