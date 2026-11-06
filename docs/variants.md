@@ -30,8 +30,8 @@ services:
 
 Apache runs PHP with `mod_php`. The sections below also apply to the [built-in Apache of the *fpm* variant](#built-in-apache).
 
-To serve a new application, prefer the *fpm* variant with its built-in Apache: the same features, with 2 to 3 times
-more traffic served and 4 times less memory ([benchmark](../benchmarks/fpm-apache/README.md)). See
+To serve a new application, prefer the *fpm* variant with its built-in Apache: the same features, with 63% more
+traffic served with HTTPS and up to 29% more during a traffic peak ([benchmark](../benchmarks/capacity/README.md)). See
 [Serving with the fpm variant](fpm.md) and its [migration notes](fpm.md#migrating-from-the-apache-variant).
 
 ### Document root
@@ -97,6 +97,21 @@ For the built-in Apache of the *fpm* variant, `mpm_event` `proxy` `proxy_fcgi` a
 
 This list can be outdated, you can verify it with: `docker run --rm thecodingmachine/php:8.4-v5-slim-apache a2enmod`
 
+### Connections and processes
+
+| Environment variable         | *apache* variant (`mpm_prefork`) | *fpm* variant (`mpm_event`) | Description |
+|------------------------------|----------------------------------|-----------------------------|-------------|
+| `APACHE_MAX_REQUEST_WORKERS` | `30`                             | `1024`                      | `MaxRequestWorkers`: Apache processes (fixed pool, each one embedding PHP) or threads |
+| `APACHE_KEEPALIVE`           | `Off`                            | `On`                        | `KeepAlive` with the clients |
+| `APACHE_KEEPALIVE_TIMEOUT`   | `5`                              | `5`                         | `KeepAliveTimeout`, in seconds |
+
+With `mod_php`, a process is busy for the whole life of a connection, including the idle time of a keep-alive
+connection: keep-alive is off by default, a reverse proxy in front of the container keeps the connections of the
+browsers. Each process uses the memory of a PHP worker: size the pool for the memory of the container.
+
+The [tuning page](https://mistraloz.github.io/docker-images-php/tuning/) estimates these settings (and the PHP-FPM
+ones) for your traffic, your application and your container.
+
 ### Apache user
 
 Apache runs as the `docker` user, which has the rights of the owner of your files (see
@@ -139,16 +154,15 @@ migrate from the *apache* variant.
 
 ### PHP-FPM settings
 
-The PHP-FPM process manager can be configured with environment variables (the defaults are the ones of the Ubuntu
-package):
+The PHP-FPM process manager can be configured with environment variables:
 
 | Environment variable           | `php-fpm.conf` setting  | Default           |
 |--------------------------------|-------------------------|-------------------|
 | `PHP_FPM_PM`                   | `pm`                    | `dynamic`         |
-| `PHP_FPM_PM_MAX_CHILDREN`      | `pm.max_children`       | `5`               |
-| `PHP_FPM_PM_START_SERVERS`     | `pm.start_servers`      | `2`               |
-| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `pm.min_spare_servers`  | `1`               |
-| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `pm.max_spare_servers`  | `3`               |
+| `PHP_FPM_PM_MAX_CHILDREN`      | `pm.max_children`       | `10`              |
+| `PHP_FPM_PM_START_SERVERS`     | `pm.start_servers`      | `4`               |
+| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `pm.min_spare_servers`  | `2`               |
+| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `pm.max_spare_servers`  | `6`               |
 | `PHP_FPM_PM_MAX_REQUESTS`      | `pm.max_requests`       | `0`               |
 | `PHP_FPM_ACCESS_LOG`           | `access.log`            | `/proc/self/fd/2` |
 

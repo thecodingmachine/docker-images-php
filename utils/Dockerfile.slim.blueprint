@@ -67,6 +67,22 @@ COPY utils/apache-docker-php-fpm.conf /etc/apache2/conf-available/docker-php.con
 
 RUN a2enconf docker-php
 
+# Connections and process pools, see the "Tuning" documentation page
+COPY utils/apache-mpm-prefork.conf /etc/apache2/mods-available/mpm_prefork.conf
+COPY utils/apache-mpm-event.conf /etc/apache2/mods-available/mpm_event.conf
+COPY utils/apache-docker-tuning.conf /etc/apache2/conf-available/docker-tuning.conf
+RUN a2enconf docker-tuning
+{{if eq .Orbit.variant "apache" }}
+# An idle keep-alive connection holds a whole mod_php process: keep-alive is left to the reverse proxy
+ENV APACHE_MAX_REQUEST_WORKERS=30 \
+    APACHE_KEEPALIVE=Off \
+    APACHE_KEEPALIVE_TIMEOUT=5
+{{else}}
+ENV APACHE_MAX_REQUEST_WORKERS=1024 \
+    APACHE_KEEPALIVE=On \
+    APACHE_KEEPALIVE_TIMEOUT=5
+{{end}}
+
 COPY utils/apache2-foreground /usr/local/bin/
 
 EXPOSE 80
@@ -112,12 +128,12 @@ COPY utils/fpm-docker.conf /etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf
 COPY utils/fpm-zz-docker-pm.conf /etc/php/${PHP_VERSION}/fpm/pool.d/zz-docker-pm.conf
 COPY utils/php-fpm-healthcheck /usr/local/bin/php-fpm-healthcheck
 
-# PHP-FPM process manager (defaults are the ones of the Ubuntu package)
+# PHP-FPM process manager
 ENV PHP_FPM_PM=dynamic \
-    PHP_FPM_PM_MAX_CHILDREN=5 \
-    PHP_FPM_PM_START_SERVERS=2 \
-    PHP_FPM_PM_MIN_SPARE_SERVERS=1 \
-    PHP_FPM_PM_MAX_SPARE_SERVERS=3 \
+    PHP_FPM_PM_MAX_CHILDREN=10 \
+    PHP_FPM_PM_START_SERVERS=4 \
+    PHP_FPM_PM_MIN_SPARE_SERVERS=2 \
+    PHP_FPM_PM_MAX_SPARE_SERVERS=6 \
     PHP_FPM_PM_MAX_REQUESTS=0 \
     PHP_FPM_ACCESS_LOG=/proc/self/fd/2
 
