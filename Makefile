@@ -10,7 +10,7 @@ _test-prerequisites: blueprint
 	docker pull ubuntu:20.04
 
 test-hot:  ## Test 7.4, 8.0 and 8.1 quickly
-	docker buildx bake --load \
+	docker buildx bake \
     		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
     		php80-slim-cli php80-cli
 	docker run --rm -it docker.io/thecodingmachine/php:8.0-v5-cli php -v
@@ -55,21 +55,21 @@ test-node:  ## Test node builds only
 	VERSION=8.4 VARIANT=cli NODE=26 $(MAKE) _test-node
 
 _test-node: _test-prerequisites ## Test node for VERSION="" and VARIANT=""
-	docker buildx bake --load \
+	docker buildx bake \
 		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
 		php$${VERSION//.}-$(VARIANT)-all
 	PHP_VERSION="$(VERSION)" BRANCH=v5 VARIANT=$(VARIANT) NODE=$(NODE) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT)-node$(NODE))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT)-node$(NODE))"
 
 _test-version: _test-prerequisites ## Test php build for VERSION="" and VARIANT=""
-	docker buildx bake --load \
+	docker buildx bake \
 		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
 		php$${VERSION//.}-$(VARIANT)-all
 	PHP_VERSION="$(VERSION)" BRANCH=v5 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT))"
 
 _test-version-quick: _test-prerequisites ## Test php build for VERSION="" and VARIANT="" (without node variants)
-	docker buildx bake --load \
+	docker buildx bake \
 		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
 		php$${VERSION//.}-slim-$(VARIANT) php$${VERSION//.}-$(VARIANT)
 	PHP_VERSION="$(VERSION)" BRANCH=v5 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
@@ -80,28 +80,7 @@ clean: ## Clean dangles image after build
 
 
 cves:
-	docker build \
-		--build-arg PHP_VERSION="8.4" \
-		--build-arg VARIANT="apache" \
-		--build-arg GLOBAL_VERSION="v5" \
-		--file ./Dockerfile.slim.apache \
-		--tag testv5-slim \
-		.
-	docker --debug build \
-		--build-arg PHP_VERSION="8.4" \
-		--build-arg VARIANT="apache" \
-		--build-arg GLOBAL_VERSION="v5" \
-		--build-arg FROM_IMAGE="testv5-slim" \
-		--file ./Dockerfile.apache \
-		--tag testv5 \
-		.
-	docker --debug build \
-		--build-arg PHP_VERSION="8.4" \
-		--build-arg VARIANT="apache-node22" \
-		--build-arg NODE_VERSION="22" \
-		--build-arg GLOBAL_VERSION="v5" \
-		--build-arg FROM_IMAGE="testv5" \
-		--file ./Dockerfile.apache.node \
-		--tag testv5-node \
-		.
-	docker scout cves testv5-node --only-fixed --locations
+	docker buildx bake \
+		--set "*.platform=$$(docker version -f '{{.Server.Os}}/{{.Server.Arch}}')" \
+		php84-apache-node22
+	docker scout cves thecodingmachine/php:8.4-v5-apache-node22 --only-fixed --locations

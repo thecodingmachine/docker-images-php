@@ -19,6 +19,8 @@ tasks:
   - use: generate
     short: Generates all Dockerfiles and the README.md file
     run:
+      - orbit generate -f utils/Dockerfile.base.blueprint -o Dockerfile.base
+      - orbit generate -f utils/Dockerfile.extensions.blueprint -o Dockerfile.extensions
       - orbit generate -f utils/Dockerfile.slim.blueprint -o Dockerfile.slim.apache -p "variant,apache"
       - orbit generate -f utils/Dockerfile.slim.blueprint -o Dockerfile.slim.cli -p "variant,cli"
       - orbit generate -f utils/Dockerfile.slim.blueprint -o Dockerfile.slim.fpm -p "variant,fpm"

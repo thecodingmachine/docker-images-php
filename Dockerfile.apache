@@ -3,13 +3,9 @@
 ARG INSTALL_CRON=1
 ARG INSTALL_COMPOSER=1
 ARG INSTALL_LOCALES=1
-ARG PHP_VERSION="8.4"
-ARG GLOBAL_VERSION="v5"
-ARG REPO="thecodingmachine/php"
-ARG TAG_PREFIX=""
 
-ARG FROM_IMAGE="${REPO}:${TAG_PREFIX}${PHP_VERSION}-${GLOBAL_VERSION}-slim-apache"
-FROM ${FROM_IMAGE}
+# The slim Dockerfile of the variant applied on Dockerfile.extensions (see docker-bake.hcl)
+FROM slim-with-extensions
 LABEL authors="Mistral Oz <m.oz@thecodingmachine.com>, Julien Neuhart <j.neuhart@thecodingmachine.com>, David Négrier <d.negrier@thecodingmachine.com>"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -17,15 +13,10 @@ ARG TARGETOS
 ARG TARGETARCH
 ARG BLACKFIRE_VERSION=2
 
-# |--------------------------------------------------------------------------
-# | Main PHP extensions
-# |--------------------------------------------------------------------------
-# |
-# | Installs the main PHP extensions
-# |
-
+# The packages of the variant enable all the extensions installed before them: enable only the ones of the slim image
 USER root
-RUN cd /usr/local/lib/thecodingmachine-php/extensions/current/ && ./install_all.sh && ./disable_all.sh
+RUN /usr/bin/real_php /usr/local/bin/setup_extensions.php | bash && \
+    cd /usr/local/lib/thecodingmachine-php/extensions/current/ && ./disable_all.sh
 USER docker
 
 # |--------------------------------------------------------------------------

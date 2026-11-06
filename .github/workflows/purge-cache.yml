@@ -1,0 +1,31 @@
+name: Purge the cache of the layers
+
+# Runs before the weekly build of v5, so that it starts from an empty cache and takes the updates of the packages
+on:
+  schedule:
+    - cron: '12 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  purge-cache:
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Delete the versions of the cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CACHE_REPO="ghcr.io/${{ github.repository_owner }}/php-cache"
+          # GitHub refuses to delete the last version of a package: the "keep" tag (an empty image) stays
+          docker buildx imagetools create -t "${CACHE_REPO}:keep" docker.io/library/hello-world:latest
+          OWNER_TYPE=$(gh api "users/${{ github.repository_owner }}" --jq 'if .type == "Organization" then "orgs" else "users" end')
+          VERSIONS="${OWNER_TYPE}/${{ github.repository_owner }}/packages/container/php-cache/versions"
+          gh api --paginate "${VERSIONS}" --jq '.[] | select(.metadata.container.tags | index("keep") | not) | .id' \
+            | xargs -r -I {} gh api --silent -X DELETE "${VERSIONS}/{}"

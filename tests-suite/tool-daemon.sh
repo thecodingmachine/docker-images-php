@@ -3,6 +3,21 @@
 
 IMAGE="${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}"
 
+# Waits until the main command of the variant answers and the daemon "sleep 300" runs in the container $1
+wait_started() {
+  local check
+  case "${VARIANT}" in
+    apache*) check='curl -s -o /dev/null http://localhost/ && pgrep -x sleep' ;;
+    fpm*) check='php-fpm-healthcheck && pgrep -x sleep' ;;
+    *) check='test "$(pgrep -cx sleep)" -ge 2' ;;
+  esac
+  for _ in $(seq 1 60); do
+    docker exec "$1" bash -c "${check}" > /dev/null 2>&1 && return 0
+    sleep 0.5
+  done
+  return 1
+}
+
 ############################################################
 ## DAEMON_COMMAND runs along with the main command, with the same user
 ############################################################
@@ -37,7 +52,7 @@ test_stopWhenDaemonExits() {
 test_dockerStop() {
   if [[ $VARIANT == cli* ]]; then COMMAND="sleep 300"; else COMMAND=""; fi
   docker run --name "${STOP_NAME}" ${RUN_OPTIONS} -d -e DAEMON_COMMAND_1="sleep 300" "${IMAGE}" ${COMMAND} > /dev/null
-  sleep 3
+  wait_started "${STOP_NAME}"
   START=$(date +%s)
   docker stop "${STOP_NAME}" > /dev/null 2>&1
   DURATION=$(( $(date +%s) - START ))

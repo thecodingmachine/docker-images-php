@@ -34,6 +34,21 @@ variable "IS_RELEASE" {default = "0"}
 variable "GLOBAL_VERSION" {default = "v5"}
 variable "ARCH_SUFFIX" {default = ""}
 
+# Registry of the cache of the layers between the runs (e.g. ghcr.io/thecodingmachine/php-cache), none by default.
+# The cache is only read, unless CACHE_WRITE=1
+variable "CACHE_REPO" {default = ""}
+variable "CACHE_WRITE" {default = "0"}
+
+function "cache_from" {
+    params = [NAME]
+    result = equal("", CACHE_REPO) ? [] : ["type=registry,ref=${CACHE_REPO}:${NAME}${ARCH_SUFFIX}"]
+}
+
+function "cache_to" {
+    params = [NAME]
+    result = equal("", CACHE_REPO) || !equal("1", CACHE_WRITE) ? [] : ["type=registry,ref=${CACHE_REPO}:${NAME}${ARCH_SUFFIX},mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true"]
+}
+
 function "tag" {
     params = [PHP_VERSION, VARIANT]
     result = [
@@ -54,39 +69,83 @@ target "default" {
   output = ["type=docker"] # export in local docker
 }
 
-{{range $phpV := $versions}}{{range $variant := $variants}}{{ $nodes := $legacyNodeVersions }}
+{{range $phpV := $versions}}
 ###########################
 ##    PHP {{ $phpV }}
 ###########################
+# Layers shared by the images of all the variants (not published)
+target "php{{ $phpV | replace "." "" }}-base" {
+  inherits = ["default"]
+  cache-from = cache_from("php{{ $phpV | replace "." "" }}-base")
+  cache-to = cache_to("php{{ $phpV | replace "." "" }}-base")
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "{{ $phpV }}"
+  }
+}
+
+target "php{{ $phpV | replace "." "" }}-extensions" {
+  inherits = ["default"]
+  cache-from = cache_from("php{{ $phpV | replace "." "" }}-extensions")
+  cache-to = cache_to("php{{ $phpV | replace "." "" }}-extensions")
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php{{ $phpV | replace "." "" }}-base"
+  }
+}
+{{range $variant := $variants}}{{ $nodes := $legacyNodeVersions }}
 # thecodingmachine/php:{{ $phpV }}-v5-slim-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}" {
   inherits = ["default"]
+  cache-from = cache_from("php{{ $phpV | replace "." "" }}-slim-{{ $variant }}")
+  cache-to = cache_to("php{{ $phpV | replace "." "" }}-slim-{{ $variant }}")
   tags = tag("{{ $phpV }}", "slim-{{ $variant }}")
   dockerfile = "Dockerfile.slim.{{ $variant }}"
   args = {
-    PHP_VERSION = "{{ $phpV }}"
     VARIANT = "{{ $variant }}"
+  }
+  contexts = {
+    base = "target:php{{ $phpV | replace "." "" }}-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php{{ $phpV | replace "." "" }}-slim-{{ $variant }}-with-extensions" {
+  inherits = ["default"]
+  cache-from = cache_from("php{{ $phpV | replace "." "" }}-slim-{{ $variant }}-with-extensions")
+  cache-to = cache_to("php{{ $phpV | replace "." "" }}-slim-{{ $variant }}-with-extensions")
+  dockerfile = "Dockerfile.slim.{{ $variant }}"
+  args = {
+    VARIANT = "{{ $variant }}"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php{{ $phpV | replace "." "" }}-extensions"
   }
 }
 
 # thecodingmachine/php:{{ $phpV }}-v5-{{ $variant }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}" {
   inherits = ["default"]
+  cache-from = cache_from("php{{ $phpV | replace "." "" }}-{{ $variant }}")
+  cache-to = cache_to("php{{ $phpV | replace "." "" }}-{{ $variant }}")
   tags = tag("{{ $phpV }}", "{{ $variant }}")
   dockerfile = "Dockerfile.{{ $variant }}"
   args = {
-    PHP_VERSION = "{{ $phpV }}"
     VARIANT = "{{ $variant }}"
-    FROM_IMAGE = "slim"
   }
   contexts = {
-    slim = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}"
+    slim-with-extensions = "target:php{{ $phpV | replace "." "" }}-slim-{{ $variant }}-with-extensions"
   }
 }
 {{range $nodeV := $nodes}}
 # thecodingmachine/php:{{ $phpV }}-v5-{{ $variant }}-node{{ $nodeV }}
 target "php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}" {
   inherits = ["default"]
+  cache-from = cache_from("php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}")
+  cache-to = cache_to("php{{ $phpV | replace "." "" }}-{{ $variant }}-node{{ $nodeV }}")
   tags = tag("{{ $phpV }}", "{{ $variant }}-node{{ $nodeV }}")
   dockerfile = "Dockerfile.{{ $variant }}.node"
   args = {
