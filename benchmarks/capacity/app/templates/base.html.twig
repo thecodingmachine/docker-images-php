@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Shop{% endblock %}</title>
+    {% for i in 1..10 %}
+    <link rel="stylesheet" href="/assets/asset{{ i }}.css">
+    {% endfor %}
+</head>
+<body>
+    <nav>{% block nav %}{% endblock %}</nav>
+    <main>{% block body %}{% endblock %}</main>
+    <footer>&copy; {{ 'now'|date('Y') }} Shop</footer>
+</body>
+</html>
