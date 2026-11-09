@@ -1,6 +1,10 @@
 # Contributing
 
-Submit your pull requests to the `v5` branch.
+Submit your pull requests to the `v5` branch: fixes and features land in v5 first. Each push on `v5` cherry-picks
+its new commits onto `v6` (`.github/workflows/forward-port.yml`), so `v6` holds the commits of v5 plus its own ones.
+When a commit conflicts with `v6`, the workflow fails: cherry-pick it by hand with `git cherry-pick -x`, resolve,
+push to `v6`, then run the workflow again. Only the changes that break v5 compatibility (new defaults, removed
+features) go directly to `v6`.
 
 ## Generated files
 
