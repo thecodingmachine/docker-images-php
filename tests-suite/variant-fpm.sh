@@ -149,8 +149,11 @@ test_apacheConnections() {
   RESULT="$(curl -sI http://localhost:${DOCKER1_PORT}/apache/ 2>&1)"
   assert_matches "^HTTP" "$RESULT" "Apache did not answer"
   assert_not_matches "Connection: close" "$RESULT" "Keep-alive should be on with mpm_event"
-  RESULT="$(docker exec "${DOCKER1_NAME}" bash -c 'ps -o nlwp= -p "$(pgrep -n apache2)"' | tr -d ' ')"
-  assert "test ${RESULT:-0} -gt 64" "An Apache process should run 64 worker threads (${RESULT} threads)"
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e PHP_FPM_WEB_SERVER=apache -e APACHE_MAX_REQUEST_WORKERS=1000 \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    bash -c 'apache2ctl -t 2>&1')"
+  assert_matches "Syntax OK" "$RESULT" "Apache should accept APACHE_MAX_REQUEST_WORKERS=1000"
+  assert_not_matches "MaxRequestWorkers" "$RESULT" "MaxRequestWorkers should not be lowered (${RESULT})"
 }
 ############################################################
 ## PHP-FPM healthcheck

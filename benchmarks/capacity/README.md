@@ -3,19 +3,20 @@
 How many pages per second can one container serve, with the `apache` variant (Apache `mpm_prefork` + mod_php) and the
 `fpm` variant (built-in Apache `mpm_event` + PHP-FPM, or nginx + PHP-FPM)? And which settings get there?
 
-These measures set the default settings of the images and calibrate the [tuning simulator](https://mistraloz.github.io/docker-images-php/tuning/).
+These measures give the tuned settings proposed as defaults for the v6 images and calibrate the [tuning simulator](https://mistraloz.github.io/docker-images-php/tuning/).
 
 ## Summary
 
-- **The current defaults of the `apache` variant break under a real load**: keep-alive with browsers holds all the
+- **The v5 defaults of the `apache` variant break under a real load**: keep-alive with browsers holds all the
   mod_php processes (less than 3 pages/s with 3% of CPU), and a traffic peak with 48 MB pages spawns up to 150
   processes that exhaust the memory (208 processes killed, 30% of errors, 2 pages/s served).
 - **Tuned, mod_php and PHP-FPM reach the same CPU-bound capacity** when nothing holds a connection: fast clients in
   plain HTTP, or behind a reverse proxy.
 - **PHP-FPM wins as soon as connections live longer than PHP**: +63% with HTTPS terminated in the container, keep-alive
   and HTTP/2 for the browsers, and +16% to +29% of pages served during a traffic peak behind a reverse proxy.
-- New defaults (see [Image settings](#image-settings)): `apache` variant without keep-alive and with a fixed pool of
-  30 processes; `fpm` variant with 10 PHP workers and a larger `mpm_event`.
+- Tuned settings (see [Tuned settings](#tuned-settings)), set with environment variables in v5 and proposed as
+  defaults for v6: `apache` variant without keep-alive and with a fixed pool of 30 processes; `fpm` variant with 10 PHP
+  workers and a larger `mpm_event`.
 
 ## Method
 
@@ -50,8 +51,8 @@ Think time 1 s, browsers keep their connections.
 | `fpm` + Apache, 10 workers, default `mpm_event` | 37 / 40 | 49-53% | 82 MiB |
 | `fpm` + Apache, 10 workers, larger `mpm_event` ([fpm-tuned](configs/fpm-tuned)) | 81 / 84 | 102% | 148 MiB |
 | nginx + `fpm` | 93 / 96 | 100% | 47 MiB |
-| **`apache`, new defaults** | **75 / 78** | 93-101% | 129 MiB |
-| **`fpm` + Apache, new defaults** | **81 / 84** | 101% | 187 MiB |
+| **`apache`, tuned settings as image defaults** | **75 / 78** | 93-101% | 129 MiB |
+| **`fpm` + Apache, tuned settings as image defaults** | **81 / 84** | 101% | 187 MiB |
 
 - With keep-alive, each idle browser connection holds a mod_php process: the 150 processes are exhausted with an idle
   CPU.
@@ -87,8 +88,8 @@ plain HTTP to the container. Each page waits 30 ms (database) and uses 16 MB. Th
 | `apache`, keep-alive on + fixed pool of 30 | 25 / 27 (p99 14 s) | 39 s, errors |
 | `fpm` + Apache, v5 defaults | 27 / 28 | 7 s, 177 MiB |
 | `fpm` + Apache, tuned | 27 / 28 | 4.6 s, 270 MiB |
-| **`apache`, new defaults** | **27 / 28** | |
-| **`fpm` + Apache, new defaults** | **28 / 30** | |
+| **`apache`, tuned settings as image defaults** | **27 / 28** | |
+| **`fpm` + Apache, tuned settings as image defaults** | **28 / 30** | |
 
 - Same capacity: the proxy keeps the browser connections, the container only sees short requests.
 - With keep-alive, the proxy parks idle connections on the mod_php processes: near the limit, new connections wait
@@ -113,16 +114,18 @@ Same scenario, 60 s at about twice the capacity.
   the CPU with less contention than 30 mod_php processes, and Apache serves the static files without waiting for a
   PHP process.
 
-## Image settings
+## Tuned settings
 
 | | `apache` variant | `fpm` variant (built-in Apache) |
 |---|---|---|
-| `APACHE_KEEPALIVE` | `Off` (was `On`) | `On` |
-| `APACHE_MAX_REQUEST_WORKERS` | `30`, fixed pool (was a dynamic pool up to `150`) | `1024` threads, 64 per process (was `150`, 25 per process) |
-| `ListenBacklog` | `4096` (was `511`) | `4096` |
-| `PHP_FPM_PM_MAX_CHILDREN` | | `10` (was `5`), start `4`, spare `2`-`6` |
+| `APACHE_KEEPALIVE` | `Off` (v5 default: `On`) | `On` |
+| `APACHE_MAX_REQUEST_WORKERS` | `30`, fixed pool (v5 default: a dynamic pool up to `150`) | `1024` threads, 64 per process (v5 default: `150`, 25 per process) |
+| `ListenBacklog` | `4096` (default: `511`) | `4096` |
+| `PHP_FPM_PM_MAX_CHILDREN` | | `10` (v5 default: `5`), start `4`, spare `2`-`6` |
 
-They are a median for a typical application on 1-2 CPUs. Size them for your application with the
+The v5 images keep their defaults: set `APACHE_KEEPALIVE`, `APACHE_MAX_REQUEST_WORKERS` and the `PHP_FPM_PM_*`
+variables (the measured configurations are in [configs](configs)). These settings are a median for a typical
+application on 1-2 CPUs: size them for your application with the
 [tuning simulator](https://mistraloz.github.io/docker-images-php/tuning/).
 
 ## What is not covered
