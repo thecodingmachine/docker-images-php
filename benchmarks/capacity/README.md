@@ -3,7 +3,7 @@
 How many pages per second can one container serve, with the `apache` variant (Apache `mpm_prefork` + mod_php) and the
 `fpm` variant (built-in Apache `mpm_event` + PHP-FPM, or nginx + PHP-FPM)? And which settings get there?
 
-These measures give the tuned settings proposed as defaults for the v6 images and calibrate the [tuning simulator](https://mistraloz.github.io/docker-images-php/tuning/).
+These measures give the tuned settings proposed as defaults for the v6 images and calibrate the [tuning simulator](https://thecodingmachine.github.io/docker-images-php/tuning/).
 
 ## Summary
 
@@ -126,7 +126,7 @@ Same scenario, 60 s at about twice the capacity.
 The v5 images keep their defaults: set `APACHE_KEEPALIVE`, `APACHE_MAX_REQUEST_WORKERS` and the `PHP_FPM_PM_*`
 variables (the measured configurations are in [configs](configs)). These settings are a median for a typical
 application on 1-2 CPUs: size them for your application with the
-[tuning simulator](https://mistraloz.github.io/docker-images-php/tuning/).
+[tuning simulator](https://thecodingmachine.github.io/docker-images-php/tuning/).
 
 ## What is not covered
 
