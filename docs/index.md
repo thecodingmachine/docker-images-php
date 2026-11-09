@@ -6,8 +6,8 @@ environment variables. The list of images and the quick start are in the
 
 ## Choose and size
 
-- [Tuning: Apache, mod_php or PHP-FPM](tuning/): describe your traffic, your application and your container, get the
-  settings and the variant to use.
+- [Tuning simulator](tuning/): pick your kind of application and your number of users, get the variant to use and
+  its settings.
 - [Variants](variants.md): *cli*, *apache* (document root, ports, modules, connections) and *fpm*.
 - [Serving with the fpm variant](fpm.md): built-in Apache or your own web server, constraints of PHP-FPM, migration from
   the *apache* variant.
@@ -25,4 +25,4 @@ environment variables. The list of images and the quick start are in the
 - [Security: php2shell](security-php2shell.md)
 - [Contributing](contributing.md)
 
-Coming with v6: a [FrankenPHP](https://frankenphp.dev/) variant, previewed in the [tuning page](tuning/).
+Coming with v6: a [FrankenPHP](https://frankenphp.dev/) variant, previewed in the [tuning simulator](tuning/).
