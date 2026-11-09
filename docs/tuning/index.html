@@ -801,7 +801,7 @@ function reasons(d, res) {
   const f = res.apachefpm.sets.optimized, m = res.modphp.sets.optimized, md = res.modphp.sets.default, fd = res.apachefpm.sets.default;
   const out = [];
   const gap = (f.cap.users - m.cap.users) / Math.max(0.1, m.cap.users) * 100;
-  if (md.now.mem.worst > d.ram && fd.now.mem.worst <= d.ram) out.push({ n: fmtMb(md.now.mem.worst), t: 'for mod_php with the default settings', p: `Up to 150 mod_php processes of ≈ ${fmtMb(MEM.proc + d.mem)}: a rush can start them all, in a ${fmtMb(d.ram)} container. The 5 default PHP-FPM workers need ${fmtMb(fd.now.mem.worst)}.` });
+  if (md.now.mem.worst > d.ram && fd.now.mem.worst <= d.ram) out.push({ n: fmtMb(md.now.mem.worst), t: 'for mod_php with the default settings', p: `Up to ${DEFAULTS.modphp.workers} mod_php processes of ≈ ${fmtMb(MEM.proc + d.mem)}: a rush can start them all, in a ${fmtMb(d.ram)} container. The ${DEFAULTS.apachefpm.children} default PHP-FPM workers need ${fmtMb(fd.now.mem.worst)}.` });
   if (gap >= 5) {
     const share = m.now.used ? Math.round((m.now.connHeld + m.now.idle) / m.now.used * 100) : 0;
     let cause;
