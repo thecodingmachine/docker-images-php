@@ -109,8 +109,9 @@ With `mod_php`, a process is busy for the whole life of a connection, including 
 connection: keep-alive is off by default, a reverse proxy in front of the container keeps the connections of the
 browsers. Each process uses the memory of a PHP worker: size the pool for the memory of the container.
 
-The [tuning page](https://mistraloz.github.io/docker-images-php/tuning/) estimates these settings (and the PHP-FPM
-ones) for your traffic, your application and your container.
+The [tuning simulator](tuning/) chooses these settings (and the PHP-FPM ones) for your application, your users and
+your container, for instance a [CRM with 20 employees](tuning/#app=crm&users=20&front=proxy) or a
+[WordPress site with 100 visitors and HTTPS in the container](tuning/#app=wp&users=100&front=https).
 
 ### Apache user
 

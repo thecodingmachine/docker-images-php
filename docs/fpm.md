@@ -185,8 +185,8 @@ your requests use much less memory (check the memory of the workers with `docker
 | `PHP_FPM_PM_MAX_REQUESTS`      | `0`       | Requests processed by a worker before it is restarted (`0`: never), useful if your application leaks memory |
 
 See the [PHP-FPM documentation](https://www.php.net/manual/en/install.fpm.configuration.php) for the details, and the
-[tuning page](https://mistraloz.github.io/docker-images-php/tuning/) to estimate the number of workers for your
-application.
+[tuning simulator](tuning/) to choose the number of workers for your application, for instance an
+[API with 1000 users](tuning/#app=api&users=1000&front=proxy).
 
 ### Execution time
 
@@ -217,6 +217,7 @@ error. Use the `PHP_INI_*` environment variables, or a [`.user.ini` file](https:
 
 1. Use the *fpm* image and enable the built-in Apache: `thecodingmachine/php:8.4-v5-apache` becomes
    `thecodingmachine/php:8.4-v5-fpm` with `PHP_FPM_WEB_SERVER=apache`. Keep your `APACHE_*` variables.
-2. Set the number of PHP workers (`PHP_FPM_PM_MAX_CHILDREN`) for your traffic and your memory (see above).
+2. Set the number of PHP workers (`PHP_FPM_PM_MAX_CHILDREN`) for your traffic and your memory (see above, or the
+   [tuning simulator](tuning/)).
 3. Replace the `php_value` / `php_flag` directives of your `.htaccess` files.
 4. Optionally, use `php-fpm-healthcheck` as healthcheck (Docker) or probe (Kubernetes).

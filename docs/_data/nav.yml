@@ -1,0 +1,30 @@
+- title: Start
+  items:
+    - title: Overview
+      url: /
+    - title: Variants
+      url: /variants.html
+- title: Serve and size
+  items:
+    - title: Serving with the fpm variant
+      url: /fpm.html
+    - title: Tuning simulator
+      url: /tuning/
+- title: Configure
+  items:
+    - title: PHP extensions
+      url: /extensions.html
+    - title: PHP configuration
+      url: /php-configuration.html
+    - title: Processes, cron, daemons
+      url: /processes.html
+    - title: Debugging and profiling
+      url: /debugging.html
+    - title: Advanced features
+      url: /advanced.html
+- title: Project
+  items:
+    - title: "Security: php2shell"
+      url: /security-php2shell.html
+    - title: Contributing
+      url: /contributing.html
