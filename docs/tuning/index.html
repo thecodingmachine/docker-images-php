@@ -2,132 +2,200 @@
 layout: default
 title: Tuning simulator
 wide: true
-description: Choose between mod_php, PHP-FPM and FrankenPHP and size their settings for your application, your users and your container.
+description: Choose between mod_php, PHP-FPM and FrankenPHP and size their settings for your application, your users and your servers.
 ---
 <style>
 .lead { color: var(--muted); margin: 0; max-width: 860px; }
 .step { display: inline-flex; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; align-items: center; justify-content: center; margin-right: 8px; vertical-align: 2px; }
 section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin: 16px 0; }
 section.panel h2 { font-size: 18px; margin: 0 0 14px; }
-.q { font-weight: 600; font-size: 14px; margin: 16px 0 8px; }
-.q:first-of-type { margin-top: 0; }
-.apps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.app { text-align: left; font: inherit; color: inherit; background: var(--soft); border: 2px solid transparent; border-radius: var(--radius); padding: 10px 12px; cursor: pointer; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+.apps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
+.app { text-align: left; font: inherit; color: inherit; background: var(--soft); border: 2px solid transparent; border-radius: var(--radius); padding: 12px 14px; cursor: pointer; display: flex; gap: 12px; align-items: center; }
+.app svg { flex: none; width: 34px; height: 34px; color: var(--muted); }
 .app b { display: block; font-size: 15px; }
 .app span { font-size: 13px; color: var(--muted); }
 .app.on { border-color: var(--accent); background: var(--panel); }
-.seg { display: flex; flex-wrap: wrap; gap: 6px; }
-.seg button, .btn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--soft); color: var(--ink); border-radius: 999px; padding: 5px 14px; cursor: pointer; }
-.seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-.seg button small { opacity: 0.8; }
-.row2 { margin-top: 6px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
-.mix { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.app.on svg { color: var(--accent); }
+.dials { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.dial { background: var(--soft); border-radius: var(--radius); padding: 12px 14px; }
+.dial .value { font: 600 30px/1.2 var(--mono); letter-spacing: -0.02em; margin: 4px 0 6px; }
+.dial .value small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.dial input[type=range] { width: 100%; accent-color: var(--accent); }
+.dial .hint { margin-top: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chips button, .btn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.chips button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chips input[type=number] { width: 72px; font: inherit; font-size: 13px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+.duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
+.box { background: var(--soft); border-radius: var(--radius); padding: 12px 14px; }
+.box .row { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.box .row > span:first-child { min-width: 92px; font-size: 13px; color: var(--muted); }
+.mix { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 10px; }
 .mix input { flex: 1; accent-color: var(--accent); }
 .mix output { font-family: var(--mono); white-space: nowrap; }
 .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.facts { margin-top: 16px; padding: 10px 12px; background: var(--soft); border-radius: 8px; font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
-.facts span b { font-family: var(--mono); }
-.facts .btn { margin-left: auto; background: var(--panel); }
-.adjust { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 20px; margin-top: 10px; }
+details.more { margin-top: 12px; }
+details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent); }
+.adjust { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 20px; margin-top: 6px; }
 .field { margin: 8px 0 0; }
 .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
 .field label output { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
 .field input[type=range] { width: 100%; accent-color: var(--accent); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: inherit; font-size: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
+.seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 .legend-box { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
 .legend-box summary { cursor: pointer; }
 .legend-box dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 8px 0 0; }
 .legend-box dt { font-weight: 600; color: var(--ink); }
 .legend-box dd { margin: 0; }
-.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
-.card { border: 2px solid var(--line); border-radius: var(--radius); padding: 14px 12px 12px; position: relative; background: var(--panel); }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.card { border: 2px solid var(--line); border-radius: var(--radius); padding: 14px; position: relative; background: var(--panel); }
 .card.best { border-color: var(--ok); }
 .card.soon { border-style: dashed; border-color: var(--c-franken); }
-.card .name { font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.card .name { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
 .card .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
-.card .tag { font-size: 12px; color: var(--muted); }
-.card .badge { position: absolute; top: -11px; right: 10px; background: var(--ok); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.card .tag { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+.card .badge { position: absolute; top: -11px; right: 12px; background: var(--ok); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
 .card.soon .badge { background: var(--c-franken); }
-.big { margin-top: 12px; font-size: 13px; color: var(--muted); }
-.big b { font-size: 26px; color: var(--ink); font-family: var(--mono); letter-spacing: -0.02em; }
-.sub { font-size: 13px; margin-top: 4px; }
-.bar { height: 8px; background: var(--soft); border-radius: 4px; overflow: hidden; position: relative; margin-top: 4px; }
-.bar i { display: block; height: 100%; border-radius: 4px; }
-.bar .mark { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); }
-.kv { margin-top: 10px; font-size: 13px; }
-.kv .r { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-top: 1px solid var(--line); }
-.kv .r span { color: var(--muted); }
-.kv .r b { font-family: var(--mono); text-align: right; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.stat { background: var(--soft); border-radius: 8px; padding: 8px 10px; }
+.stat .k { font-size: 11px; color: var(--muted); }
+.stat .v { font: 600 18px/1.3 var(--mono); }
+.stat .s { font-size: 11px; color: var(--muted); }
+.stat.main .v { font-size: 24px; }
 .good { color: var(--ok); } .meh { color: var(--warn); } .bad { color: var(--bad); }
-.settings { margin-top: 10px; background: var(--soft); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; }
-.settings .head { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-.settings .head button { font: inherit; text-transform: none; letter-spacing: 0; font-size: 12px; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; }
-.settings table { display: table; width: 100%; table-layout: fixed; font-size: 12px; margin-top: 4px; }
-.settings td { border: 0; padding: 2px 0; }
-.settings td:last-child { width: 4.5em; text-align: right; font-family: var(--mono); font-weight: 600; white-space: nowrap; }
-.settings td a { font-family: var(--mono); color: var(--ink); text-decoration: underline dotted var(--muted); }
-.settings .field { margin-top: 6px; }
-.settings .changed { color: var(--warn); }
-.flags { list-style: none; padding: 0; margin: 10px 0 0; font-size: 12px; }
+.bar { height: 6px; background: var(--panel); border-radius: 3px; overflow: hidden; position: relative; margin-top: 4px; }
+.bar i { display: block; height: 100%; border-radius: 3px; }
+.bar .mark { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); }
+.cmp { display: table; width: 100%; table-layout: fixed; font-size: 12.5px; margin-top: 12px; }
+.cmp th, .cmp td { padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.cmp th { font-size: 11px; text-align: right; }
+.cmp th:first-child { text-align: left; width: 46%; }
+.cmp td { text-align: right; font-family: var(--mono); white-space: nowrap; }
+.cmp td:first-child { text-align: left; font-family: inherit; white-space: normal; }
+.cmp td:first-child a { font-family: var(--mono); color: var(--ink); text-decoration: underline dotted var(--muted); font-size: 12px; }
+.cmp .col-best { background: color-mix(in srgb, var(--ok) 10%, transparent); font-weight: 700; }
+.cmp th.col-best { color: var(--ok); }
+.cmp tr.impact td { color: var(--muted); }
+.cmp tr.impact td:first-child { font-style: italic; }
+.cmp tr.sep td { border-top: 2px solid var(--line); }
+.tools { display: flex; gap: 12px; align-items: center; margin-top: 8px; font-size: 12.5px; }
+.tools button { font: inherit; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; }
+.adjust-box { background: var(--soft); border-radius: 8px; padding: 4px 10px 8px; margin-top: 8px; }
+.flags { list-style: none; padding: 0; margin: 10px 0 0; font-size: 12.5px; }
 .flags li { padding-left: 18px; position: relative; margin-top: 4px; }
 .flags li::before { position: absolute; left: 0; font-weight: 700; }
 .flags li.ok::before { content: "✓"; color: var(--ok); }
 .flags li.warn::before { content: "!"; color: var(--warn); }
 .flags li.bad::before { content: "✕"; color: var(--bad); }
-.card details { margin-top: 10px; font-size: 12px; }
+.card details { margin-top: 8px; font-size: 12.5px; }
 .card details summary { cursor: pointer; color: var(--accent); }
 .card pre { margin: 6px 0 0; font-size: 11.5px; padding: 8px; }
-.copy { font-size: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 6px; padding: 2px 8px; cursor: pointer; margin-top: 6px; }
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; align-items: start; }
 .verdict { border-left: 4px solid var(--ok); padding: 10px 14px; background: var(--soft); border-radius: 0 8px 8px 0; }
 .verdict.warn { border-left-color: var(--warn); }
 .verdict p { margin: 4px 0; }
-.verdict ul { margin: 6px 0; padding-left: 18px; }
+.why { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 12px 0 18px; }
+.reason { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.reason .n { font: 700 22px/1.2 var(--mono); color: var(--c-apachefpm); }
+.reason.neutral .n { color: var(--muted); }
+.reason .t { font-weight: 600; font-size: 13px; margin: 2px 0 4px; }
+.reason p { font-size: 12.5px; color: var(--muted); margin: 0; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; align-items: start; }
 .chart svg { width: 100%; height: auto; display: block; }
 .chart text { fill: var(--muted); font-size: 11px; font-family: system-ui, sans-serif; }
 .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 6px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend i { width: 18px; height: 3px; display: inline-block; border-radius: 2px; }
+#config pre { margin: 12px 0 8px; font-size: 12.5px; line-height: 1.6; }
+#config pre .c { color: var(--muted); }
 .docs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
 .docs a { display: block; background: var(--soft); border-radius: 8px; padding: 10px 12px; text-decoration: none; color: var(--ink); font-size: 13px; }
 .docs a b { display: block; color: var(--accent); }
-@media (max-width: 1200px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .split { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 760px) { .apps, .row2, .adjust, .docs { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 560px) { .cards { grid-template-columns: minmax(0, 1fr); } .legend-box dl { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1200px) { .cards { grid-template-columns: minmax(0, 1fr); } .split { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) { .apps, .dials, .duo, .adjust, .docs { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .legend-box dl { grid-template-columns: minmax(0, 1fr); } .cmp th:first-child { width: 40%; } }
 </style>
 
 <h1>Tuning simulator: mod_php, PHP-FPM or FrankenPHP</h1>
-<p class="lead">Pick the situation closest to yours: each way to serve PHP gets the settings that fit it best, and
-  the page estimates how many users it serves. It is a model calibrated on our
+<p class="lead">Pick the situation closest to yours: each way to serve PHP gets the settings that fit it best, next to
+  the v5 settings and the new defaults of the images. It is a model calibrated on our
   <a href="https://github.com/mistraloz/docker-images-php/blob/feat/apache-fpm-tuning/benchmarks/capacity/README.md">benchmarks</a>,
   not a load test: use it to choose and to start, then measure.</p>
 
 <section class="panel" id="situation">
   <h2><span class="step">1</span>Your situation</h2>
-  <div class="q">Application</div>
+  <div class="label">Application</div>
   <div class="apps" id="apps"></div>
-  <div class="row2">
-    <div>
-      <div class="q" id="users-q">Simultaneous users at the busiest moment</div>
-      <div class="seg" id="users"></div>
+
+  <div class="dials">
+    <div class="dial">
+      <div class="label" id="users-label">Users at the busiest moment</div>
+      <div class="value" id="v-users"></div>
+      <div class="chips" id="users"></div>
+      <div class="hint">Simultaneous users of the application, all servers together.</div>
     </div>
-    <div>
-      <div class="q">In front of the container</div>
-      <div class="seg" id="front">
-        <button data-v="proxy">Reverse proxy <small>(Traefik, nginx, load balancer)</small></button>
+    <div class="dial">
+      <div class="label">Average response time</div>
+      <div class="value" id="v-wall"></div>
+      <input type="range" id="wall" min="0" max="1000">
+      <div class="hint">Of a PHP request, as measured in production (APM, access log) or by your profiler in prod mode.</div>
+    </div>
+    <div class="dial">
+      <div class="label">Memory per request</div>
+      <div class="value" id="v-mem"></div>
+      <input type="range" id="mem" min="0" max="1000">
+      <div class="hint">Average peak of a request (<code>memory_get_peak_usage()</code>, profiler).</div>
+    </div>
+  </div>
+
+  <div class="duo">
+    <div class="box">
+      <div class="label">In front of the containers</div>
+      <div class="chips" id="front" style="margin-top:8px">
+        <button data-v="proxy">Reverse proxy</button>
         <button data-v="https">HTTPS served by the container</button>
       </div>
       <div class="hint" id="front-hint"></div>
-      <div id="mix-box" class="field">
-        <div class="mix"><span>Desktop</span><input type="range" id="mobile" min="0" max="100" step="5"><span>Mobile</span>
-          <output id="o-mobile"></output></div>
-        <div class="hint">Mobile round trips are longer (≈ 50 ms against 20 ms on fiber or cable): with HTTPS served
-          by the container, they hold the connections longer. Default: about half of the European web traffic.
-          <a href="#" id="mix-reset">European mix</a></div>
+      <div id="mix-box">
+        <div class="mix"><span>Desktop</span><input type="range" id="mobile" min="0" max="100" step="5"><span>Mobile</span><output id="o-mobile"></output></div>
+        <div class="hint">Mobile round trips are longer (≈ 50 ms against 20 ms): they hold the connections longer.
+          <a href="#" id="mix-reset">European mix (50%)</a></div>
       </div>
     </div>
+    <div class="box">
+      <div class="label">Production servers</div>
+      <div class="row"><span>CPUs per container</span><div class="chips" id="vcpu"></div></div>
+      <div class="row"><span>Memory per container</span><div class="chips" id="ram"></div></div>
+      <div class="row"><span>Containers</span><div class="chips" id="count"></div></div>
+    </div>
   </div>
-  <div class="facts" id="facts"></div>
-  <div id="adjust" hidden></div>
+
+  <details class="more" id="more">
+    <summary>Application details: waiting time, heavy requests, framework boot, pages</summary>
+    <div class="adjust">
+      <div>
+        <div class="field"><label>Share of the response time spent waiting <output></output></label>
+          <input type="range" data-s="wait" min="0" max="95" step="5"><div class="hint">Database, cache, HTTP APIs: time without CPU.</div></div>
+        <div class="field"><label>Heaviest request <output></output></label>
+          <input type="range" data-s="peakMem" min="32" max="4096" step="32"><div class="hint">An export, a report, an import: counted once in the worst-case memory.</div></div>
+      </div>
+      <div>
+        <div class="field"><label>Framework boot per request <output></output></label>
+          <input type="range" data-s="boot" min="0" max="200" step="5"><div class="hint">Kernel, container, service providers: what FrankenPHP's worker mode saves.</div></div>
+        <div class="field"><label>PHP requests per page <output></output></label>
+          <input type="range" data-s="php" min="1" max="10" step="1"><div class="hint">The page and its XHR / API calls.</div></div>
+      </div>
+      <div>
+        <div class="field"><label>Static files per page from the container <output></output></label>
+          <input type="range" data-s="static" min="0" max="40" step="1"><div class="hint">Not in the browser cache yet. 0 with a CDN.</div></div>
+        <div class="field"><label>Time between two pages of a user <output></output></label>
+          <input type="range" data-s="think" min="2" max="120" step="1"></div>
+        <p class="hint"><a href="#" id="profile-reset"></a></p>
+      </div>
+    </div>
+  </details>
 </section>
 
 <section class="panel" id="compare">
@@ -136,15 +204,14 @@ section.panel h2 { font-size: 18px; margin: 0 0 14px; }
     <summary>What the numbers mean</summary>
     <dl>
       <dt>Users per container</dt><dd>Simultaneous users that one container serves with pages in under 1 s (or twice
-        the time of a page on an idle server, for slow pages), with the CPU below 90%.</dd>
-      <dt>Page time</dt><dd>What one of your users waits for a page at your traffic: PHP, the wait for a free PHP worker,
-        and the network round trips to open connections.</dd>
-      <dt>Rush ×2</dt><dd>Twice your users for a few minutes (a newsletter, Monday 9 am): the share of the pages served
-        and their time. Out of memory: the kernel kills processes.</dd>
-      <dt>Memory, worst case</dt><dd>Every PHP worker processing a request at the same time, against the memory of the
-        container.</dd>
-      <dt>Settings</dt><dd>The best settings for your situation, as environment variables of the image. Adjust them to
-        see their impact.</dd>
+        the response time, for slow requests), with the CPU below 90%.</dd>
+      <dt>Page time</dt><dd>What one of your users waits for a page: PHP, the wait for a free PHP worker, and the
+        network round trips to open connections.</dd>
+      <dt>Rush ×2</dt><dd>Twice your users for a few minutes (a newsletter, Monday 9 am): the share of the pages
+        served. Out of memory: the kernel kills processes.</dd>
+      <dt>Memory, worst case</dt><dd>Every PHP worker busy with an average request, plus one heaviest request.</dd>
+      <dt>v5 / New default / Best</dt><dd>The settings of the v5 images today, the defaults of the images after this
+        change, and the best settings for your situation (“Yours” once adjusted).</dd>
     </dl>
   </details>
   <div class="cards" id="cards"></div>
@@ -152,15 +219,24 @@ section.panel h2 { font-size: 18px; margin: 0 0 14px; }
 
 <section class="panel" id="choice">
   <h2><span class="step">3</span>What to choose</h2>
+  <div id="verdict"></div>
+  <div class="label" id="why-title" style="margin-top:16px"></div>
+  <div class="why" id="why"></div>
   <div class="split">
-    <div id="verdict"></div>
     <div>
       <div class="chart" id="chart"></div>
       <div class="legend" id="legend"></div>
-      <div class="hint">Page time when the number of users per container grows. Dashed: FrankenPHP preview. The
-        vertical line is your users per container.</div>
     </div>
+    <div class="hint">Page time when the number of users per container grows, with the best settings of each setup.
+      Dashed: FrankenPHP preview. The vertical line is your users per container, the dotted one the page time target.</div>
   </div>
+</section>
+
+<section class="panel" id="config">
+  <h2><span class="step">4</span>Configuration</h2>
+  <div class="chips" id="config-for"></div>
+  <pre id="compose"></pre>
+  <button class="btn" id="copy">Copy</button>
 </section>
 
 <section class="panel" id="how">
@@ -172,28 +248,26 @@ section.panel h2 { font-size: 18px; margin: 0 0 14px; }
     <code>PHP_FPM_WEB_SERVER=apache</code>) or in nginx, with cheap threads; a PHP worker is only busy while PHP runs.</p>
   <p>Behind a reverse proxy, both serve about the same number of users: the proxy keeps the connections of the
     browsers. The difference is the memory and the behavior in a rush. With HTTPS served by the container, every
-    connection costs a mod_php process: PHP-FPM serves more users.</p>
+    connection costs a mod_php process.</p>
   <p><b>FrankenPHP</b> is planned as a variant of the v6 images. Its worker mode keeps the application booted between
-    requests: it saves the boot of the framework (≈ 10 ms per request on a developer machine for Symfony or Laravel),
-    a 5% to 25% gain for real pages, far from the ×3 of “hello world” benchmarks. PHP runs in threads (ZTS build),
-    a few percent slower. WordPress does not run in worker mode. Not measured yet: estimate only.</p>
+    requests: it saves the boot of the framework, a few percent of a heavy request, far from the ×3 of “hello world”
+    benchmarks. PHP runs in threads (ZTS build), a few percent slower. WordPress does not run in worker mode. Not
+    measured yet: estimate only.</p>
   <details>
     <summary>Model</summary>
     <ul>
-      <li>Request time: the time measured on a developer machine (profiler, <code>APP_ENV=prod</code>), split into CPU
-        and waiting (database, cache, APIs). The CPU part is 1.7 times slower on a cloud vCPU, 1.2 times on a
-        dedicated core.</li>
-      <li>CPU per page = PHP requests × CPU time + static files × 0.25-0.4 ms + new connections × (0.1 ms, + 0.9 ms
-        for a TLS handshake); costs measured on a 2.6 GHz core.</li>
+      <li>CPU per page = PHP requests × CPU time (response time minus waiting) + static files × 0.25-0.4 ms + new
+        connections × (0.1 ms, + 0.9 ms for a TLS handshake); costs measured on a 2.6 GHz core, close to a cloud
+        vCPU.</li>
       <li>CPU sharing stretches the CPU time by 1 / (1 − CPU usage). A PHP request holds a worker for its waiting time
         plus its stretched CPU time; the wait for a free worker uses the Erlang C formula.</li>
       <li>mod_php processes are also held by static files and, with HTTPS, by the handshakes (2 round trips) and, with
-        keep-alive, by the idle connections of the browsers (up to 6, for <code>KeepAliveTimeout</code>). When they
-        are all held, new connections wait for an idle one to expire.</li>
-      <li>Memory: base + per worker 6 MB plus the request memory. Rush: the CPU capacity reduced by the contention of
-        the PHP processes (calibrated on the measured peaks), divided by 10 when the memory runs out.</li>
-      <li>Each setup gets the settings that serve the most users within 90% of the container memory, then the
-        ones that hold the rush best, then the fewest processes.</li>
+        keep-alive, by the idle connections of the browsers (up to 6, for <code>KeepAliveTimeout</code>).</li>
+      <li>Memory: base + per worker 6 MB plus the request memory, plus one heaviest request. Rush: the CPU capacity
+        reduced by the contention of the PHP processes (calibrated on the measured peaks), divided by 10 when the
+        memory runs out.</li>
+      <li>Best settings: the most users within 90% of the container memory, then the best rush, then the fewest
+        processes. Settings you fix are kept, the other ones are optimized around them.</li>
     </ul>
   </details>
   <div class="docs">
@@ -205,48 +279,63 @@ section.panel h2 { font-size: 18px; margin: 0 0 14px; }
 
 <script>
 'use strict';
-const APPS = {
-  crm: { name: 'Small company CRM', stack: 'Symfony or Laravel back-office', who: 'employees',
-    wall: 150, wait: 50, mem: 40, php: 2, static: 3, think: 20, boot: 10, worker: true },
-  api: { name: 'High-traffic API', stack: 'Symfony or Laravel, for a mobile app', who: 'app users',
-    wall: 60, wait: 50, mem: 16, php: 1, static: 0, think: 5, boot: 8, worker: true },
-  wp: { name: 'Showcase site', stack: 'WordPress, without page cache', who: 'visitors',
-    wall: 300, wait: 25, mem: 40, php: 1, static: 12, think: 30, boot: 0, worker: false },
+const ICON = {
+  crm: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h8M8 16h5"/></svg>',
+  api: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 5l-3 14"/></svg>',
+  wp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9M12 3c-2.5 2.5-3.5 5.5-3.5 9s1 6.5 3.5 9"/></svg>',
 };
-const PROFILE = ['wall', 'wait', 'mem', 'php', 'static', 'think'];
+// Typical values of business applications: the averages hide pages of several seconds and exports of 1 GB
+const APPS = {
+  crm: { name: 'Business back-office', stack: 'CRM, ERP... on Symfony or Laravel', who: 'employees',
+    wall: 800, mem: 128, wait: 40, peakMem: 1024, boot: 30, php: 1, static: 3, think: 20, vcpu: 2, ram: 4096, worker: true },
+  api: { name: 'High-traffic API', stack: 'Symfony or Laravel, for a mobile app', who: 'app users',
+    wall: 250, mem: 64, wait: 50, peakMem: 256, boot: 20, php: 1, static: 0, think: 5, vcpu: 2, ram: 2048, worker: true },
+  wp: { name: 'Showcase site', stack: 'WordPress with plugins, without page cache', who: 'visitors',
+    wall: 700, mem: 96, wait: 30, peakMem: 256, boot: 0, php: 1, static: 10, think: 30, vcpu: 1, ram: 2048, worker: false },
+};
+const PROFILE = ['wall', 'mem', 'wait', 'peakMem', 'boot', 'php', 'static', 'think', 'vcpu', 'ram'];
 const USERS = [5, 20, 100, 1000];
-const CPU_KIND = { cloud: { label: 'cloud vCPU', factor: 1.7 }, dedicated: { label: 'dedicated core', factor: 1.2 }, same: { label: 'same CPU as my machine', factor: 1 } };
+const VCPUS = [1, 2, 4, 8];
+const RAMS = [1024, 2048, 4096, 8192, 16384];
 const RTT = { desktop: 20, mobile: 50 };
 const EU_MOBILE = 50;
 const MEM = { proc: 6, keep: 0.3, apache: 25, eventChild: 6, nginx: 10, opcache: 64, franken: 40, thread: 3, appWorker: 15 };
 const OPTIONS = {
   modphp: { name: 'Apache + mod_php', tag: 'apache variant', color: 'var(--c-modphp)' },
   apachefpm: { name: 'Apache + PHP-FPM', tag: 'fpm variant, built-in Apache', color: 'var(--c-apachefpm)' },
-  nginxfpm: { name: 'nginx + PHP-FPM', tag: 'fpm variant + an nginx container', color: 'var(--c-nginxfpm)' },
+  nginxfpm: { name: 'nginx + PHP-FPM', tag: 'fpm variant + nginx container', color: 'var(--c-nginxfpm)' },
   franken: { name: 'FrankenPHP', tag: 'v6 preview, estimate', color: 'var(--c-franken)', soon: true },
 };
-const LIVE = ['modphp', 'apachefpm', 'nginxfpm'];
 const DOC = {
   apache: '../variants.html#connections-and-processes',
   fpm: '../fpm.html#number-of-workers-and-memory',
   builtin: '../fpm.html#built-in-apache',
   franken: 'https://frankenphp.dev/docs/config/',
 };
+// Settings of the v5 images today, and the new defaults of this branch
+const V5 = { modphp: { workers: 150, keepAlive: true, kaTimeout: 5 }, apachefpm: { children: 5, threads: 150, pm: [2, 1, 3] }, nginxfpm: { children: 5, pm: [2, 1, 3] }, franken: null };
+const NEXT = { modphp: { workers: 30, keepAlive: false, kaTimeout: 5 }, apachefpm: { children: 10, threads: 1024, pm: [4, 2, 6] }, nginxfpm: { children: 10, pm: [4, 2, 6] } };
+const LOG = { wall: [20, 5000], mem: [8, 2048] };
 
 const profileOf = (app) => Object.fromEntries(PROFILE.map(k => [k, APPS[app][k]]));
-const state = { app: 'crm', users: 20, front: 'proxy', mobile: EU_MOBILE, cpuKind: 'cloud', vcpu: 1, ram: 1024, ...profileOf('crm'), touched: {}, open: {}, adjust: false };
+const state = { config: null, app: 'crm', users: 20, front: 'proxy', mobile: EU_MOBILE, count: 'auto', ...profileOf('crm'), touched: {}, open: {} };
 
 const $ = (id) => document.getElementById(id);
 const fmtMs = (v) => (v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + ' s' : Math.round(v) + ' ms');
 const fmtMb = (v) => (v >= 1024 ? (v / 1024).toFixed(1).replace(/\.0$/, '') + ' GB' : Math.round(v) + ' MB');
-const fmtUsers = (v) => (v >= 100 ? Math.floor(v / 10) * 10 : Math.floor(v));
+const fmtUsers = (v) => (v >= 100 ? Math.floor(v / 10) * 10 : v >= 10 ? Math.floor(v) : Math.floor(v * 10) / 10);
+const toSlider = (k, v) => Math.round(1000 * Math.log(v / LOG[k][0]) / Math.log(LOG[k][1] / LOG[k][0]));
+function fromSlider(k, x) {
+  const v = LOG[k][0] * Math.pow(LOG[k][1] / LOG[k][0], x / 1000);
+  const step = v < 100 ? 5 : v < 1000 ? 10 : 50;
+  return Math.max(LOG[k][0], Math.round(v / step) * step);
+}
 
 function derive(s) {
-  const f = CPU_KIND[s.cpuKind].factor;
-  const cpu = s.wall * (1 - s.wait / 100) * f;
-  return { ...s, f, k: f / 1.7, cpu, io: s.wall * s.wait / 100, reqs: s.php + s.static,
+  const cpu = s.wall * (1 - s.wait / 100);
+  return { ...s, cpu, io: s.wall * s.wait / 100, reqs: s.php + s.static,
     rtt: s.front === 'https' ? (s.mobile * RTT.mobile + (100 - s.mobile) * RTT.desktop) / 100 : 0,
-    boot: Math.min(APPS[s.app].boot * f, cpu * 0.4), workerOk: APPS[s.app].worker };
+    boot: Math.min(s.boot, cpu * 0.5), workerOk: APPS[s.app].worker };
 }
 
 // Erlang C: probability to wait, c servers, a erlangs (stable recursion of Erlang B)
@@ -258,9 +347,9 @@ function erlangC(c, a) {
 }
 
 function costs(opt, d) {
-  return { stat: { modphp: 0.4, apachefpm: 0.4, nginxfpm: 0.25, franken: 0.3 }[opt] * d.k,
-    conn: (0.1 + (d.front === 'https' ? 0.9 : 0)) * d.k,
-    fcgi: opt === 'apachefpm' || opt === 'nginxfpm' ? 0.15 * d.k : 0 };
+  return { stat: { modphp: 0.4, apachefpm: 0.4, nginxfpm: 0.25, franken: 0.3 }[opt],
+    conn: 0.1 + (d.front === 'https' ? 0.9 : 0),
+    fcgi: opt === 'apachefpm' || opt === 'nginxfpm' ? 0.15 : 0 };
 }
 
 function phpCpu(opt, d, p) {
@@ -276,6 +365,7 @@ function memory(opt, d, p) {
   else if (opt === 'apachefpm') base = MEM.apache + MEM.opcache + 2 * MEM.eventChild;
   else if (opt === 'nginxfpm') base = MEM.nginx + MEM.opcache;
   else { base = MEM.franken + MEM.opcache; per = MEM.thread + d.mem + (p.worker && d.workerOk ? MEM.appWorker : 0); }
+  base += Math.max(0, d.peakMem - d.mem);
   const n = poolOf(opt, p);
   return { base, per, n, worst: base + n * per };
 }
@@ -336,10 +426,9 @@ function model(opt, d, p, users) {
   return r;
 }
 
-// Page time target: 1 s, or twice the time of a request on an idle server for slow requests
-function sloOf(d) { return Math.max(1000, 2 * (d.io + d.cpu)); }
+// Page time target: 1 s, or twice the response time for slow requests
+function sloOf(d) { return Math.max(1000, 2 * d.wall); }
 const HEADROOM = 0.75;
-const containersFor = (users, cap) => (cap >= 0.5 ? Math.max(1, Math.ceil(users / (cap * HEADROOM))) : Infinity);
 
 function capacity(opt, d, p) {
   const idle = model(opt, d, p, 0.001);
@@ -355,12 +444,18 @@ function capacity(opt, d, p) {
 
 function rush(opt, d, p, users) {
   const r = model(opt, d, p, 2 * users);
-  const eff = 1 / (1 + 0.006 * Math.max(0, r.mem.n - d.vcpu) * (1 + d.mem / 32));
+  const eff = 1 / (1 + 0.006 * Math.max(0, r.mem.n - d.vcpu) * (1 + Math.min(d.mem, 128) / 32));
   let served = Math.min(1, Math.min(r.cpuTput * eff, r.procTput) / r.rate);
   const saturated = r.page === Infinity || r.util >= 0.9 || served < 1;
   const oom = saturated && r.mem.worst > d.ram;
   if (oom) served *= 0.1;
   return { served, page: r.page, oom, saturated };
+}
+
+// Containers: the chosen number, or enough for the users with 25% headroom
+function containersFor(d, cap) {
+  if (d.count !== 'auto') return d.count;
+  return cap >= 0.05 ? Math.max(1, Math.ceil(d.users / (cap * HEADROOM))) : Infinity;
 }
 
 function steps(max) {
@@ -370,12 +465,15 @@ function steps(max) {
   return out;
 }
 
+function maxPool(opt, d, p) {
+  const m = memory(opt, d, { ...p, workers: 1, children: 1, maxThreads: 1 });
+  return Math.max(1, Math.min(512, Math.floor((d.ram * 0.9 - m.base) / m.per)));
+}
+
 // Settings of a setup that serve the most users, then hold the rush best, then use the fewest processes.
 // The settings fixed by the user are kept, the other ones are optimized around them.
 function optimize(opt, d, fixed = {}) {
-  const probe = { workers: 1, keepAlive: false, kaTimeout: 5, children: 1, threads: 1024, maxThreads: 1, worker: d.workerOk };
-  const m = memory(opt, d, probe);
-  const max = Math.max(1, Math.min(512, Math.floor((d.ram * 0.9 - m.base) / m.per)));
+  const max = maxPool(opt, d, { worker: d.workerOk, ...fixed });
   let variants;
   if (opt === 'modphp') {
     // Behind a proxy, keep-alive is left out: its idle connections park on the processes (p99 of 14 s measured)
@@ -387,7 +485,7 @@ function optimize(opt, d, fixed = {}) {
   variants = [...new Map(variants.map(v => ({ ...v, ...fixed })).map(v => [JSON.stringify(v), v])).values()];
   const scored = variants.map(p => ({ p, cap: capacity(opt, d, p).users }));
   const best = Math.max(...scored.map(s => s.cap));
-  const containers = containersFor(d.users, best);
+  const containers = containersFor(d, best);
   const load = containers === Infinity ? d.users : d.users / containers;
   let top = scored.filter(s => s.cap >= best * 0.99 && poolOf(opt, s.p) >= Math.min(max, Math.ceil(2 * d.vcpu) + 1));
   if (!top.length) top = scored.filter(s => s.cap >= best * 0.99);
@@ -395,25 +493,28 @@ function optimize(opt, d, fixed = {}) {
   top.sort((a, b) => (b.rush - a.rush > 0.01 ? 1 : a.rush - b.rush > 0.01 ? -1 : a.n - b.n));
   const p = { ...top[0].p };
   if (opt === 'franken') p.numThreads = Math.min(p.maxThreads, Math.max(2, Math.ceil(2 * d.vcpu)));
+  p.ramLimited = poolOf(opt, p) >= max;
   return p;
 }
 
 function evaluateOpt(opt, d, p) {
   const cap = capacity(opt, d, p);
-  const containers = containersFor(d.users, cap.users);
+  const containers = containersFor(d, cap.users);
   const load = containers === Infinity ? d.users : d.users / containers;
   const now = model(opt, d, p, load);
-  return { cap, containers, load, now, rush: rush(opt, d, p, load), p };
+  return { cap, containers, load, now, rush: rush(opt, d, p, load), p, over: load > cap.users };
 }
 
 function evaluate() {
   const d = derive(state);
-  const res = {}, rec = {};
+  const res = {};
   for (const k of Object.keys(OPTIONS)) {
-    rec[k] = optimize(k, d);
-    const p = state.touched[k] ? optimize(k, d, state.touched[k]) : rec[k];
+    const p = state.touched[k] ? optimize(k, d, state.touched[k]) : optimize(k, d);
     res[k] = evaluateOpt(k, d, p);
-    res[k].rec = rec[k];
+    const v5 = k === 'franken' ? null : V5[k];
+    const next = k === 'franken' ? { maxThreads: Math.ceil(2 * d.vcpu), numThreads: Math.ceil(2 * d.vcpu), worker: false } : NEXT[k];
+    res[k].v5 = v5 && evaluateOpt(k, d, v5);
+    res[k].next = evaluateOpt(k, d, next);
     res[k].flags = flagsOf(k, d, res[k]);
   }
   return { d, res };
@@ -429,12 +530,12 @@ function flagsOf(k, d, r) {
   }
   if (k === 'franken') {
     if (!d.workerOk) f.push(['warn', 'WordPress does not run in worker mode: FrankenPHP works like PHP-FPM here.']);
-    else if (p.worker) f.push(['ok', `Worker mode: saves the boot of the framework, ≈ ${fmtMs(d.boot)} of CPU per request.`]);
+    else if (p.worker) f.push(['ok', `Worker mode: saves the framework boot, ${fmtMs(d.boot)} of ${fmtMs(d.cpu)} of CPU per request.`]);
   }
+  if (p.ramLimited) f.push(['warn', `Limited by the memory: ${poolOf(k, p)} PHP ${k === 'modphp' ? 'processes' : k === 'franken' ? 'threads' : 'workers'} of ≈ ${fmtMb(d.mem)} fit in ${fmtMb(d.ram)}.`]);
   if (r.now.mem.worst > d.ram) f.push(['bad', `Out of memory when every worker is busy (${fmtMb(r.now.mem.worst)}).`]);
-  if (r.rush.oom) f.push(['bad', 'A rush exhausts the memory: the kernel kills processes.']);
+  if (r.over) f.push(['bad', `${fmtUsers(r.load)} users per container: more than it serves. Add containers.`]);
   if (r.containers === Infinity) f.push(['bad', 'Cannot serve a single user with these settings.']);
-  if (!f.some(x => x[0] !== 'ok') && r.rush.served >= 0.99) f.push(['ok', 'Holds a rush at twice your users.']);
   return f;
 }
 
@@ -444,33 +545,37 @@ function bar(value, max, color, mark) {
   return `<div class="bar"><i style="width:${w}%;background:${color}"></i>${m}</div>`;
 }
 
-function tone(v, okMax, mehMax) { return v <= okMax ? 'good' : v <= mehMax ? 'meh' : 'bad'; }
-
-function settingsRows(k, p, rec, d) {
-  const ch = (key) => (rec[key] !== p[key] ? ' class="changed"' : '');
-  const link = (name, href) => `<a href="${href}">${name.replace(/_/g, '_<wbr>')}</a>`;
-  if (k === 'modphp') return [
-    [link('APACHE_MAX_REQUEST_WORKERS', DOC.apache), p.workers, 'workers'],
-    [link('APACHE_KEEPALIVE', DOC.apache), p.keepAlive ? 'On' : 'Off', 'keepAlive'],
-    ...(p.keepAlive ? [[link('APACHE_KEEPALIVE_TIMEOUT', DOC.apache), p.kaTimeout, 'kaTimeout']] : []),
-  ].map(([n, v, key]) => `<tr><td>${n}</td><td${ch(key)}>${v}</td></tr>`).join('');
-  if (k === 'franken') return [
-    [link('worker mode', DOC.franken), d.workerOk ? (p.worker ? 'on' : 'off') : 'n/a', 'worker'],
-    [link('num_threads', DOC.franken), p.numThreads, 'numThreads'],
-    [link('max_threads', DOC.franken), p.maxThreads, 'maxThreads'],
-    ...(p.worker && d.workerOk ? [[link('worker num', DOC.franken), p.maxThreads, 'maxThreads']] : []),
-  ].map(([n, v, key]) => `<tr><td>${n}</td><td${ch(key)}>${v}</td></tr>`).join('');
-  const rows = [];
-  if (k === 'apachefpm') rows.push([link('PHP_FPM_WEB_SERVER', DOC.builtin), 'apache', null], [link('APACHE_MAX_REQUEST_WORKERS', DOC.apache), p.threads, 'threads']);
-  rows.push([link('PHP_FPM_PM_MAX_CHILDREN', DOC.fpm), p.children, 'children']);
-  const pm = fpmPm(p.children);
-  rows.push([link('PHP_FPM_PM_START_SERVERS', DOC.fpm), pm.start, null], [link('PHP_FPM_PM_MIN/MAX_SPARE_SERVERS', DOC.fpm), `${pm.min} / ${pm.max}`, null]);
-  return rows.map(([n, v, key]) => `<tr><td>${n}</td><td${key ? ch(key) : ''}>${v}</td></tr>`).join('');
-}
-
 function fpmPm(n) {
   const min = Math.max(1, Math.round(n / 5)), max = Math.max(min + 1, Math.round(n * 0.6));
-  return { start: Math.min(max, Math.max(min, Math.round(n * 0.4))), min, max };
+  return [Math.min(max, Math.max(min, Math.round(n * 0.4))), min, max];
+}
+
+// Rows of the comparison table: label, documentation, value of a set of settings
+function settingRows(k, d) {
+  const link = (name, href) => `<a href="${href}">${name.replace(/_/g, '_<wbr>')}</a>`;
+  const pm = (p) => p.pm || fpmPm(p.children);
+  if (k === 'modphp') return [
+    [link('APACHE_MAX_REQUEST_WORKERS', DOC.apache), p => (p === V5.modphp ? 'up to 150' : p.workers)],
+    [link('APACHE_KEEPALIVE', DOC.apache), p => (p.keepAlive ? 'On' : 'Off')],
+    [link('APACHE_KEEPALIVE_TIMEOUT', DOC.apache), p => (p.keepAlive ? p.kaTimeout : '–')],
+  ];
+  if (k === 'franken') return [
+    [link('worker mode', DOC.franken), p => (d.workerOk ? (p.worker ? 'on' : 'off') : 'n/a')],
+    [link('num_threads', DOC.franken), p => p.numThreads],
+    [link('max_threads', DOC.franken), p => p.maxThreads],
+  ];
+  const rows = [];
+  if (k === 'apachefpm') rows.push([link('APACHE_MAX_REQUEST_WORKERS', DOC.builtin), p => p.threads]);
+  rows.push([link('PHP_FPM_PM_MAX_CHILDREN', DOC.fpm), p => p.children],
+    [link('PHP_FPM_PM_START_SERVERS', DOC.fpm), p => pm(p)[0]],
+    [link('PHP_FPM_PM_MIN/MAX_SPARE_SERVERS', DOC.fpm), p => `${pm(p)[1]} / ${pm(p)[2]}`]);
+  return rows;
+}
+
+function rushText(r) {
+  if (r.rush.oom) return ['out of memory', 'bad'];
+  if (r.rush.served < 0.99) return [`${Math.round(r.rush.served * 100)}% served`, r.rush.served >= 0.8 ? 'meh' : 'bad'];
+  return ['all served', 'good'];
 }
 
 function slider(k, key, label, min, max, step, value) {
@@ -493,41 +598,39 @@ function adjustHtml(k, p, d) {
     h += slider(k, 'children', 'PHP workers', 1, 300, 1, p.children);
     if (k === 'apachefpm') h += slider(k, 'threads', 'Apache threads', 16, 2048, 16, p.threads);
   }
-  return h + `<p class="hint"><a href="#" data-reset="${k}">Back to the best settings</a></p>`;
+  return `<div class="adjust-box">${h}</div>`;
 }
 
 function renderCards(d, res, best) {
-  const maxCap = Math.max(...Object.values(res).map(r => r.cap.users), ...Object.values(res).map(r => r.load)) * 1.1;
+  const maxCap = Math.max(...Object.values(res).map(r => Math.max(r.cap.users, r.load))) * 1.1;
   $('cards').innerHTML = Object.entries(OPTIONS).map(([k, o]) => {
-    const r = res[k], p = r.p;
+    const r = res[k], p = r.p, touched = !!state.touched[k];
     const badge = o.soon ? '<span class="badge">Coming in v6</span>' : k === best ? '<span class="badge">Recommended</span>' : '';
-    const pageCls = r.now.page === Infinity ? 'bad' : tone(r.now.page, r.cap.slo * 0.6, r.cap.slo);
-    let rushTxt, rushCls;
-    if (r.rush.oom) { rushTxt = `out of memory, ${Math.round(r.rush.served * 100)}% served`; rushCls = 'bad'; }
-    else if (r.rush.served < 0.99) { rushTxt = `${Math.round(r.rush.served * 100)}% of pages served`; rushCls = r.rush.served >= 0.8 ? 'meh' : 'bad'; }
-    else { rushTxt = `all served, ${fmtMs(r.rush.page)}`; rushCls = r.rush.page <= r.cap.slo ? 'good' : 'meh'; }
+    const pageCls = r.now.page === Infinity ? 'bad' : r.now.page <= r.cap.slo * 0.6 ? 'good' : r.now.page <= r.cap.slo ? 'meh' : 'bad';
+    const [rushTxt, rushCls] = rushText(r);
     const memCls = r.now.mem.worst > d.ram ? 'bad' : r.now.mem.worst > d.ram * 0.9 ? 'meh' : '';
-    const containers = r.containers === Infinity ? '' : r.containers > 1
-      ? `<div class="sub">→ <b>${r.containers} containers</b> for your ${d.users} ${APPS[d.app].who}, with 25% headroom</div>`
-      : `<div class="sub good">1 container is enough</div>`;
+    const cont = r.containers === Infinity ? '–' : `${r.containers} container${r.containers > 1 ? 's' : ''}`;
+    const cols = [['v5', r.v5, false], [k === 'franken' ? 'FrankenPHP default' : 'New default', r.next, false], [touched ? 'Yours' : 'Best', r, true]];
+    const rows = settingRows(k, d).map(([label, get]) => `<tr><td>${label}</td>${cols.map(([, e, b]) => `<td class="${b ? 'col-best' : ''}">${e ? get(e.p) : '–'}</td>`).join('')}</tr>`).join('');
+    const impact = (label, get) => `<tr class="impact"><td>${label}</td>${cols.map(([, e, b]) => `<td class="${b ? 'col-best' : ''}">${e ? get(e) : '–'}</td>`).join('')}</tr>`;
     return `<div class="card ${o.soon ? 'soon' : ''} ${k === best ? 'best' : ''}">${badge}
-      <div class="name"><span class="dot" style="background:${o.color}"></span>${o.name}</div>
-      <div class="tag">${o.tag}</div>
-      <div class="big"><b>${fmtUsers(r.cap.users)}</b> users per container</div>
-      ${bar(r.cap.users, maxCap, o.color, r.load)}
-      ${containers}
-      <div class="kv">
-        <div class="r"><span>Page time</span><b class="${pageCls}">${r.now.page === Infinity ? 'overloaded' : fmtMs(r.now.page)}</b></div>
-        <div class="r"><span>Rush ×2</span><b class="${rushCls}">${rushTxt}</b></div>
-        <div class="r"><span>Memory, worst case</span><b class="${memCls}">${fmtMb(r.now.mem.worst)} / ${fmtMb(d.ram)}</b></div>
-        ${bar(r.now.mem.worst, d.ram, memCls === 'bad' ? 'var(--bad)' : o.color)}
+      <div class="name"><span class="dot" style="background:${o.color}"></span>${o.name}<span class="tag">${o.tag}</span></div>
+      <div class="stats">
+        <div class="stat main"><div class="k">Users per container</div><div class="v">${fmtUsers(r.cap.users)}</div>${bar(r.cap.users, maxCap, o.color, r.load)}<div class="s">${cont} for ${d.users}</div></div>
+        <div class="stat"><div class="k">Page time</div><div class="v ${pageCls}">${r.now.page === Infinity ? 'overload' : fmtMs(r.now.page)}</div><div class="s">target ${fmtMs(r.cap.slo)}</div></div>
+        <div class="stat"><div class="k">Rush ×2</div><div class="v ${rushCls}">${rushTxt}</div></div>
+        <div class="stat"><div class="k">Memory, worst case</div><div class="v ${memCls}">${fmtMb(r.now.mem.worst)}</div>${bar(r.now.mem.worst, d.ram, memCls === 'bad' ? 'var(--bad)' : o.color)}<div class="s">of ${fmtMb(d.ram)}</div></div>
       </div>
-      <div class="settings"><div class="head">Settings <button data-open="${k}">${state.open[k] ? 'Done' : 'Adjust'}</button></div>
-        <table>${settingsRows(k, p, r.rec, d)}</table>
-        ${state.open[k] ? adjustHtml(k, p, d) : ''}</div>
+      <table class="cmp"><tr><th>Setting</th>${cols.map(([t, , b]) => `<th class="${b ? 'col-best' : ''}">${t}</th>`).join('')}</tr>
+        ${rows}
+        <tr class="impact sep"><td>Users per container</td>${cols.map(([, e, b]) => `<td class="${b ? 'col-best' : ''}">${e ? fmtUsers(e.cap.users) : '–'}</td>`).join('')}</tr>
+        ${impact('Rush ×2', e => (e.rush.oom ? 'OOM' : rushText(e)[0]))}
+        ${impact('Memory, worst case', e => fmtMb(e.now.mem.worst))}
+      </table>
+      <div class="tools"><button data-open="${k}">${state.open[k] ? 'Close' : 'Adjust the settings'}</button>
+        ${touched ? `<button data-reset="${k}">Back to the best settings</button>` : ''}</div>
+      ${state.open[k] ? adjustHtml(k, p, d) : ''}
       <ul class="flags">${r.flags.map(([c, t]) => `<li class="${c}">${t}</li>`).join('')}</ul>
-      <details><summary>docker-compose.yml</summary><pre>${escapeHtml(snippet(k, p, d))}</pre>
-        <button class="copy" data-copy="${k}">Copy</button></details>
     </div>`;
   }).join('');
   document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { state.open[b.dataset.open] = !state.open[b.dataset.open]; render(); });
@@ -538,31 +641,89 @@ function renderCards(d, res, best) {
   document.querySelectorAll('#cards .seg[data-opt]').forEach(seg => seg.querySelectorAll('button').forEach(b => b.onclick = () => {
     (state.touched[seg.dataset.opt] ||= {})[seg.dataset.key] = b.dataset.v === '1'; render();
   }));
-  document.querySelectorAll('[data-reset]').forEach(a => a.onclick = (e) => { e.preventDefault(); delete state.touched[a.dataset.reset]; render(); });
-  document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => {
-    navigator.clipboard?.writeText(snippet(b.dataset.copy, res[b.dataset.copy].p, d)); b.textContent = 'Copied'; setTimeout(() => (b.textContent = 'Copy'), 1200);
-  });
+  document.querySelectorAll('[data-reset]').forEach(b => b.onclick = () => { delete state.touched[b.dataset.reset]; render(); });
 }
 
 function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 
-function snippet(k, p, d) {
-  const limits = ['    deploy:', '      resources:', '        limits:', `          cpus: "${d.vcpu}"`, `          memory: ${d.ram}M`];
-  const pm = k === 'apachefpm' || k === 'nginxfpm' ? fpmPm(p.children) : null;
-  const fpmEnv = pm ? ['      PHP_FPM_PM: dynamic', `      PHP_FPM_PM_MAX_CHILDREN: ${p.children}`, `      PHP_FPM_PM_START_SERVERS: ${pm.start}`,
-    `      PHP_FPM_PM_MIN_SPARE_SERVERS: ${pm.min}`, `      PHP_FPM_PM_MAX_SPARE_SERVERS: ${pm.max}`] : [];
-  const health = ['    healthcheck:', '      test: ["CMD", "php-fpm-healthcheck"]'];
-  if (k === 'modphp') return ['services:', '  app:', '    image: thecodingmachine/php:8.4-v5-apache', '    environment:',
-    `      APACHE_MAX_REQUEST_WORKERS: ${p.workers}`, `      APACHE_KEEPALIVE: "${p.keepAlive ? 'On' : 'Off'}"`,
-    ...(p.keepAlive ? [`      APACHE_KEEPALIVE_TIMEOUT: ${p.kaTimeout}`] : []), ...limits].join('\n');
-  if (k === 'apachefpm') return ['services:', '  app:', '    image: thecodingmachine/php:8.4-v5-fpm', '    environment:', '      PHP_FPM_WEB_SERVER: apache',
-    `      APACHE_MAX_REQUEST_WORKERS: ${p.threads}`, ...fpmEnv, ...health, ...limits].join('\n');
-  if (k === 'nginxfpm') return ['services:', '  web:', '    image: nginx:1.28', '    # fastcgi_pass app:9000; static files from the same volume',
-    '  app:', '    image: thecodingmachine/php:8.4-v5-fpm', '    environment:', ...fpmEnv, ...health, ...limits].join('\n');
-  const worker = p.worker && d.workerOk ? [`      #   worker { file ./public/index.php; num ${p.maxThreads} }`] : [];
-  return ['# FrankenPHP comes with the v6 images: image and variables may change.', 'services:', '  app:',
-    '    image: thecodingmachine/php:8.4-v6-frankenphp', '    environment:', '      # FrankenPHP global options (Caddyfile):',
-    `      #   num_threads ${p.numThreads}`, `      #   max_threads ${p.maxThreads}`, ...worker, ...limits].join('\n');
+// docker-compose file of a setup: [line, comment]
+function compose(k, p, d) {
+  const L = [];
+  const add = (line, comment = '') => L.push([line, comment]);
+  const pm = fpmPm(p.children || 1);
+  const limits = () => {
+    add('    deploy:');
+    if (d.count !== 'auto') add(`      replicas: ${d.count}`, 'containers behind your load balancer');
+    add('      resources:');
+    add('        limits:');
+    add(`          cpus: "${d.vcpu}"`, 'the settings above are sized for this CPU');
+    add(`          memory: ${d.ram}M`, `worst case of these settings: ${fmtMb(memory(k, d, p).worst)}`);
+  };
+  const fpm = (procs) => {
+    add('      PHP_FPM_PM: dynamic', 'workers started on demand, between the spare limits');
+    add(`      PHP_FPM_PM_MAX_CHILDREN: ${p.children}`, `PHP requests processed at the same time (≈ ${fmtMb(MEM.proc + d.mem)} each)`);
+    add(`      PHP_FPM_PM_START_SERVERS: ${pm[0]}`, 'workers started with the container');
+    add(`      PHP_FPM_PM_MIN_SPARE_SERVERS: ${pm[1]}`, 'idle workers kept ready for a burst');
+    add(`      PHP_FPM_PM_MAX_SPARE_SERVERS: ${pm[2]}`, 'idle workers above this number are stopped');
+    add(`      PHP_INI_MEMORY_LIMIT: ${Math.max(128, Math.ceil(d.peakMem * 1.25 / 64) * 64)}M`, 'limit per request: above your heaviest request');
+  };
+  add('services:');
+  if (k === 'modphp') {
+    add('  app:');
+    add('    image: thecodingmachine/php:8.4-v5-apache', 'apache variant: Apache mpm_prefork with mod_php');
+    add('    environment:');
+    add(`      APACHE_MAX_REQUEST_WORKERS: ${p.workers}`, `fixed pool of Apache processes, each one embedding PHP (≈ ${fmtMb(MEM.proc + d.mem)})`);
+    add(`      APACHE_KEEPALIVE: "${p.keepAlive ? 'On' : 'Off'}"`, p.keepAlive ? 'idle browser connections keep a process' : d.front === 'proxy' ? 'the reverse proxy keeps the browser connections' : 'a process is freed after each request');
+    if (p.keepAlive) add(`      APACHE_KEEPALIVE_TIMEOUT: ${p.kaTimeout}`, 'seconds an idle connection holds a process');
+    add(`      PHP_INI_MEMORY_LIMIT: ${Math.max(128, Math.ceil(d.peakMem * 1.25 / 64) * 64)}M`, 'limit per request: above your heaviest request');
+    limits();
+  } else if (k === 'apachefpm') {
+    add('  app:');
+    add('    image: thecodingmachine/php:8.4-v5-fpm', 'fpm variant: PHP-FPM');
+    add('    environment:');
+    add('      PHP_FPM_WEB_SERVER: apache', 'built-in Apache (mpm_event) in front of PHP-FPM');
+    add(`      APACHE_MAX_REQUEST_WORKERS: ${p.threads}`, 'Apache threads for the connections: cheap, started on demand');
+    fpm();
+    add('    healthcheck:');
+    add('      test: ["CMD", "php-fpm-healthcheck"]', 'checks that PHP-FPM answers');
+    limits();
+  } else if (k === 'nginxfpm') {
+    add('  web:');
+    add('    image: nginx:1.28', 'serves the static files, sends PHP to app:9000');
+    add('    volumes:');
+    add('      - ./:/var/www/html:ro', 'same files as the PHP container');
+    add('      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro', 'fastcgi_pass app:9000;');
+    add('  app:');
+    add('    image: thecodingmachine/php:8.4-v5-fpm', 'fpm variant: PHP-FPM only, on port 9000');
+    add('    environment:');
+    fpm();
+    add('    healthcheck:');
+    add('      test: ["CMD", "php-fpm-healthcheck"]', 'checks that PHP-FPM answers');
+    limits();
+  } else {
+    add('  app:', 'FrankenPHP comes with the v6 images: image and variables may change');
+    add('    image: thecodingmachine/php:8.4-v6-frankenphp', 'Caddy with PHP built in (threads)');
+    add('    environment:');
+    add('      FRANKENPHP_CONFIG: |', 'global options of FrankenPHP');
+    add(`        num_threads ${p.numThreads}`, 'PHP threads started with the container');
+    add(`        max_threads ${p.maxThreads}`, 'PHP threads at most, started when requests wait');
+    if (p.worker && d.workerOk) add(`        worker ./public/index.php ${p.maxThreads}`, 'worker mode: the application stays booted between requests');
+    limits();
+  }
+  return L;
+}
+
+function renderConfig(d, res, best) {
+  const cfg = state.config || best;
+  $('config-for').innerHTML = Object.entries(OPTIONS).map(([k, o]) => `<button data-cfg="${k}" class="${cfg === k ? 'on' : ''}">${o.name}${k === best ? ' (recommended)' : ''}</button>`).join('');
+  document.querySelectorAll('[data-cfg]').forEach(b => b.onclick = () => { state.config = b.dataset.cfg; render(); });
+  const lines = compose(cfg, res[cfg].p, d);
+  const w = Math.max(...lines.map(([l]) => l.length)) + 2;
+  $('compose').innerHTML = lines.map(([l, c]) => escapeHtml(l) + (c ? ' '.repeat(w - l.length) + `<span class="c"># ${escapeHtml(c)}</span>` : '')).join('\n');
+  $('copy').onclick = () => {
+    navigator.clipboard?.writeText(lines.map(([l, c]) => l + (c ? ' '.repeat(w - l.length) + '# ' + c : '')).join('\n'));
+    $('copy').textContent = 'Copied'; setTimeout(() => ($('copy').textContent = 'Copy'), 1200);
+  };
 }
 
 function renderChart(d, res, best) {
@@ -574,8 +735,7 @@ function renderChart(d, res, best) {
   const x = v => L + v / xmax * (W - L - R);
   const y = v => T + (1 - Math.min(v, ymax) / ymax) * (H - T - B);
   let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Page time per number of users">`;
-  const ystep = ymax / 4;
-  for (let v = 0; v <= ymax; v += ystep) svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${fmtMs(v)}</text>`;
+  for (let v = 0; v <= ymax; v += ymax / 4) svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${fmtMs(v)}</text>`;
   for (let i = 0; i <= 5; i++) { const v = xmax * i / 5; svg += `<text x="${x(v)}" y="${H - 26}" text-anchor="middle">${Math.round(v)}</text>`; }
   svg += `<text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle">simultaneous users per container</text>`;
   svg += `<line x1="${L}" x2="${W - R}" y1="${y(slo)}" y2="${y(slo)}" stroke="var(--warn)" stroke-dasharray="3 4"/>`;
@@ -592,107 +752,107 @@ function renderChart(d, res, best) {
     svg += `<polyline fill="none" stroke="${o.color}" stroke-width="${k === best ? 3 : 2}" ${o.soon ? 'stroke-dasharray="6 5"' : ''} points="${pts.join(' ')}"/>`;
   }
   $('chart').innerHTML = svg + '</svg>';
-  $('legend').innerHTML = Object.values(OPTIONS).map(o => `<span><i style="background:${o.color}"></i>${o.name}</span>`).join('') + `<span><i style="background:var(--warn)"></i>page time target</span>`;
+  $('legend').innerHTML = Object.values(OPTIONS).map(o => `<span><i style="background:${o.color}"></i>${o.name}</span>`).join('');
 }
 
+const fpmOf = (res) => (res.nginxfpm.cap.users > res.apachefpm.cap.users * 1.1 ? 'nginxfpm' : 'apachefpm');
 function bestOf(res) {
-  const fpm = res.nginxfpm.cap.users > res.apachefpm.cap.users * 1.1 ? 'nginxfpm' : 'apachefpm';
-  const m = res.modphp, f = res[fpm];
+  const f = res[fpmOf(res)], m = res.modphp;
   if (m.cap.users > f.cap.users * 1.05 && m.rush.served >= f.rush.served) return 'modphp';
-  return fpm;
+  return fpmOf(res);
+}
+
+// What gives PHP-FPM the advantage over mod_php in this situation, if anything
+function reasons(d, res) {
+  const fk = fpmOf(res), f = res[fk], m = res.modphp, out = [];
+  const name = OPTIONS[fk].name;
+  const gap = (f.cap.users - m.cap.users) / Math.max(0.1, m.cap.users) * 100;
+  if (gap >= 5) {
+    const share = m.now.used ? Math.round((m.now.connHeld + m.now.idle) / m.now.used * 100) : 0;
+    let cause;
+    if (m.p.ramLimited && !f.p.ramLimited) cause = `mod_php runs out of memory before the CPU: only ${m.p.workers} processes of ≈ ${fmtMb(d.mem)} fit in ${fmtMb(d.ram)}, and they also serve the static files and hold the connections.`;
+    else if (share >= 10) cause = `${share}% of the time of the mod_php processes goes to static files and connections, not to PHP.`;
+    else cause = d.front === 'https' ? 'mod_php opens a TCP + TLS connection per request, in its heavy processes.' : 'PHP-FPM leaves the static files to the web server.';
+    out.push({ n: `+${Math.round(gap)}%`, t: 'users per container', p: cause });
+  }
+  const memGap = m.now.mem.worst - f.now.mem.worst;
+  if (memGap > Math.max(128, d.ram * 0.1)) out.push({ n: `−${fmtMb(memGap)}`, t: 'memory in the worst case', p: `${m.p.workers} mod_php processes against ${f.p.children} PHP-FPM workers: a mod_php process is needed for every connection in progress, a PHP-FPM worker only for PHP.` });
+  const pageGap = m.now.page - f.now.page;
+  if (pageGap > 50 && f.now.page !== Infinity) out.push({ n: `−${fmtMs(pageGap)}`, t: 'per page for your users', p: d.front === 'https'
+    ? `Without keep-alive, mod_php makes the browsers open a TCP + TLS connection per request (${fmtMs(d.rtt)} of round trip on average); PHP-FPM keeps one HTTP/2 connection.`
+    : 'The requests wait less for a free PHP process.' });
+  if (f.rush.served - m.rush.served > 0.03 || (m.rush.oom && !f.rush.oom)) out.push({ n: m.rush.oom ? 'no OOM' : `+${Math.round((f.rush.served - m.rush.served) * 100)} pts`, t: 'of pages served in a rush ×2', p: m.rush.oom
+    ? 'mod_php runs out of memory when twice your users come: the kernel kills its processes.'
+    : `Fewer PHP processes compete for the CPU: ${f.p.children} PHP-FPM workers against ${m.p.workers} mod_php processes.` });
+  if (m.next.rush.oom && !f.next.rush.oom) out.push({ n: fmtMb(m.next.now.mem.worst), t: 'for mod_php with the default settings', p: `30 mod_php processes of ≈ ${fmtMb(MEM.proc + d.mem)} do not fit in ${fmtMb(d.ram)}: a rush runs out of memory. The 10 default PHP-FPM workers need ${fmtMb(f.next.now.mem.worst)}.` });
+  if (d.front === 'https') out.push({ n: 'HTTP/2', t: 'for the browsers', p: 'mod_php needs mpm_prefork, which does not serve HTTP/2.' });
+  return { fk, out, gap };
 }
 
 function renderVerdict(d, res, best) {
-  const b = res[best], m = res.modphp;
-  const fpm = best === 'modphp' ? (res.nginxfpm.cap.users > res.apachefpm.cap.users * 1.1 ? 'nginxfpm' : 'apachefpm') : best;
-  const f = res[fpm];
+  const b = res[best];
   const who = APPS[d.app].who;
-  const why = [];
   let warn = false;
-  let head = `<p><b>Use ${OPTIONS[best].name}</b> (${OPTIONS[best].tag}): up to ${fmtUsers(b.cap.users)} ${who} per container`;
-  head += b.containers > 1 && b.containers !== Infinity ? `, ${b.containers} containers for your ${d.users} ${who}.</p>` : '.</p>';
-  if (b.containers === Infinity) { warn = true; head = `<p><b>No setup serves your ${who} with this container.</b> Give it more CPU or memory.</p>`; }
-  const gap = (f.cap.users - m.cap.users) / Math.max(1, m.cap.users) * 100;
-  if (d.front === 'proxy') {
-    why.push(Math.abs(gap) < 8
-      ? 'Behind your reverse proxy, mod_php and PHP-FPM serve about the same number of users: the proxy keeps the connections of the browsers, the container only sees short requests.'
-      : `${OPTIONS[fpm].name} serves ${gap > 0 ? Math.round(gap) + '% more' : Math.round(-gap) + '% fewer'} users than mod_php.`);
-    const alt = derive({ ...state, front: 'https' });
-    const am = evaluateOpt('modphp', alt, optimize('modphp', alt)), af = evaluateOpt(fpm, alt, optimize(fpm, alt));
-    const agap = Math.round((af.cap.users - am.cap.users) / Math.max(1, am.cap.users) * 100);
-    if (agap > 5) why.push(`Without the proxy, with HTTPS served by the container, the gap would be +${agap}% for ${OPTIONS[fpm].name}: every connection costs a mod_php process.`);
-  } else {
-    why.push(`HTTPS served by the container: mod_php holds a process for each connection, TLS handshake included; ${OPTIONS[fpm].name} keeps them in cheap threads, with HTTP/2. ${gap > 0 ? `+${Math.round(gap)}% of users.` : ''}`);
-  }
-  if (f.rush.served > m.rush.served + 0.03) why.push(`In a rush at twice your users, ${OPTIONS[fpm].name} serves ${Math.round(f.rush.served * 100)}% of the pages, mod_php ${Math.round(m.rush.served * 100)}%: fewer PHP processes share the CPU.`);
-  if (m.now.mem.worst > f.now.mem.worst * 1.3) why.push(`Memory: ${fmtMb(m.now.mem.worst)} for ${m.p.workers} mod_php processes, ${fmtMb(f.now.mem.worst)} for ${f.p.children} PHP-FPM workers.`);
-  if (fpm === 'nginxfpm') why.push('nginx serves your static files for less CPU than Apache: worth a second container.');
-  if (b.containers > 1 && b.containers !== Infinity) why.push(`For ${d.users} ${who}, run ${b.containers} containers behind a load balancer, or give each one more CPUs (adjust the situation).`);
+  let html = `<p><b>Use ${OPTIONS[best].name}</b> (${OPTIONS[best].tag}): up to ${fmtUsers(b.cap.users)} ${who} per container`;
+  html += b.containers > 1 && b.containers !== Infinity ? `, ${b.containers} containers of ${b.p ? d.vcpu : ''} CPU${d.vcpu > 1 ? 's' : ''} for your ${d.users} ${who}.</p>` : '.</p>';
+  if (b.containers === Infinity || b.over) { warn = true; html += `<p>Your containers are too small for your ${who}: add containers, CPUs or memory.</p>`; }
   const fr = res.franken;
-  const frGain = Math.round((fr.cap.users - b.cap.users) / Math.max(1, b.cap.users) * 100);
-  why.push(`FrankenPHP (v6 preview): ${d.workerOk ? `with its worker mode, ${frGain >= 0 ? '+' : ''}${frGain}% of users here, an estimate` : 'no worker mode for WordPress, no gain here'}.`);
-  $('verdict').innerHTML = `<div class="verdict ${warn ? 'warn' : ''}">${head}<ul>${why.map(w => `<li>${w}</li>`).join('')}</ul></div>`;
+  const frGain = Math.round((fr.cap.users - b.cap.users) / Math.max(0.1, b.cap.users) * 100);
+  html += `<p class="hint">FrankenPHP (v6 preview): ${d.workerOk ? `${frGain >= 0 ? '+' : ''}${frGain}% of users here with its worker mode, an estimate` : 'no worker mode for WordPress, no gain here'}.</p>`;
+  $('verdict').innerHTML = `<div class="verdict ${warn ? 'warn' : ''}">${html}</div>`;
+  const { fk, out, gap } = reasons(d, res);
+  $('why-title').textContent = `Why ${OPTIONS[fk].name} rather than mod_php here?`;
+  if (!out.length) {
+    out.push({ neutral: true, n: '≈', t: 'no decisive advantage', p: `With the best settings, mod_php serves ${gap < 0 ? 'as many users or more' : 'about as many users'} with this situation: the reverse proxy keeps the connections and PHP dominates the time. PHP-FPM keeps the margin if HTTPS moves to the container, or if the static files or the traffic grow.` });
+  }
+  if (d.front === 'proxy' && out.every(o => o.neutral || o.n === 'HTTP/2')) {
+    const alt = derive({ ...state, front: 'https' });
+    const am = evaluateOpt('modphp', alt, optimize('modphp', alt)), af = evaluateOpt(fk, alt, optimize(fk, alt));
+    const ag = Math.round((af.cap.users - am.cap.users) / Math.max(0.1, am.cap.users) * 100);
+    if (ag >= 5) out.push({ n: `+${ag}%`, t: 'without the reverse proxy', p: 'With HTTPS served by the container, every connection costs a mod_php process.' });
+  }
+  $('why').innerHTML = out.map(o => `<div class="reason ${o.neutral ? 'neutral' : ''}"><div class="n">${o.n}</div><div class="t">${o.t}</div><p>${o.p}</p></div>`).join('');
 }
 
-function renderSituation(d) {
-  $('apps').innerHTML = Object.entries(APPS).map(([k, a]) => `<button class="app ${state.app === k ? 'on' : ''}" data-app="${k}"><b>${a.name}</b><span>${a.stack}</span></button>`).join('');
+const FMT = { wait: v => v + '%', peakMem: fmtMb, boot: v => (state.app === 'wp' ? 'n/a' : v + ' ms'), php: v => v, static: v => v, think: v => v + ' s' };
+
+function renderSituation() {
+  $('apps').innerHTML = Object.entries(APPS).map(([k, a]) => `<button class="app ${state.app === k ? 'on' : ''}" data-app="${k}">${ICON[k]}<div><b>${a.name}</b><span>${a.stack}</span></div></button>`).join('');
   document.querySelectorAll('[data-app]').forEach(b => b.onclick = () => { Object.assign(state, { app: b.dataset.app, ...profileOf(b.dataset.app), touched: {} }); render(); });
-  $('users-q').textContent = `Simultaneous ${APPS[state.app].who} at the busiest moment`;
-  const isPreset = USERS.includes(state.users);
-  $('users').innerHTML = USERS.map(u => `<button data-u="${u}" class="${state.users === u || (!isPreset && u === 1000 && state.users >= 1000) ? 'on' : ''}">${u === 1000 ? '1000+' : u}</button>`).join('')
-    + (!isPreset && state.users < 1000 ? `<button class="on">${state.users}</button>` : '');
+  const who = APPS[state.app].who;
+  $('users-label').textContent = `${who} at the busiest moment`;
+  $('v-users').innerHTML = `${state.users} <small>${who}</small>`;
+  $('users').innerHTML = USERS.map(u => `<button data-u="${u}" class="${state.users === u ? 'on' : ''}">${u === 1000 ? '1000' : u}</button>`).join('')
+    + `<input type="number" id="users-n" min="1" max="100000" value="${state.users}" aria-label="Number of users">`;
   document.querySelectorAll('[data-u]').forEach(b => b.onclick = () => { state.users = Number(b.dataset.u); state.touched = {}; render(); });
+  $('users-n').onchange = (e) => { const v = Math.round(Number(e.target.value)); if (v >= 1) { state.users = v; state.touched = {}; } render(); };
+  $('v-wall').innerHTML = state.wall >= 1000 ? `${(state.wall / 1000).toFixed(2).replace(/0$/, '')} <small>s</small>` : `${state.wall} <small>ms</small>`;
+  $('v-mem').innerHTML = state.mem >= 1024 ? `${(state.mem / 1024).toFixed(1)} <small>GB</small>` : `${state.mem} <small>MB</small>`;
+  for (const k of ['wall', 'mem']) if (document.activeElement !== $(k)) $(k).value = toSlider(k, state[k]);
   document.querySelectorAll('#front button').forEach(b => b.classList.toggle('on', state.front === b.dataset.v));
   $('front-hint').textContent = state.front === 'proxy'
-    ? 'The proxy terminates HTTPS and keeps the connections of the browsers: their network does not matter.'
+    ? 'Traefik, nginx, a load balancer: it terminates HTTPS and keeps the connections of the browsers, their network does not matter.'
     : 'Browsers connect to the container, which terminates HTTPS.';
   $('mix-box').hidden = state.front !== 'https';
-  $('mobile').value = state.mobile;
-  $('o-mobile').textContent = `${state.mobile}% mobile`;
-  const a = APPS[state.app];
-  $('facts').innerHTML = `<span>Request: <b>${state.wall} ms</b> on a developer machine, <b>${state.wait}%</b> waiting (database, APIs)</span>
-    <span>Memory: <b>${state.mem} MB</b> per request</span>
-    <span>Page: <b>${state.php}</b> PHP request${state.php > 1 ? 's' : ''}, <b>${state.static}</b> static file${state.static > 1 ? 's' : ''}</span>
-    <span>A page every <b>${state.think} s</b> per user</span>
-    <span>Container: <b>${state.vcpu}</b> ${CPU_KIND[state.cpuKind].label}${state.vcpu > 1 ? 's' : ''}, <b>${fmtMb(state.ram)}</b></span>
-    <button class="btn" id="adjust-btn">${state.adjust ? 'Done' : 'Adjust'}</button>`;
-  $('adjust-btn').onclick = () => { state.adjust = !state.adjust; render(); };
-  $('adjust').hidden = !state.adjust;
-  if (state.adjust && !$('adjust').innerHTML) renderAdjust(a);
+  if (document.activeElement !== $('mobile')) $('mobile').value = state.mobile;
+  $('o-mobile').textContent = `${state.mobile}%`;
+  $('vcpu').innerHTML = VCPUS.map(v => `<button data-c="${v}" class="${state.vcpu === v ? 'on' : ''}">${v}</button>`).join('');
+  $('ram').innerHTML = RAMS.map(v => `<button data-r="${v}" class="${state.ram === v ? 'on' : ''}">${fmtMb(v)}</button>`).join('');
+  $('count').innerHTML = `<button data-n="auto" class="${state.count === 'auto' ? 'on' : ''}">Auto</button>`
+    + `<input type="number" id="count-n" min="1" max="500" value="${state.count === 'auto' ? '' : state.count}" placeholder="fixed" aria-label="Number of containers">`;
+  document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { state.vcpu = Number(b.dataset.c); state.touched = {}; render(); });
+  document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { state.ram = Number(b.dataset.r); state.touched = {}; render(); });
+  document.querySelector('[data-n]').onclick = () => { state.count = 'auto'; state.touched = {}; render(); };
+  $('count-n').onchange = (e) => { const v = Math.round(Number(e.target.value)); state.count = v >= 1 ? v : 'auto'; state.touched = {}; render(); };
   document.querySelectorAll('[data-s]').forEach(el => {
     if (document.activeElement !== el) el.value = state[el.dataset.s];
     el.previousElementSibling.querySelector('output').textContent = FMT[el.dataset.s](state[el.dataset.s]);
+    el.disabled = el.dataset.s === 'boot' && state.app === 'wp';
   });
-  document.querySelectorAll('#cpu-kind button').forEach(b => b.classList.toggle('on', state.cpuKind === b.dataset.v));
-  const reset = $('profile-reset');
-  if (reset) reset.textContent = `Back to the ${a.name} profile`;
+  $('profile-reset').textContent = `Back to the ${APPS[state.app].name} profile`;
 }
 
-const FMT = { wall: v => v + ' ms', wait: v => v + '%', mem: v => v + ' MB', php: v => v, static: v => v, think: v => v + ' s', users: v => v, vcpu: v => v, ram: fmtMb };
-
-function renderAdjust(a) {
-  const f = (key, label, min, max, step, fmt, hint) => `<div class="field"><label>${label} <output></output></label>
-    <input type="range" data-s="${key}" min="${min}" max="${max}" step="${step}" value="${state[key]}">${hint ? `<div class="hint">${hint}</div>` : ''}</div>`;
-  $('adjust').innerHTML = `<div class="adjust">
-    <div>${f('wall', 'Request time on a developer machine', 5, 2000, 5, v => v + ' ms', 'What your profiler shows for a typical request (Symfony toolbar, Laravel Debugbar, Blackfire), in prod mode.')}
-      ${f('wait', 'Of which waiting', 0, 95, 5, v => v + '%', 'Database, cache, HTTP APIs: time without CPU.')}
-      ${f('mem', 'Memory per request', 2, 256, 1, v => v + ' MB', '<code>memory_get_peak_usage()</code>')}</div>
-    <div>${f('php', 'PHP requests per page', 1, 10, 1, v => v, 'The page and its XHR / API calls.')}
-      ${f('static', 'Static files per page from the container', 0, 40, 1, v => v, 'Not in the browser cache yet. 0 with a CDN.')}
-      ${f('think', 'Time between two pages of a user', 2, 120, 1, v => v + ' s')}
-      ${f('users', 'Simultaneous users', 1, 5000, 1, v => v)}</div>
-    <div><div class="field"><label>Production CPU</label><div class="seg" id="cpu-kind">${Object.entries(CPU_KIND).map(([k, c]) => `<button data-v="${k}" class="${state.cpuKind === k ? 'on' : ''}">${c.label}</button>`).join('')}</div>
-      <div class="hint">A cloud vCPU is about 1.7 times slower than a recent developer machine.</div></div>
-      ${f('vcpu', 'CPUs per container', 0.5, 8, 0.5, v => v)}
-      ${f('ram', 'Memory per container', 256, 8192, 128, fmtMb)}
-      <p class="hint"><a href="#" id="profile-reset">Back to the ${a.name} profile</a></p></div>
-  </div>`;
-  document.querySelectorAll('[data-s]').forEach(el => el.oninput = () => { state[el.dataset.s] = Number(el.value); state.touched = {}; render(); });
-  $('profile-reset').onclick = (e) => { e.preventDefault(); Object.assign(state, profileOf(state.app), { cpuKind: 'cloud', vcpu: 1, ram: 1024, touched: {} }); render(); };
-  document.querySelectorAll('#cpu-kind button').forEach(b => b.onclick = () => { state.cpuKind = b.dataset.v; state.touched = {}; render(); });
-}
-
-const HASH_KEYS = ['app', 'users', 'front', 'mobile', 'cpuKind', 'vcpu', 'ram', ...PROFILE];
+const HASH_KEYS = ['app', 'users', 'front', 'mobile', 'count', ...PROFILE];
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.get('app') && APPS[h.get('app')]) Object.assign(state, { app: h.get('app'), ...profileOf(h.get('app')) });
@@ -700,12 +860,12 @@ function readHash() {
     const v = h.get(k);
     if (v === null || k === 'app') continue;
     if (k === 'front' && ['proxy', 'https'].includes(v)) state.front = v;
-    else if (k === 'cpuKind' && CPU_KIND[v]) state.cpuKind = v;
-    else if (Number.isFinite(Number(v)) && Number(v) > 0) state[k] = Number(v);
+    else if (k === 'count' && v === 'auto') state.count = 'auto';
+    else if (Number.isFinite(Number(v)) && Number(v) >= 0) state[k] = Number(v);
   }
 }
 function writeHash() {
-  const base = { ...profileOf(state.app), mobile: EU_MOBILE, cpuKind: 'cloud', vcpu: 1, ram: 1024 };
+  const base = { ...profileOf(state.app), mobile: EU_MOBILE, count: 'auto' };
   const h = new URLSearchParams();
   for (const k of HASH_KEYS) if (['app', 'users', 'front'].includes(k) || state[k] !== base[k]) h.set(k, state[k]);
   history.replaceState(null, '', '#' + h.toString());
@@ -714,16 +874,20 @@ function writeHash() {
 function render() {
   const { d, res } = evaluate();
   const best = bestOf(res);
-  renderSituation(d);
+  renderSituation();
   renderCards(d, res, best);
   renderChart(d, res, best);
   renderVerdict(d, res, best);
+  renderConfig(d, res, best);
   writeHash();
 }
 
 document.querySelectorAll('#front button').forEach(b => b.onclick = () => { state.front = b.dataset.v; state.touched = {}; render(); });
+for (const k of ['wall', 'mem']) $(k).oninput = () => { state[k] = fromSlider(k, Number($(k).value)); state.touched = {}; render(); };
 $('mobile').oninput = () => { state.mobile = Number($('mobile').value); state.touched = {}; render(); };
 $('mix-reset').onclick = (e) => { e.preventDefault(); state.mobile = EU_MOBILE; state.touched = {}; render(); };
+document.querySelectorAll('[data-s]').forEach(el => el.oninput = () => { state[el.dataset.s] = Number(el.value); state.touched = {}; render(); });
+$('profile-reset').onclick = (e) => { e.preventDefault(); Object.assign(state, profileOf(state.app), { touched: {} }); render(); };
 window.addEventListener('hashchange', () => { readHash(); render(); });
 readHash();
 render();
