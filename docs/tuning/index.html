@@ -55,7 +55,7 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
 .card.best { border-color: var(--ok); }
 .card.soon { border-style: dashed; border-color: var(--c-franken); }
 .card .name { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-.card .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.card .ico { width: 20px; height: 20px; flex: none; color: var(--accent); }
 .card .tag { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
 .card .badge { position: absolute; top: -11px; right: 12px; background: var(--ok); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
 .card.soon .badge { background: var(--c-franken); }
@@ -65,6 +65,9 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
 .stat .v { font: 600 18px/1.3 var(--mono); }
 .stat .s { font-size: 11px; color: var(--muted); }
 .stat.main .v { font-size: 24px; }
+.stat.impossible { grid-column: span 2; background: color-mix(in srgb, var(--bad) 10%, transparent); }
+.stat.impossible .k { color: var(--bad); font-weight: 700; }
+.stat.impossible p { margin: 2px 0 0; font-size: 12.5px; }
 .good { color: var(--ok); } .meh { color: var(--warn); } .bad { color: var(--bad); }
 .bar { height: 6px; background: var(--panel); border-radius: 3px; overflow: hidden; position: relative; margin-top: 4px; }
 .bar i { display: block; height: 100%; border-radius: 3px; }
@@ -98,8 +101,8 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
 .verdict p { margin: 4px 0; }
 .why { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 12px 0 18px; }
 .reason { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-.reason .n { font: 700 22px/1.2 var(--mono); color: var(--c-apachefpm); }
-.reason.neutral .n { color: var(--muted); }
+.reason .for { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.reason .n { font: 700 22px/1.2 var(--mono); color: var(--accent); }
 .reason .t { font-weight: 600; font-size: 13px; margin: 2px 0 4px; }
 .reason p { font-size: 12.5px; color: var(--muted); margin: 0; }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; align-items: start; }
@@ -133,7 +136,7 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
 <h1>Tuning simulator: mod_php, PHP-FPM or FrankenPHP</h1>
 <p class="lead">Pick the situation closest to yours: each way to serve PHP shows what its default settings give, and
   the settings optimized for your situation. It is a model calibrated on our
-  <a href="https://github.com/mistraloz/docker-images-php/blob/feat/apache-fpm-tuning/benchmarks/capacity/README.md">benchmarks</a>,
+  <a href="https://github.com/thecodingmachine/docker-images-php/blob/v5/benchmarks/capacity/README.md">benchmarks</a>,
   not a load test: use it to choose and to start, then measure.</p>
 
 <section class="panel" id="situation">
@@ -238,6 +241,8 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
   <div id="verdict"></div>
   <div class="label" id="why-title" style="margin-top:16px"></div>
   <div class="why" id="why"></div>
+  <div class="label" id="crit-title"></div>
+  <div class="why" id="crit"></div>
   <div class="explain">
     <div class="ex" id="ex-model"><h3>Two ways to run PHP</h3>
       <p><b>mod_php</b> (<code>apache</code> variant) runs PHP inside each Apache process (<code>mpm_prefork</code>): a
@@ -336,9 +341,12 @@ const RTT = { desktop: 20, mobile: 50 };
 const EU_MOBILE = 50;
 const MEM = { proc: 6, keep: 0.3, apache: 25, eventChild: 6, nginx: 10, opcache: 64, franken: 40, thread: 3, appWorker: 15 };
 const OPTIONS = {
-  modphp: { name: 'Apache + mod_php', tag: 'apache variant', color: 'var(--c-modphp)' },
-  apachefpm: { name: 'Apache + PHP-FPM', tag: 'fpm variant, built-in Apache', color: 'var(--c-apachefpm)' },
-  franken: { name: 'FrankenPHP', tag: 'v6 preview, estimate', color: 'var(--c-franken)', soon: true },
+  modphp: { name: 'Apache + mod_php', tag: 'apache variant', line: 'var(--muted)',
+    icon: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/>' },
+  apachefpm: { name: 'Apache + PHP-FPM', tag: 'fpm variant, built-in Apache', line: 'var(--accent)',
+    icon: '<rect x="3" y="4" width="8" height="16" rx="2"/><path d="M11 12h3"/><rect x="14" y="7" width="7" height="4" rx="1"/><rect x="14" y="13" width="7" height="4" rx="1"/>' },
+  franken: { name: 'FrankenPHP', tag: 'v6 preview, estimate', line: 'var(--c-franken)', soon: true,
+    icon: '<path d="M13 3L5 14h6l-1 7 8-11h-6z"/>' },
 };
 const DOC = {
   apache: '../variants.html#connections-and-processes',
@@ -421,7 +429,9 @@ function model(opt, d, p, users) {
   else newConns = reconnect ? 1 : 0.2;
   const cpuPage = d.php * (cpuReq + c.fcgi) + d.static * c.stat + newConns * c.conn;
   const util = rate * cpuPage / (d.vcpu * 1000);
-  const stretch = util < 0.97 ? 1 / (1 - util) : 33;
+  // CPU sharing between the requests on vcpu CPUs (M/M/c processor sharing)
+  const cpus = Math.max(1, Math.round(d.vcpu));
+  const stretch = util < 0.97 ? 1 + erlangC(cpus, util * cpus) / (cpus * (1 - util)) : 33;
   const service = d.io + cpuReq * stretch + c.fcgi;
   const busy = rate * d.php * service / 1000;
   const waves = 1 + (d.static > 0 ? Math.ceil(d.static / 6) : 0);
@@ -457,6 +467,10 @@ function model(opt, d, p, users) {
   const statTime = d.static > 0 ? c.stat * stretch + (opt === 'modphp' && !ka ? r.wait : 0) : 0;
   r.page = r.wait === Infinity ? Infinity : service + r.wait + statTime + extraRtt;
   r.mem = memory(opt, d, p);
+  // PHP processes running at the peaks of the load, each one with the memory of a request
+  const conc = opt === 'modphp' ? (r.used || 0) : busy;
+  r.running = r.page === Infinity ? r.mem.n : Math.min(r.mem.n, Math.ceil(conc + 2 * Math.sqrt(conc) + 1));
+  r.memAt = r.mem.base + r.running * r.mem.per;
   r.cpuTput = d.vcpu * 1000 / cpuPage;
   r.procTput = poolOf(opt, p) * 1000 / holdPage;
   return r;
@@ -466,16 +480,25 @@ function model(opt, d, p, users) {
 function sloOf(d) { return Math.max(1000, 2 * d.wall); }
 const HEADROOM = 0.75;
 
-function capacity(opt, d, p) {
+function capacity(opt, d, p, o = {}) {
   const idle = model(opt, d, p, 0.001);
   const slo = sloOf(d);
-  if (idle.page === Infinity) return { users: 0, slo };
+  if (idle.page === Infinity) return { users: 0, slo, limit: 'memory' };
   let lo = 0, hi = Math.min(idle.cpuTput, idle.procTput) * d.think * 1.05;
   for (let i = 0; i < 26; i++) {
     const mid = (lo + hi) / 2, r = model(opt, d, p, mid);
-    if (r.page <= slo && r.util <= 0.9) lo = mid; else hi = mid;
+    if (r.page <= slo && r.util <= 0.9 && (o.ignoreMem || r.memAt <= d.ram)) lo = mid; else hi = mid;
   }
-  return { users: lo, slo };
+  if (o.quick) return { users: lo, slo };
+  // What stops the next users: more PHP processes would serve more, if the memory allows them; else the CPU
+  const more = { ...p }, n = poolOf(opt, p) * 1.5 + 2;
+  if (opt === 'modphp') more.workers = Math.ceil(n); else if (opt === 'franken') more.maxThreads = Math.ceil(n); else more.children = Math.ceil(n);
+  const r = model(opt, d, p, Math.max(lo * 1.05, 0.01));
+  let limit;
+  if (capacity(opt, d, more, { quick: true, ignoreMem: true }).users > lo * 1.03) {
+    limit = capacity(opt, d, more, { quick: true }).users > lo * 1.03 ? (opt === 'modphp' ? 'Apache processes' : opt === 'franken' ? 'PHP threads' : 'PHP-FPM workers') : 'memory';
+  } else limit = r.memAt > d.ram ? 'memory' : 'CPU';
+  return { users: lo, slo, limit };
 }
 
 // A rush of RUSH_S seconds at twice the users: page time at its end, the requests above the capacity queue up
@@ -485,7 +508,7 @@ function rush(opt, d, p, users) {
   const eff = 1 / (1 + 0.006 * Math.max(0, busy - d.vcpu) * (1 + Math.min(d.mem, 128) / 32));
   const tput = Math.min(r.cpuTput * eff, r.procTput);
   const saturated = r.page === Infinity || r.util >= 0.95 || tput < r.rate;
-  if (saturated && r.mem.worst > d.ram) return { oom: true, page: Infinity };
+  if ((saturated ? r.mem.worst : r.memAt) > d.ram) return { oom: true, page: Infinity };
   if (!saturated) return { page: r.page };
   return { saturated: true, page: r.service + Math.max(0, r.rate - tput) * RUSH_S / Math.max(tput, 0.01) * 1000 };
 }
@@ -521,14 +544,17 @@ function optimize(opt, d, fixed = {}) {
   else variants = steps(max).map(n => ({ children: n, threads: 1024 }));
   if (fixed.keepAlive && fixed.kaTimeout === undefined) fixed = { ...fixed, kaTimeout: 5 };
   variants = [...new Map(variants.map(v => ({ ...v, ...fixed })).map(v => [JSON.stringify(v), v])).values()];
-  const scored = variants.map(p => ({ p, cap: capacity(opt, d, p).users }));
+  const scored = variants.map(p => ({ p, cap: capacity(opt, d, p, { quick: true }).users }));
   const best = Math.max(...scored.map(s => s.cap));
   const containers = containersFor(d, best);
   const load = containers === Infinity ? d.users : d.users / containers;
   let top = scored.filter(s => s.cap >= best * 0.99 && poolOf(opt, s.p) >= Math.min(max, Math.ceil(2 * d.vcpu) + 1));
   if (!top.length) top = scored.filter(s => s.cap >= best * 0.99);
   top = top.map(s => { const ru = rush(opt, d, s.p, load); return { ...s, rush: ru.oom ? Infinity : ru.page, n: poolOf(opt, s.p) }; });
-  top.sort((a, b) => (Math.abs(a.rush - b.rush) > 0.05 * Math.min(a.rush, b.rush) ? a.rush - b.rush : a.n - b.n));
+  // Same users and about the same rush: the most PHP processes the memory allows, for the requests slower than average
+  const bestRush = Math.min(...top.map(t => t.rush));
+  top = top.filter(t => t.rush <= bestRush * 1.05);
+  top.sort((a, b) => b.n - a.n);
   const p = { ...top[0].p };
   if (opt === 'franken') p.numThreads = Math.min(p.maxThreads, Math.max(2, Math.ceil(2 * d.vcpu)));
   p.ramLimited = poolOf(opt, p) >= max;
@@ -568,9 +594,8 @@ function flagsOf(k, d, r) {
     if (!d.workerOk) f.push(['warn', 'WordPress does not run in worker mode: FrankenPHP works like PHP-FPM here.']);
     else if (p.worker) f.push(['ok', `Worker mode: saves the framework boot, ${fmtMs(d.boot)} of ${fmtMs(d.cpu)} of CPU per request.`]);
   }
-  if (p.ramLimited) f.push(['warn', `Limited by the memory: ${poolOf(k, p)} PHP ${k === 'modphp' ? 'processes' : k === 'franken' ? 'threads' : 'workers'} of ≈ ${fmtMb(d.mem)} fit in ${fmtMb(d.ram)}.`]);
-  if (r.now.mem.worst > d.ram) f.push(['bad', `${poolOf(k, p)} PHP ${k === 'modphp' ? 'processes' : 'workers'} busy at once need ${fmtMb(r.now.mem.worst)}: more than the ${fmtMb(d.ram)} of the container.`]);
-  if (r.over && r.containers !== Infinity) f.push(['bad', `Not enough for your ${d.users} users: add containers or CPUs.`]);
+  if (r.now.mem.worst > d.ram) f.push(['bad', `Allows ${poolOf(k, p)} PHP ${k === 'modphp' ? 'processes' : k === 'franken' ? 'threads' : 'workers'}: ${fmtMb(r.now.mem.worst)} when they all run, for ${fmtMb(d.ram)}. The users are counted up to the memory, beyond it the kernel kills processes.`]);
+
   if (r.containers === Infinity) f.push(['bad', 'Cannot serve a single user with these settings.']);
   return f;
 }
@@ -617,8 +642,8 @@ function rushText(e) {
 
 function capacityText(d, e) {
   if (e.containers === Infinity) return ['–', ''];
-  if (d.count === 'auto') return [`${e.containers}`, `max ${fmtUsers(e.total)} users`];
-  return [`${fmtUsers(e.total)}`, `for ${d.users} wanted`];
+  if (d.count === 'auto') return [`${e.containers}`, `max ${fmtUsers(e.total)} users, limited by the ${e.cap.limit}`];
+  return [`${fmtUsers(e.total)}`, `for ${d.users} wanted · limited by the ${e.cap.limit}`];
 }
 
 function slider(k, key, label, min, max, step, value) {
@@ -656,20 +681,22 @@ function renderCards(d, res, best) {
     const [capV, capS] = capacityText(d, r);
     const capCls = r.over ? 'bad' : '';
     const capStat = fixed
-      ? `<div class="stat main"><div class="k">Max users, ${d.count} container${d.count > 1 ? 's' : ''}</div><div class="v ${capCls}">${capV}</div>${bar(r.total, maxCap, r.over ? 'var(--bad)' : o.color, d.users)}<div class="s">${capS}</div></div>`
+      ? `<div class="stat main"><div class="k">Max users, ${d.count} container${d.count > 1 ? 's' : ''}</div><div class="v ${capCls}">${capV}</div>${bar(r.total, maxCap, r.over ? 'var(--bad)' : 'var(--accent)', d.users)}<div class="s">${capS}</div></div>`
       : `<div class="stat main"><div class="k">Containers needed</div><div class="v">${capV}</div><div class="s">(${capS})</div></div>`;
     const cols = Object.keys(MODES).filter(m => r.sets[m]);
     const th = cols.map(m => `<th class="${m === r.mode ? 'col-best' : ''}">${MODES[m]}</th>`).join('');
     const rows = settingRows(k, d).map(([label, get]) => `<tr><td>${label}</td>${cols.map(m => `<td class="${m === r.mode ? 'col-best' : ''}">${get(r.sets[m].p)}</td>`).join('')}</tr>`).join('');
     const impact = (label, get, cls = '') => `<tr class="impact ${cls}"><td>${label}</td>${cols.map(m => `<td class="${m === r.mode ? 'col-best' : ''}">${get(r.sets[m])}</td>`).join('')}</tr>`;
     return `<div class="card ${o.soon ? 'soon' : ''} ${k === best ? 'best' : ''}">${badge}
-      <div class="name"><span class="dot" style="background:${o.color}"></span>${o.name}<span class="tag">${o.tag}</span></div>
+      <div class="name"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${o.icon}</svg>${o.name}<span class="tag">${o.tag}</span></div>
       <div class="modes">${Object.entries(MODES).map(([m, t]) => `<button data-mode="${k}:${m}" class="${m === r.mode ? 'on' : ''}">${t}</button>`).join('')}</div>
       <div class="stats">
         ${capStat}
+        ${fixed && r.over ? `<div class="stat impossible"><div class="k">Not possible</div><p>${r.cap.users < 0.5 ? 'This container cannot serve a single user with these settings.' : `${d.users} ${APPS[d.app].who} need ${Math.ceil(d.users / (r.cap.users * HEADROOM))} containers of ${d.vcpu} CPU${d.vcpu > 1 ? 's' : ''} and ${fmtMb(d.ram)}, or bigger containers.`}</p></div>
+        <div class="stat"><div class="k">Memory, worst case</div><div class="v ${memCls}">${fmtMb(r.now.mem.worst)}</div>${bar(r.now.mem.worst, d.ram, memCls === 'bad' ? 'var(--bad)' : 'var(--accent)')}<div class="s">of ${fmtMb(d.ram)}</div></div>` : `
         <div class="stat"><div class="k">Page time</div><div class="v ${pageCls}">${r.now.page === Infinity ? 'overload' : fmtMs(r.now.page)}</div><div class="s">target ${fmtMs(r.cap.slo)}</div></div>
         <div class="stat"><div class="k">Twice the users, 5 min</div><div class="v ${rushCls}">${rushTxt}</div><div class="s">per page at the end</div></div>
-        <div class="stat"><div class="k">Memory, worst case</div><div class="v ${memCls}">${fmtMb(r.now.mem.worst)}</div>${bar(r.now.mem.worst, d.ram, memCls === 'bad' ? 'var(--bad)' : o.color)}<div class="s">of ${fmtMb(d.ram)}</div></div>
+        <div class="stat"><div class="k">Memory, worst case</div><div class="v ${memCls}">${fmtMb(r.now.mem.worst)}</div>${bar(r.now.mem.worst, d.ram, memCls === 'bad' ? 'var(--bad)' : 'var(--accent)')}<div class="s">of ${fmtMb(d.ram)} · ${fmtMb(r.now.memAt)} at your load</div></div>`}
       </div>
       <table class="cmp"><tr><th>Setting</th>${th}</tr>
         ${rows}
@@ -785,71 +812,117 @@ function renderChart(d, res, best) {
       pts.push(`${x(u).toFixed(1)},${y(v).toFixed(1)}`);
       if (v >= ymax) break;
     }
-    svg += `<polyline fill="none" stroke="${o.color}" stroke-width="${k === best ? 3 : 2}" ${o.soon ? 'stroke-dasharray="6 5"' : ''} points="${pts.join(' ')}"/>`;
+    svg += `<polyline fill="none" stroke="${o.line}" stroke-width="${k === best ? 3 : 2}" ${o.soon ? 'stroke-dasharray="6 5"' : ''} points="${pts.join(' ')}"/>`;
   }
   $('chart').innerHTML = svg + '</svg>';
-  $('legend').innerHTML = Object.values(OPTIONS).map(o => `<span><i style="background:${o.color}"></i>${o.name}</span>`).join('');
+  $('legend').innerHTML = Object.values(OPTIONS).map(o => `<span><i style="background:${o.line}"></i>${o.name}</span>`).join('');
 }
 
-function bestOf(res) {
-  const m = res.modphp.sets.optimized, f = res.apachefpm.sets.optimized;
-  return m.cap.users > f.cap.users * 1.05 && !m.rush.oom && m.rush.page <= f.rush.page ? 'modphp' : 'apachefpm';
+// Below this gap of users, the model cannot tell the two variants apart
+const CLEAR_GAP = 0.2;
+const PAIR = ['modphp', 'apachefpm'];
+const rushOk = (e) => !e.rush.oom && e.rush.page <= 3 * e.cap.slo;
+
+// The variant to use when the numbers clearly favor one, with the reason; best is null when both are worth as much
+function decide(d, res) {
+  const name = (k) => OPTIONS[k].name;
+  const other = (k) => PAIR.find((x) => x !== k);
+  const only = (test, why) => {
+    const ok = PAIR.filter((k) => test(res[k]));
+    return ok.length === 1 ? { best: ok[0], why: why(other(ok[0])) } : null;
+  };
+  const [m, f] = PAIR.map((k) => res[k].cap.users);
+  const lead = m > f ? 'modphp' : 'apachefpm';
+  return only((e) => e.now.mem.worst <= d.ram, (o) => `the worst case of ${name(o)} needs ${fmtMb(res[o].now.mem.worst)}, more than the ${fmtMb(d.ram)} of the container`)
+    || only((e) => !e.over, (o) => `${name(o)} cannot serve them with ${d.count} container${d.count > 1 ? 's' : ''}`)
+    || (Math.max(m, f) > Math.min(m, f) * (1 + CLEAR_GAP)
+      ? { best: lead, why: `it serves ${Math.min(m, f) < 0.1 ? 'users where the other cannot' : `${Math.round((Math.max(m, f) / Math.min(m, f) - 1) * 100)}% more users`} with the same container` }
+      : null)
+    || only(rushOk, (o) => `${name(o)} ${res[o].rush.oom ? 'runs out of memory' : 'leaves the pages far above the target'} when twice your users come`)
+    || { best: null };
 }
 
-// What gives PHP-FPM the advantage over mod_php in this situation, if anything
-function reasons(d, res) {
-  const f = res.apachefpm.sets.optimized, m = res.modphp.sets.optimized, md = res.modphp.sets.default, fd = res.apachefpm.sets.default;
+// Measured differences between the two variants with the selected settings, each for the variant it favors
+function measures(d, res) {
+  const f = res.apachefpm, m = res.modphp;
   const out = [];
-  const gap = (f.cap.users - m.cap.users) / Math.max(0.1, m.cap.users) * 100;
-  if (md.now.mem.worst > d.ram && fd.now.mem.worst <= d.ram) out.push({ n: fmtMb(md.now.mem.worst), t: 'for mod_php with the default settings', p: `Up to ${DEFAULTS.modphp.workers} mod_php processes of ≈ ${fmtMb(MEM.proc + d.mem)}: a rush can start them all, in a ${fmtMb(d.ram)} container. The ${DEFAULTS.apachefpm.children} default PHP-FPM workers need ${fmtMb(fd.now.mem.worst)}.` });
+  const up = (a, b) => Math.round((a - b) / Math.max(0.1, b) * 100);
+  const gap = up(f.cap.users, m.cap.users), back = up(m.cap.users, f.cap.users);
   if (gap >= 5) {
     const share = m.now.used ? Math.round((m.now.connHeld + m.now.idle) / m.now.used * 100) : 0;
     let cause;
-    if (m.p.ramLimited && !f.p.ramLimited) cause = `mod_php runs out of memory before the CPU: only ${m.p.workers} processes of ≈ ${fmtMb(d.mem)} fit in ${fmtMb(d.ram)}, and they also serve the static files and hold the connections.`;
+    if (m.cap.limit === 'memory' && f.cap.limit !== 'memory') cause = `mod_php runs out of memory before the CPU: about ${maxPool('modphp', d, m.p)} processes of ≈ ${fmtMb(MEM.proc + d.mem)} fit in ${fmtMb(d.ram)}, and they also serve the static files and hold the connections.`;
     else if (share >= 10) cause = `${share}% of the time of the mod_php processes goes to static files and connections, not to PHP.`;
-    else cause = d.front === 'https' ? 'mod_php opens a TCP + TLS connection per request, in its heavy processes.' : 'PHP-FPM leaves the static files to Apache.';
-    out.push({ n: `+${Math.round(gap)}%`, t: 'users, optimized settings', p: cause });
-  }
+    else cause = d.front === 'https' ? 'mod_php opens a TCP + TLS connection per request, in its heavy processes.' : 'PHP-FPM leaves the static files to the Apache threads.';
+    out.push({ for: 'apachefpm', n: `+${gap}%`, t: 'users per container', p: cause });
+  } else if (back >= 5) out.push({ for: 'modphp', n: `+${back}%`, t: 'users per container', p: /workers/.test(f.cap.limit) ? `Limited by its ${f.p.children} PHP-FPM workers: more workers would close the gap.` : 'No FastCGI hop between the web server and PHP.' });
   const memGap = m.now.mem.worst - f.now.mem.worst;
-  if (memGap > Math.max(128, d.ram * 0.1)) out.push({ n: `−${fmtMb(memGap)}`, t: 'memory, optimized settings', p: `${m.p.workers} mod_php processes against ${f.p.children} PHP-FPM workers: a mod_php process is needed for every connection in progress, a PHP-FPM worker only for PHP.` });
+  if (Math.abs(memGap) > Math.max(128, d.ram * 0.1)) out.push(memGap > 0
+    ? { for: 'apachefpm', n: `−${fmtMb(memGap)}`, t: 'memory, worst case', p: `${m.p.workers} mod_php processes against ${f.p.children} PHP-FPM workers: a mod_php process is needed for every connection in progress, a PHP-FPM worker only for PHP.` }
+    : { for: 'modphp', n: `−${fmtMb(-memGap)}`, t: 'memory, worst case', p: `${m.p.workers} mod_php processes against ${f.p.children} PHP-FPM workers.` });
   const pageGap = m.now.page - f.now.page;
-  if (pageGap > 50 && f.now.page !== Infinity) out.push({ n: `−${fmtMs(pageGap)}`, t: 'per page for your users', p: d.front === 'https'
-    ? `Without keep-alive, mod_php makes the browsers open a TCP + TLS connection per request (${fmtMs(d.rtt)} of round trip on average); PHP-FPM keeps one HTTP/2 connection.`
-    : 'The requests wait less for a free PHP process.' });
+  if (Math.abs(pageGap) > 50 && Number.isFinite(pageGap)) out.push(pageGap > 0
+    ? { for: 'apachefpm', n: `−${fmtMs(pageGap)}`, t: 'per page for your users', p: d.front === 'https' ? `Without keep-alive, mod_php makes the browsers open a TCP + TLS connection per request (${fmtMs(d.rtt)} of round trip on average); PHP-FPM keeps one HTTP/2 connection.` : 'The requests wait less for a free PHP process.' }
+    : { for: 'modphp', n: `−${fmtMs(-pageGap)}`, t: 'per page for your users', p: 'The requests wait less for a free PHP process.' });
   const mr = m.rush.oom ? Infinity : m.rush.page, fr = f.rush.oom ? Infinity : f.rush.page;
-  if (fr < mr * 0.8) out.push({ n: m.rush.oom ? 'no OOM' : `−${fmtMs(Math.min(mr - fr, 600000))}`, t: 'per page when twice the users come', p: m.rush.oom
-    ? 'mod_php runs out of memory when twice your users come: the kernel kills its processes.'
-    : `Fewer PHP processes compete for the CPU: ${f.p.children} PHP-FPM workers against ${m.p.workers} mod_php processes.` });
-  if (d.front === 'https') out.push({ n: 'HTTP/2', t: 'for the browsers', p: 'mod_php needs mpm_prefork, which does not serve HTTP/2.' });
-  return { out, gap };
+  if (fr < mr * 0.8) out.push({ for: 'apachefpm', n: m.rush.oom ? 'no OOM' : `−${fmtMs(Math.min(mr - fr, 600000))}`, t: 'per page when twice the users come', p: m.rush.oom ? 'mod_php runs out of memory when twice your users come: the kernel kills its processes.' : `Fewer PHP processes compete for the CPU: ${f.p.children} PHP-FPM workers against ${m.p.workers} mod_php processes.` });
+  else if (mr < fr * 0.8) out.push({ for: 'modphp', n: f.rush.oom ? 'no OOM' : `−${fmtMs(Math.min(fr - mr, 600000))}`, t: 'per page when twice the users come', p: f.rush.oom ? 'PHP-FPM runs out of memory when twice your users come.' : `More PHP processes to absorb the rush: ${m.p.workers} against ${f.p.children} PHP-FPM workers.` });
+  return out;
 }
 
-function renderVerdict(d, res, best) {
-  const b = res[best].sets.optimized;
-  const who = APPS[d.app].who;
-  let warn = false;
-  let html = `<p><b>Use ${OPTIONS[best].name}</b> (${OPTIONS[best].tag}) with the optimized settings: `;
-  html += d.count === 'auto'
-    ? `${b.containers === Infinity ? '–' : b.containers} container${b.containers > 1 ? 's' : ''} of ${d.vcpu} CPU${d.vcpu > 1 ? 's' : ''} for your ${d.users} ${who}.</p>`
-    : `up to ${fmtUsers(b.total)} ${who} with ${d.count} container${d.count > 1 ? 's' : ''} of ${d.vcpu} CPU${d.vcpu > 1 ? 's' : ''}, for ${d.users} wanted.</p>`;
-  if (b.over) { warn = true; html += `<p>Not enough for your ${who}: add containers, CPUs or memory.</p>`; }
-  const fr = res.franken.sets.optimized;
-  const frGain = Math.round((fr.cap.users - b.cap.users) / Math.max(0.1, b.cap.users) * 100);
-  html += `<p class="hint">FrankenPHP (v6 preview): ${d.workerOk ? `${frGain >= 0 ? '+' : ''}${frGain}% of users here with its worker mode, an estimate` : 'no worker mode for WordPress, no gain here'}.</p>`;
-  $('verdict').innerHTML = `<div class="verdict ${warn ? 'warn' : ''}">${html}</div>`;
-  const { out, gap } = reasons(d, res);
-  $('why-title').textContent = 'Why PHP-FPM rather than mod_php here?';
-  if (!out.length) out.push({ neutral: true, n: '≈', t: 'no decisive advantage', p: `With optimized settings, mod_php serves ${gap < 0 ? 'as many users or more' : 'about as many users'} here. PHP-FPM keeps the margin if HTTPS moves to the container, or if the static files or the traffic grow.` });
+// What the numbers do not show
+function criteria(d) {
+  const out = [
+    { for: 'modphp', n: 'Simplicity', t: 'one process, one configuration', p: '<code>php_value</code> and <code>php_flag</code> in <code>.htaccess</code> work, as some WordPress plugins and older applications expect; with PHP-FPM, Apache rejects them (error 500) and they move to <code>.user.ini</code>.' },
+    { for: 'apachefpm', n: 'Room to grow', t: 'PHP and connections sized apart', p: 'The PHP workers are set for the CPU and the memory, the Apache threads for the connections: HTTPS in the container, HTTP/2, more static files or more visitors need no more PHP processes.' },
+    { for: 'apachefpm', n: 'Isolation', t: 'PHP apart from the web server', p: 'The Apache threads that serve the static files and hold the connections never run PHP; a crash or a leak hits one PHP worker, which <code>PHP_FPM_PM_MAX_REQUESTS</code> can recycle.' },
+  ];
+  if (d.front === 'https') out.push({ for: 'apachefpm', n: 'HTTP/2', t: 'for the browsers', p: 'mod_php needs mpm_prefork, which does not serve HTTP/2.' });
   if (d.front === 'proxy') {
     const alt = derive({ ...state, front: 'https' });
     const am = evaluateOpt('modphp', alt, optimize('modphp', alt)), af = evaluateOpt('apachefpm', alt, optimize('apachefpm', alt));
     const ag = Math.round((af.cap.users - am.cap.users) / Math.max(0.1, am.cap.users) * 100);
-    if (ag >= 5) out.push({ n: `+${ag}%`, t: 'users without the reverse proxy', p: 'With HTTPS served by the container, every connection costs a mod_php process.' });
+    if (ag >= 5) out[1].p += ` Without the reverse proxy, optimized PHP-FPM would serve ${ag}% more users here.`;
   }
-  $('why').innerHTML = out.map(o => `<div class="reason ${o.neutral ? 'neutral' : ''}"><div class="n">${o.n}</div><div class="t">${o.t}</div><p>${o.p}</p></div>`).join('');
+  return out;
+}
+
+const tile = (o) => `<div class="reason"><div class="for">${o.for ? OPTIONS[o.for].name : 'Both'}</div><div class="n">${o.n}</div><div class="t">${o.t}</div><p>${o.p}</p></div>`;
+
+function renderVerdict(d, res, best, why) {
+  const who = APPS[d.app].who;
+  const m = res.modphp, f = res.apachefpm;
+  const cpu = `${d.vcpu} CPU${d.vcpu > 1 ? 's' : ''}`;
+  const reach = (e) => d.count === 'auto'
+    ? `${e.containers === Infinity ? '–' : e.containers} container${e.containers > 1 ? 's' : ''}`
+    : `up to ${fmtUsers(e.total)} ${who}`;
+  const modes = `mod_php ${MODES[m.mode].toLowerCase()}, PHP-FPM ${MODES[f.mode].toLowerCase()}`;
+  let html = `<p class="hint">With the settings selected in the cards: ${modes}.</p>`;
+  let warn = false;
+  if (best) {
+    html += `<p><b>Use ${OPTIONS[best].name}</b> (${OPTIONS[best].tag}): ${reach(res[best])}${d.count === 'auto' ? ` of ${cpu}` : ` with ${d.count} container${d.count > 1 ? 's' : ''} of ${cpu}`} for your ${d.users} ${who}, because ${why}.</p>`;
+    if (res[best].over) { warn = true; html += `<p>Not enough for your ${who}: add containers, CPUs or memory.</p>`; }
+  } else {
+    html += `<p><b>mod_php and PHP-FPM are equivalent here.</b> mod_php: ${reach(m)}, PHP-FPM: ${reach(f)}${d.count === 'auto' ? ` of ${cpu}` : ''}, a difference within the precision of the model.`;
+    const fails = [];
+    if (m.over || f.over) fails.push(`neither serves your ${d.users} ${who}: add containers, CPUs or memory`);
+    if (m.now.mem.worst > d.ram && f.now.mem.worst > d.ram) fails.push('both can exceed the memory of the container: lower the processes and workers');
+    if (!rushOk(m) && !rushOk(f)) fails.push('neither holds twice your users: keep some headroom');
+    if (fails.length) { warn = true; html += ` But ${fails.join('; ')}.`; }
+    html += ' Choose on what the numbers do not show, below.</p>';
+  }
+  const fr = res.franken.sets.optimized, ref = res[best || 'apachefpm'];
+  const frGain = Math.round((fr.cap.users - ref.cap.users) / Math.max(0.1, ref.cap.users) * 100);
+  html += `<p class="hint">FrankenPHP (v6 preview): ${d.workerOk ? `${frGain >= 0 ? '+' : ''}${frGain}% of users here with its optimized settings and its worker mode, an estimate` : 'no worker mode for WordPress, no gain here'}.</p>`;
+  $('verdict').innerHTML = `<div class="verdict ${warn ? 'warn' : ''}">${html}</div>`;
+  const ms = measures(d, res);
+  $('why-title').textContent = best || !ms.length ? 'The numbers' : 'Small differences, not enough to choose';
+  $('why').innerHTML = ms.length ? ms.map(tile).join('') : tile({ n: '≈', t: 'same numbers', p: 'Same users, page time, memory and rush with these settings.' });
+  $('crit-title').textContent = 'What the numbers do not show';
+  $('crit').innerHTML = criteria(d).map(tile).join('');
   $('ex-proxy').classList.toggle('on', d.front === 'proxy');
   $('ex-https').classList.toggle('on', d.front === 'https');
-  $('ex-memory').classList.toggle('on', out.some(o => /memory|OOM|twice/.test(o.t + o.n)));
+  $('ex-memory').classList.toggle('on', ms.some((o) => /memory|OOM|twice/.test(o.t + o.n)));
   $('ex-nginx').classList.toggle('on', d.static >= 10);
 }
 
@@ -912,12 +985,12 @@ function writeHash() {
 
 function render() {
   const { d, res } = evaluate();
-  const best = bestOf(res);
+  const { best, why } = decide(d, res);
   renderSituation();
   renderCards(d, res, best);
-  renderChart(d, res, best);
-  renderVerdict(d, res, best);
-  renderConfig(d, res, best);
+  renderChart(d, res, best || 'apachefpm');
+  renderVerdict(d, res, best, why);
+  renderConfig(d, res, best || 'apachefpm');
   writeHash();
 }
 
