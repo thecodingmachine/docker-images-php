@@ -136,7 +136,7 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
 <h1>Tuning simulator: mod_php, PHP-FPM or FrankenPHP</h1>
 <p class="lead">Pick the situation closest to yours: each way to serve PHP shows what its default settings give, and
   the settings optimized for your situation. It is a model calibrated on our
-  <a href="https://github.com/thecodingmachine/docker-images-php/blob/v5/benchmarks/capacity/README.md">benchmarks</a>,
+  <a href="https://github.com/thecodingmachine/docker-images-php/blob/v6/benchmarks/capacity/README.md">benchmarks</a>,
   not a load test: use it to choose and to start, then measure.</p>
 
 <section class="panel" id="situation">
@@ -229,7 +229,7 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
         at its end. When the containers cannot follow, the requests queue up and the time grows; above 60 s, the
         proxies and the browsers give up. Out of memory: the kernel kills processes.</dd>
       <dt>Memory, worst case</dt><dd>Every PHP worker busy with an average request, plus one heaviest request.</dd>
-      <dt>Default / Optimized / Custom</dt><dd>The default settings of the v5 images, the settings optimized for your
+      <dt>Default / Optimized / Custom</dt><dd>The default settings of the v6 images, the settings optimized for your
         situation, and your own (“Custom”, from the optimized ones).</dd>
     </dl>
   </details>
@@ -264,8 +264,8 @@ details.more > summary { cursor: pointer; font-size: 13px; color: var(--accent);
         one HTTP/2 connection per browser in Apache: +63% of pages in our benchmark with light pages, less with heavy
         pages where PHP dominates.</p></div>
     <div class="ex" id="ex-memory"><h3>Memory and rushes</h3>
-      <p>The v5 default of the <code>apache</code> variant allows 150 processes: with requests of 100 MB, a rush starts
-        them all and exhausts the memory (208 processes killed in our benchmark with 48 MB pages). PHP-FPM caps the PHP
+      <p>Up to v5, the <code>apache</code> variant allowed 150 processes: with requests of 100 MB, a rush started them
+        all and exhausted the memory (208 processes killed in our benchmark with 48 MB pages); v6 allows 20. PHP-FPM caps the PHP
         workers independently of the connections: in a rush, the extra requests wait in a queue instead of starting
         processes, and fewer processes compete for the CPU (+16% to +29% of pages served in our benchmark).</p></div>
     <div class="ex" id="ex-nginx"><h3>nginx instead of the built-in Apache</h3>
@@ -354,8 +354,8 @@ const DOC = {
   builtin: '../fpm.html#built-in-apache',
   franken: 'https://frankenphp.dev/docs/config/',
 };
-// Default settings of the v5 images (FrankenPHP: its own defaults)
-const DEFAULTS = { modphp: { workers: 150, keepAlive: true, kaTimeout: 5 }, apachefpm: { children: 5, threads: 150, pm: [2, 1, 3] } };
+// Default settings of the v6 images (FrankenPHP: its own defaults)
+const DEFAULTS = { modphp: { workers: 20, keepAlive: false, kaTimeout: 5 }, apachefpm: { children: 10, threads: 1024, pm: [4, 2, 6] } };
 const defaultsOf = (k, d) => (k === 'franken' ? { numThreads: Math.ceil(2 * d.vcpu), maxThreads: Math.ceil(2 * d.vcpu), worker: false } : DEFAULTS[k]);
 const MODES = { default: 'Default', optimized: 'Optimized', custom: 'Custom' };
 const RUSH_S = 300;
@@ -740,7 +740,7 @@ function compose(k, p, d) {
   add('services:');
   if (k === 'modphp') {
     add('  app:');
-    add('    image: thecodingmachine/php:8.4-v5-apache', 'apache variant: Apache mpm_prefork with mod_php');
+    add('    image: thecodingmachine/php:8.4-v6-apache', 'apache variant: Apache mpm_prefork with mod_php');
     add('    environment:');
     add(`      APACHE_MAX_REQUEST_WORKERS: ${p.workers}`, `Apache processes at most, each one embedding PHP (≈ ${fmtMb(MEM.proc + d.mem)})`);
     add(`      APACHE_KEEPALIVE: "${p.keepAlive ? 'On' : 'Off'}"`, p.keepAlive ? 'idle browser connections keep a process' : d.front === 'proxy' ? 'the reverse proxy keeps the browser connections' : 'a process is freed after each request');
@@ -750,7 +750,7 @@ function compose(k, p, d) {
   } else if (k === 'apachefpm') {
     const pm = p.pm || fpmPm(p.children);
     add('  app:');
-    add('    image: thecodingmachine/php:8.4-v5-fpm', 'fpm variant: PHP-FPM');
+    add('    image: thecodingmachine/php:8.4-v6-fpm', 'fpm variant: PHP-FPM');
     add('    environment:');
     add('      PHP_FPM_WEB_SERVER: apache', 'built-in Apache (mpm_event) in front of PHP-FPM');
     add(`      APACHE_MAX_REQUEST_WORKERS: ${p.threads}`, 'Apache threads for the connections: cheap, started on demand');
