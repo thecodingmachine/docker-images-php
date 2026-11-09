@@ -1,0 +1,57 @@
+name: Forward v5 to v6
+
+# The commits of v5 are cherry-picked onto v6, which holds the same commits plus its own ones
+on:
+  push:
+    branches:
+      - 'v5'
+  workflow_dispatch:
+
+concurrency:
+  group: forward-port
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  FROM: v5
+  TO: v6
+
+jobs:
+  forward:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Cherry-pick the new commits of v5
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B "${TO}" "origin/${TO}"
+          BASE=$(git merge-base "origin/${FROM}" "origin/${TO}")
+          # Already in v6: picked with -x, or the same patch
+          {
+            git log --format=%b "${BASE}..origin/${TO}" | sed -n 's/^(cherry picked from commit \([0-9a-f]\{40\}\))$/\1/p'
+            git cherry "origin/${TO}" "origin/${FROM}" "${BASE}" | sed -n 's/^- //p'
+          } > "${RUNNER_TEMP}/done"
+          TODO=$(git rev-list --reverse --topo-order --no-merges "${BASE}..origin/${FROM}" | grep -vxF -f "${RUNNER_TEMP}/done" || true)
+          FAILED=""
+          for COMMIT in ${TODO}; do
+            if ! git cherry-pick -x --empty=drop "${COMMIT}"; then
+              git cherry-pick --abort
+              FAILED="${COMMIT}"
+              break
+            fi
+          done
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/${TO}")" ]; then
+            git push origin "${TO}"
+          fi
+          if [ -n "${FAILED}" ]; then
+            echo "::error::$(git log -1 --format='%h %s' "${FAILED}") conflicts with ${TO}. Cherry-pick it by hand (git switch ${TO} && git pull && git cherry-pick -x ${FAILED}), resolve, push, then run this workflow again for the next commits."
+            exit 1
+          fi
+          echo "${TO} holds every commit of ${FROM}"
