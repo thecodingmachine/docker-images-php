@@ -1,4 +1,13 @@
 # Change Log
+## Version 6
+
+### Breaking changes
+
+* Default settings of Apache and PHP-FPM sized for a typical application on 1-2 CPUs (see the [capacity benchmark](benchmarks/capacity/README.md) and the [tuning simulator](https://thecodingmachine.github.io/docker-images-php/tuning/)); set the variables to keep the v5 behavior:
+  * *apache* variant: keep-alive off (`APACHE_KEEPALIVE=Off`, was `On`): an idle connection, of a browser or of a reverse proxy, holds a whole mod_php process. Up to 20 mod_php processes (`APACHE_MAX_REQUEST_WORKERS=20`, was `150`): 150 processes of 100 MB exhaust the memory of the container in a traffic peak
+  * *fpm* variant: 10 PHP-FPM workers (`PHP_FPM_PM_MAX_CHILDREN=10`, was `5`; start `4`, spare `2`-`6`), and the built-in Apache accepts up to 1024 threads (`APACHE_MAX_REQUEST_WORKERS=1024`, was `150`)
+  * Apache: `ListenBacklog 4096` (was `511`): an overload no longer makes the kernel drop connections
+
 ## Version 5
 
 ### Minor changes

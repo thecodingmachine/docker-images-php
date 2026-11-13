@@ -166,8 +166,8 @@ nginx).
 ### Number of workers and memory
 
 PHP requests are processed by a fixed pool of PHP-FPM workers: **at most `PHP_FPM_PM_MAX_CHILDREN` requests are
-processed at the same time** (`5` by default, the Ubuntu default). The other ones wait for a free worker.
-With the *apache* variant, this limit is the number of Apache processes (`APACHE_MAX_REQUEST_WORKERS`, `150`), which
+processed at the same time** (`10` by default). The other ones wait for a free worker.
+With the *apache* variant, this limit is the number of Apache processes (`APACHE_MAX_REQUEST_WORKERS`, `20`), which
 also serve the static files.
 
 `memory_limit` (`PHP_INI_MEMORY_LIMIT`) is a limit per request: in the worst case, PHP uses
@@ -178,10 +178,10 @@ your requests use much less memory (check the memory of the workers with `docker
 | Environment variable           | Default   | Description |
 |--------------------------------|-----------|-------------|
 | `PHP_FPM_PM`                   | `dynamic` | `static` (fixed number of workers), `dynamic` or `ondemand` |
-| `PHP_FPM_PM_MAX_CHILDREN`      | `5`       | Maximum number of workers (requests processed at the same time) |
-| `PHP_FPM_PM_START_SERVERS`     | `2`       | Workers started with PHP-FPM (`dynamic`) |
-| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `1`       | Minimum number of idle workers (`dynamic`) |
-| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `3`       | Maximum number of idle workers (`dynamic`) |
+| `PHP_FPM_PM_MAX_CHILDREN`      | `10`      | Maximum number of workers (requests processed at the same time) |
+| `PHP_FPM_PM_START_SERVERS`     | `4`       | Workers started with PHP-FPM (`dynamic`) |
+| `PHP_FPM_PM_MIN_SPARE_SERVERS` | `2`       | Minimum number of idle workers (`dynamic`) |
+| `PHP_FPM_PM_MAX_SPARE_SERVERS` | `6`       | Maximum number of idle workers (`dynamic`) |
 | `PHP_FPM_PM_MAX_REQUESTS`      | `0`       | Requests processed by a worker before it is restarted (`0`: never), useful if your application leaks memory |
 
 See the [PHP-FPM documentation](https://www.php.net/manual/en/install.fpm.configuration.php) for the details, and the

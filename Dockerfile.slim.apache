@@ -67,9 +67,12 @@ COPY utils/apache-mpm-prefork.conf /etc/apache2/mods-available/mpm_prefork.conf
 COPY utils/apache-mpm-event.conf /etc/apache2/mods-available/mpm_event.conf
 COPY utils/apache-docker-tuning.conf /etc/apache2/conf-available/docker-tuning.conf
 RUN a2enconf docker-tuning
-ENV APACHE_MAX_REQUEST_WORKERS=150 \
-    APACHE_KEEPALIVE=On \
+
+# An idle keep-alive connection holds a whole mod_php process: keep-alive is left to the reverse proxy
+ENV APACHE_MAX_REQUEST_WORKERS=20 \
+    APACHE_KEEPALIVE=Off \
     APACHE_KEEPALIVE_TIMEOUT=5
+
 
 COPY utils/apache2-foreground /usr/local/bin/
 

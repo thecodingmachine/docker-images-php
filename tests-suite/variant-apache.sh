@@ -63,12 +63,12 @@ test_httpPort() {
 ############################################################
 test_keepAlive() {
   RESULT="$(curl -sI http://localhost:${DOCKER1_PORT}/apache/ 2>&1)"
-  assert_not_matches "Connection: close" "$RESULT" "Keep-alive should be on by default"
-  RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_KEEPALIVE=Off \
+  assert_matches "Connection: close" "$RESULT" "Keep-alive should be off by default"
+  RESULT="$(docker run ${RUN_OPTIONS} --rm -e APACHE_KEEPALIVE=On \
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-slim-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
     bash -c '(apache2-foreground > /dev/null 2>&1 &); for i in $(seq 1 20); do curl -sI http://localhost/ 2>/dev/null && break; sleep 0.25; done')"
   assert_matches "^HTTP" "$RESULT" "Apache did not answer"
-  assert_matches "Connection: close" "$RESULT" "APACHE_KEEPALIVE was not applied"
+  assert_not_matches "Connection: close" "$RESULT" "APACHE_KEEPALIVE was not applied"
 }
 ############################################################
 ## Fixed pool of APACHE_MAX_REQUEST_WORKERS processes
