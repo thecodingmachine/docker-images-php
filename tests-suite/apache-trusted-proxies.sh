@@ -100,6 +100,11 @@ test_cloudflareOnly() {
     "$(remote_addr "${PROXY_NAME}" "${ONLY_NAME}" -H 'X-Forwarded-For: 173.245.48.5' -H 'CF-Connecting-IP: 203.0.113.9')"
   assert_equals "403" "$(remote_addr "${PROXY_NAME}" "${ONLY_NAME}" -o /dev/null -w '%{http_code}' -H 'X-Forwarded-For: 198.51.100.6' -H 'CF-Connecting-IP: 203.0.113.9')"
   assert_equals "403" "$(remote_addr "${PROXY_NAME}" "${ONLY_NAME}" -o /dev/null -w '%{http_code}' -H 'X-Forwarded-For: 198.51.100.6' -H 'X-Cloudflare-Hop: 173.245.48.5')"
+  # URL rewritten by a .htaccess, like the pretty URLs of WordPress
+  assert_equals "203.0.113.9 off" "$(docker exec "${PROXY_NAME}" curl -s "http://${ONLY_NAME}/apache/rewrite/blog/" \
+    -H 'X-Forwarded-For: 173.245.48.5' -H 'CF-Connecting-IP: 203.0.113.9')"
+  assert_equals "403" "$(docker exec "${PROXY_NAME}" curl -s -o /dev/null -w '%{http_code}' "http://${ONLY_NAME}/apache/rewrite/blog/" \
+    -H 'X-Forwarded-For: 198.51.100.6' -H 'CF-Connecting-IP: 203.0.113.9')"
 }
 
 ############################################################
