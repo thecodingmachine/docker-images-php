@@ -47,7 +47,11 @@ RUN set -eux; \
 	ln -sfT /dev/stderr "$APACHE_LOG_DIR/error.log"; \
 	ln -sfT /dev/stdout "$APACHE_LOG_DIR/access.log"; \
 	ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"; \
-	chown -R --no-dereference "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR"
+	chown -R --no-dereference "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR"; \
+	\
+# the logs of every virtual host are set by /etc/apache2/conf-enabled/docker-logs.conf
+	sed -ri -e '/^\s*(ErrorLog|CustomLog) /d' /etc/apache2/sites-available/*.conf; \
+	a2disconf -q other-vhosts-access-log
 
 
 # Apache keeps its default threaded MPM (mpm_event) and forwards PHP files to PHP-FPM
@@ -213,6 +217,16 @@ COPY utils/generate_cron.php /usr/local/bin/generate_cron.php
 COPY utils/startup_commands.php /usr/local/bin/startup_commands.php
 
 COPY utils/enable_apache_mods.php /usr/local/bin/enable_apache_mods.php
+COPY utils/apache-trusted-proxies.sh /usr/local/bin/apache-trusted-proxies.sh
+COPY utils/cloudflare-ips.txt /etc/apache2/cloudflare-ips.txt
+COPY utils/apache-logs.sh utils/apache-log-rotated.sh /usr/local/bin/
+RUN /usr/local/bin/apache-logs.sh
+ENV APACHE_TRUSTED_PROXIES= \
+    APACHE_TRUSTED_CLOUDFLARE= \
+    APACHE_LOG_FORMAT=combined \
+    APACHE_LOG_OUTPUT=stdout \
+    APACHE_LOG_RETENTION_DAYS=14 \
+    APACHE_LOG_MAX_SIZE=
 
 
 COPY utils/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh

@@ -3,6 +3,11 @@
 
 ### Minor changes
 
+* **2026-11-13**
+  * Apache: `APACHE_TRUSTED_PROXIES` lists the reverse proxies in front of the container (host names resolved every 30 seconds, IPs, CIDR ranges) and `APACHE_TRUSTED_CLOUDFLARE=1` trusts the ranges of Cloudflare, updated every day: Apache and PHP get the IP of the users and `HTTPS=on` behind them, a forged `X-Forwarded-For` or `CF-Connecting-IP` header being ignored. `APACHE_TRUSTED_CLOUDFLARE=only` also refuses (403) the requests that did not go through Cloudflare. New [reverse proxy guide](https://thecodingmachine.github.io/docker-images-php/reverse-proxy/)
+  * Apache: `APACHE_LOG_FORMAT` sets the format of the access log (`combined` by default, `detailed`, `json` or a format of mod_log_config), and `APACHE_LOG_OUTPUT=file` writes the logs in `/var/log/apache2`, rotated every day and at `APACHE_LOG_MAX_SIZE`, gzipped and deleted after `APACHE_LOG_RETENTION_DAYS` days. The default virtual host no longer sets its own logs: they are set at the server level
+  * fpm variant with the built-in Apache: `docker stop` stops the container gracefully when it runs other processes (`DAEMON_COMMAND_*`, cron jobs): it was killed after the stop timeout (exit code 137 after 10 s)
+
 * **2026-11-06**
   * Apache: `APACHE_MAX_REQUEST_WORKERS`, `APACHE_KEEPALIVE` and `APACHE_KEEPALIVE_TIMEOUT` set the number of processes (*apache* variant) or threads (*fpm* variant) and the keep-alive, with the same defaults as before (150, On, 5 seconds). The built-in Apache of the *fpm* variant accepts up to 1600 threads
   * New [capacity benchmark](benchmarks/capacity/README.md) and [tuning simulator](https://thecodingmachine.github.io/docker-images-php/tuning/) to choose the variant and its settings for an application

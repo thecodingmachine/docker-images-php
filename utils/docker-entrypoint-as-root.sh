@@ -181,6 +181,12 @@ chmod 0644 /tmp/generated_crontab
 
 if [[ "$WITH_APACHE" == "1" ]]; then
     startup_step bash -c '/usr/bin/real_php -d display_errors=stderr /usr/local/bin/enable_apache_mods.php | bash'
+    startup_step /usr/local/bin/apache-logs.sh
+    if [[ -n "$APACHE_TRUSTED_PROXIES$APACHE_TRUSTED_CLOUDFLARE" ]]; then
+        startup_step /usr/local/bin/apache-trusted-proxies.sh generate
+    else
+        rm -f /etc/apache2/conf-enabled/docker-trusted-proxies.conf
+    fi
 fi
 
 if [ -e /etc/container/startup.sh ]; then
@@ -219,6 +225,9 @@ fi
 : > /tmp/generated_processes
 if [[ -s /tmp/generated_crontab ]]; then
     printf '%s\0' 'Supercronic' 'exec supercronic $SUPERCRONIC_OPTIONS /tmp/generated_crontab' >> /tmp/generated_processes
+fi
+if [[ "${MAIN_COMMAND[0]}" == apache2-*foreground ]] && /usr/local/bin/apache-trusted-proxies.sh enabled; then
+    printf '%s\0' 'APACHE_TRUSTED_PROXIES watcher' 'exec /usr/local/bin/apache-trusted-proxies.sh watch' >> /tmp/generated_processes
 fi
 for DAEMON_COMMAND_VAR in "${!DAEMON_COMMAND@}"; do
     DAEMON_USER_VAR="DAEMON_USER${DAEMON_COMMAND_VAR#DAEMON_COMMAND}"
