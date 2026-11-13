@@ -120,13 +120,15 @@ generate() {
         conf+="</If>"$'\n'
     fi
     if (( CLOUDFLARE_ONLY )); then
-        # Only the Cloudflare ranges (RemoteIPTrustedProxy) are listed in RemoteIPProxiesHeader
+        # Only the Cloudflare ranges (RemoteIPTrustedProxy) are listed in RemoteIPProxiesHeader.
+        # Only the initial request is checked: an internal redirect (mod_rewrite, ErrorDocument) runs the early
+        # RequestHeader again, which empties X-Cloudflare-Hop.
         conf+='RequestHeader unset X-Cloudflare-Hop early'$'\n'
         conf+='RemoteIPProxiesHeader X-Cloudflare-Hop'$'\n'
         if (( ${#proxies[@]} )); then
-            conf+="<If \"-z %{HTTP:X-Cloudflare-Hop} && ($(ipmatch "${proxies[@]}"))\">"$'\n'
+            conf+="<If \"-z %{ENV:REDIRECT_STATUS} && -z %{HTTP:X-Cloudflare-Hop} && ($(ipmatch "${proxies[@]}"))\">"$'\n'
         else
-            conf+="<If \"-z %{HTTP:X-Cloudflare-Hop} && ! ($(ipmatch 127.0.0.0/8 ::1))\">"$'\n'
+            conf+="<If \"-z %{ENV:REDIRECT_STATUS} && -z %{HTTP:X-Cloudflare-Hop} && ! ($(ipmatch 127.0.0.0/8 ::1))\">"$'\n'
         fi
         conf+="    Require all denied"$'\n'
         conf+="</If>"$'\n'
