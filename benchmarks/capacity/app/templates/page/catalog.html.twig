@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+{% import _self as ui %}
+
+{% macro card(product) %}
+    <article class="product{{ product.stock == 0 ? ' sold-out' }}" id="product-{{ product.id }}">
+        <h2>{{ product.name|title }}</h2>
+        <p class="price">{{ product.price|number_format(2, ',', ' ') }} €</p>
+        <p class="rating">{% for i in 1..5 %}{{ i <= product.rating ? '★' : '☆' }}{% endfor %} ({{ product.rating }})</p>
+        <p>{{ product.description|slice(0, 160)|capitalize }}…</p>
+        <ul class="tags">{% for tag in product.tags|sort %}<li>{{ tag|upper }}</li>{% endfor %}</ul>
+        <time datetime="{{ product.created_at }}">{{ product.created_at|date('d/m/Y') }}</time>
+        {% if product.stock < 10 and product.stock > 0 %}<p class="low">Only {{ product.stock }} left</p>{% endif %}
+    </article>
+{% endmacro %}
+
+{% block title %}{{ category|title }} - {{ parent() }}{% endblock %}
+
+{% block nav %}
+    <ul>{% for c in categories %}<li{{ c == category ? ' class="active"' }}><a href="/?category={{ c|url_encode }}">{{ c|title }}</a></li>{% endfor %}</ul>
+{% endblock %}
+
+{% block body %}
+    <h1>{{ category|title }} <small>{{ products|length }} products</small></h1>
+    <section class="grid">
+        {% for product in products %}{{ ui.card(product) }}{% endfor %}
+    </section>
+    <p>Average price: {{ (products|reduce((sum, p) => sum + p.price, 0) / max(products|length, 1))|number_format(2) }} €</p>
+{% endblock %}

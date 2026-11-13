@@ -67,6 +67,15 @@ COPY utils/apache-docker-php-fpm.conf /etc/apache2/conf-available/docker-php.con
 
 RUN a2enconf docker-php
 
+# Connections and process pools, see the "Tuning" documentation page
+COPY utils/apache-mpm-prefork.conf /etc/apache2/mods-available/mpm_prefork.conf
+COPY utils/apache-mpm-event.conf /etc/apache2/mods-available/mpm_event.conf
+COPY utils/apache-docker-tuning.conf /etc/apache2/conf-available/docker-tuning.conf
+RUN a2enconf docker-tuning
+ENV APACHE_MAX_REQUEST_WORKERS=150 \
+    APACHE_KEEPALIVE=On \
+    APACHE_KEEPALIVE_TIMEOUT=5
+
 COPY utils/apache2-foreground /usr/local/bin/
 
 EXPOSE 80

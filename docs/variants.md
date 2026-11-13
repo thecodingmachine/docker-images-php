@@ -30,8 +30,8 @@ services:
 
 Apache runs PHP with `mod_php`. The sections below also apply to the [built-in Apache of the *fpm* variant](#built-in-apache).
 
-To serve a new application, prefer the *fpm* variant with its built-in Apache: the same features, with 2 to 3 times
-more traffic served and 4 times less memory ([benchmark](../benchmarks/fpm-apache/README.md)). See
+To serve a new application, prefer the *fpm* variant with its built-in Apache: the same features, with 63% more
+traffic served with HTTPS and up to 29% more during a traffic peak ([benchmark](../benchmarks/capacity/README.md)). See
 [Serving with the fpm variant](fpm.md) and its [migration notes](fpm.md#migrating-from-the-apache-variant).
 
 ### Document root
@@ -96,6 +96,23 @@ For the built-in Apache of the *fpm* variant, `mpm_event` `proxy` `proxy_fcgi` a
 `unique_id` `userdir` `usertrack` `vhost_alias` `xml2enc`
 
 This list can be outdated, you can verify it with: `docker run --rm thecodingmachine/php:8.4-v5-slim-apache a2enmod`
+
+### Connections and processes
+
+| Environment variable         | *apache* variant (`mpm_prefork`) | *fpm* variant (`mpm_event`) | Description |
+|------------------------------|----------------------------------|-----------------------------|-------------|
+| `APACHE_MAX_REQUEST_WORKERS` | `150`                            | `150`                       | `MaxRequestWorkers`: Apache processes at most (each one embedding PHP) or threads (up to 1600) |
+| `APACHE_KEEPALIVE`           | `On`                             | `On`                        | `KeepAlive` with the clients |
+| `APACHE_KEEPALIVE_TIMEOUT`   | `5`                              | `5`                         | `KeepAliveTimeout`, in seconds |
+
+With `mod_php`, a process is busy for the whole life of a connection, including the idle time of a keep-alive
+connection, and uses the memory of a PHP request: behind a reverse proxy, turn keep-alive off
+(`APACHE_KEEPALIVE=Off`) and size `APACHE_MAX_REQUEST_WORKERS` for the memory of the container (150 processes of
+100 MB need 15 GB).
+
+The [tuning simulator](tuning/) chooses these settings (and the PHP-FPM ones) for your application, your users and
+your container, for instance a [CRM with 20 employees](tuning/#app=crm&users=20&front=proxy) or a
+[WordPress site with 100 visitors and HTTPS in the container](tuning/#app=wp&users=100&front=https).
 
 ### Apache user
 

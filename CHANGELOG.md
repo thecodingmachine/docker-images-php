@@ -3,6 +3,10 @@
 
 ### Minor changes
 
+* **2026-11-06**
+  * Apache: `APACHE_MAX_REQUEST_WORKERS`, `APACHE_KEEPALIVE` and `APACHE_KEEPALIVE_TIMEOUT` set the number of processes (*apache* variant) or threads (*fpm* variant) and the keep-alive, with the same defaults as before (150, On, 5 seconds). The built-in Apache of the *fpm* variant accepts up to 1600 threads
+  * New [capacity benchmark](benchmarks/capacity/README.md) and [tuning simulator](https://thecodingmachine.github.io/docker-images-php/tuning/) to choose the variant and its settings for an application
+
 * **2026-11-05**
   * The *apache* and *fpm* images stop right away when a `docker stop` is requested during a long startup step (e.g. a `STARTUP_COMMAND_*`, or the configuration of the extensions on a loaded host): they were killed after the stop timeout (exit code 137 after 10 s)
   * Apache `mod_cgid` (`APACHE_EXTENSION_CGID=1`) starts in the *slim-apache* image and with the built-in Apache of the *fpm* variant: its socket directory was missing

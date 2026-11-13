@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title and page.url != "/" %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+<meta name="description" content="{{ page.description | default: site.description }}">
+<link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+</head>
+<body{% if page.wide %} class="wide"{% endif %}>
+<header class="site">
+  <a class="brand" href="{{ '/' | relative_url }}">thecodingmachine/php</a>
+  <span class="release">v5 documentation</span>
+  <a class="repo" href="https://github.com/thecodingmachine/docker-images-php">GitHub</a>
+</header>
+<div class="layout">
+  <nav class="side" aria-label="Documentation">
+    <details open>
+      <summary>Menu</summary>
+      {% for section in site.data.nav %}
+      <h4>{{ section.title }}</h4>
+      <ul>
+        {% for item in section.items %}
+        <li><a href="{{ item.url | relative_url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+        {% endfor %}
+      </ul>
+      {% endfor %}
+    </details>
+  </nav>
+  <main class="content">
+{{ content }}
+  </main>
+</div>
+<footer class="site">
+  <a href="https://github.com/thecodingmachine/docker-images-php">thecodingmachine/docker-images-php</a> ·
+  <a href="https://github.com/thecodingmachine/docker-images-php/issues">Issues</a>
+</footer>
+<script>
+if (matchMedia('(max-width: 860px)').matches) document.querySelector('nav.side details').removeAttribute('open');
+</script>
+</body>
+</html>
