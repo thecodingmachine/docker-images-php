@@ -239,9 +239,11 @@ case "$IMAGE_VARIANT" in
     fpm) IMAGE_STOP_SIGNAL=QUIT ;;
     *) IMAGE_STOP_SIGNAL=TERM ;;
 esac
-case "$1" in
-    apache2-foreground) STOP_SIGNAL=WINCH ;;
-    php-fpm*) STOP_SIGNAL=QUIT ;;
+# apache2-fpm-foreground stops gracefully on SIGTERM: SIGQUIT is ignored by the background jobs of bash
+case "${MAIN_COMMAND[0]}:$1" in
+    apache2-fpm-foreground:*) STOP_SIGNAL=TERM ;;
+    *:apache2-foreground) STOP_SIGNAL=WINCH ;;
+    *:php-fpm*) STOP_SIGNAL=QUIT ;;
     *) STOP_SIGNAL=TERM ;;
 esac
 exec /usr/local/bin/supervise.sh /tmp/generated_processes "$IMAGE_STOP_SIGNAL" "$STOP_SIGNAL" "${MAIN_COMMAND[@]}"
