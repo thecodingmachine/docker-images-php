@@ -181,6 +181,12 @@ chmod 0644 /tmp/generated_crontab
 
 if [[ "$WITH_APACHE" == "1" ]]; then
     startup_step bash -c '/usr/bin/real_php -d display_errors=stderr /usr/local/bin/enable_apache_mods.php | bash'
+    startup_step /usr/local/bin/apache-logs.sh
+    if [[ -n "$APACHE_TRUSTED_PROXIES$APACHE_TRUSTED_CLOUDFLARE" ]]; then
+        startup_step /usr/local/bin/apache-trusted-proxies.sh generate
+    else
+        rm -f /etc/apache2/conf-enabled/docker-trusted-proxies.conf
+    fi
 fi
 
 if [ -e /etc/container/startup.sh ]; then
@@ -220,6 +226,9 @@ fi
 if [[ -s /tmp/generated_crontab ]]; then
     printf '%s\0' 'Supercronic' 'exec supercronic $SUPERCRONIC_OPTIONS /tmp/generated_crontab' >> /tmp/generated_processes
 fi
+if [[ "${MAIN_COMMAND[0]}" == apache2-*foreground ]] && /usr/local/bin/apache-trusted-proxies.sh enabled; then
+    printf '%s\0' 'APACHE_TRUSTED_PROXIES watcher' 'exec /usr/local/bin/apache-trusted-proxies.sh watch' >> /tmp/generated_processes
+fi
 for DAEMON_COMMAND_VAR in "${!DAEMON_COMMAND@}"; do
     DAEMON_USER_VAR="DAEMON_USER${DAEMON_COMMAND_VAR#DAEMON_COMMAND}"
     DAEMON_USER="${!DAEMON_USER_VAR:-#$DOCKER_USER_ID}"
@@ -239,9 +248,11 @@ case "$IMAGE_VARIANT" in
     fpm) IMAGE_STOP_SIGNAL=QUIT ;;
     *) IMAGE_STOP_SIGNAL=TERM ;;
 esac
-case "$1" in
-    apache2-foreground) STOP_SIGNAL=WINCH ;;
-    php-fpm*) STOP_SIGNAL=QUIT ;;
+# apache2-fpm-foreground stops gracefully on SIGTERM: SIGQUIT is ignored by the background jobs of bash
+case "${MAIN_COMMAND[0]}:$1" in
+    apache2-fpm-foreground:*) STOP_SIGNAL=TERM ;;
+    *:apache2-foreground) STOP_SIGNAL=WINCH ;;
+    *:php-fpm*) STOP_SIGNAL=QUIT ;;
     *) STOP_SIGNAL=TERM ;;
 esac
 exec /usr/local/bin/supervise.sh /tmp/generated_processes "$IMAGE_STOP_SIGNAL" "$STOP_SIGNAL" "${MAIN_COMMAND[@]}"

@@ -10,6 +10,8 @@
       url: /fpm.html
     - title: Tuning simulator
       url: /tuning/
+    - title: Behind a reverse proxy
+      url: /reverse-proxy/
 - title: Configure
   items:
     - title: PHP extensions

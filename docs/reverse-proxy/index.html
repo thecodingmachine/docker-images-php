@@ -1,0 +1,780 @@
+---
+layout: default
+title: Behind a reverse proxy
+wide: true
+description: Get the real IP of your users behind Traefik, nginx, a Kubernetes ingress or Cloudflare, without trusting forged headers.
+---
+<style>
+.lead { color: var(--muted); margin: 0; max-width: 860px; }
+.step { display: inline-flex; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; align-items: center; justify-content: center; margin-right: 8px; vertical-align: 2px; }
+section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin: 16px 0; }
+section.panel h2 { font-size: 18px; margin: 0 0 14px; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+.hint { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.risks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.risk { background: var(--soft); border-radius: var(--radius); padding: 12px 16px; font-size: 14px; }
+.risk .tag { display: inline-block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warn); margin-bottom: 2px; }
+.risk h3 { margin: 0 0 6px; font-size: 15px; }
+.risk p { margin: 6px 0; }
+.risk ul { margin: 6px 0 0; padding-left: 18px; }
+.risk pre { margin: 8px 0 4px; font-size: 12px; }
+.form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.box { background: var(--soft); border-radius: var(--radius); padding: 12px 14px; }
+.box.off { opacity: 0.45; pointer-events: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chips button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.chips button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.box input[type=text] { width: 100%; font: 13px var(--mono); padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); margin-top: 8px; }
+.checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.check { display: flex; gap: 10px; align-items: flex-start; background: var(--soft); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; cursor: pointer; }
+.check input { margin-top: 4px; accent-color: var(--accent); }
+.check span small { display: block; color: var(--muted); font-size: 12.5px; }
+.check.off { display: none; }
+.diagram { overflow-x: auto; }
+.diagram svg { width: 100%; min-width: 720px; height: auto; display: block; }
+.diagram text { font-family: system-ui, sans-serif; fill: var(--ink); }
+.diagram .sub { fill: var(--muted); font-size: 12px; }
+.diagram .mono { font-family: var(--mono); font-size: 12px; }
+.hops { font-size: 13px; margin-top: 12px; display: table; }
+.hops td, .hops th { white-space: nowrap; }
+.hops td code { font-size: 12px; }
+.hops tr.attack td { color: var(--bad); }
+.verdicts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+.verdict { border-left: 4px solid var(--ok); background: var(--soft); border-radius: 0 8px 8px 0; padding: 8px 14px; font-size: 14px; }
+.verdict.attack { border-left-color: var(--bad); }
+.verdict ol { margin: 6px 0 0; padding-left: 20px; }
+.verdict b.ip { font-family: var(--mono); }
+#files pre { margin: 6px 0 8px; font-size: 12.5px; line-height: 1.55; }
+#files pre .c { color: var(--muted); }
+#files h3 { font-size: 14px; margin: 16px 0 0; font-family: var(--mono); }
+#files h3 small { font-family: system-ui, sans-serif; font-weight: 400; color: var(--muted); }
+.btn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.cols.single { grid-template-columns: minmax(0, 1fr); }
+.col { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-width: 0; }
+.col-head { display: flex; align-items: baseline; gap: 8px; }
+.col-head small { color: var(--muted); }
+.col-head .btn { margin-left: auto; }
+.logs-form { margin-top: 8px; }
+.inline { display: flex; gap: 10px; margin-top: 8px; }
+.inline label { flex: 1; font-size: 12.5px; color: var(--muted); }
+.inline input { margin-top: 4px !important; }
+.example { margin-top: 10px; }
+.example pre { margin: 4px 0 0; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+@media (max-width: 1100px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.notes { margin: 10px 0 0; padding-left: 20px; font-size: 14px; }
+.notes li { margin-top: 4px; }
+.explain { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ex { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 14px; }
+.ex h3 { margin: 0 0 4px; font-size: 15px; }
+.ex p { margin: 4px 0; }
+.ex.wide { grid-column: 1 / -1; }
+.ex pre { font-size: 12px; margin: 6px 0; }
+.ex table { font-size: 13px; margin: 6px 0; }
+section.panel > h3 { font-size: 15px; margin: 18px 0 6px; }
+@media (max-width: 1100px) { .form, .checks { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) { .risks, .verdicts, .explain { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<h1>Behind a reverse proxy: the real IP of your users</h1>
+<p class="lead">Behind Traefik, nginx, a Kubernetes ingress or Cloudflare, Apache and PHP see the address of the proxy,
+  not the one of your users. List your proxies in <code>APACHE_TRUSTED_PROXIES</code>, and set
+  <code>APACHE_TRUSTED_CLOUDFLARE=1</code> behind Cloudflare: the container finds the real IP by itself, and checks
+  every hop instead of trusting the configuration of the proxies. Describe your setup below to
+  get the recommended configuration.</p>
+
+<section class="panel">
+  <h2><span class="step">1</span>Why it matters</h2>
+  <div class="risks">
+    <div class="risk">
+      <span class="tag">Doing nothing</span>
+      <h3>All your users have the IP of the proxy</h3>
+      <ul>
+        <li>The logs, the statistics and the audit trails show a single address.</li>
+        <li>A rate limiter or a login throttling blocks all your users at once, or nobody.</li>
+        <li>An IP allowlist of a back-office (<code>Require ip</code>, firewall of the application) lets everybody in:
+          every request comes from the proxy, often from a private address.</li>
+      </ul>
+    </div>
+    <div class="risk">
+      <span class="tag">Trusting the header blindly</span>
+      <h3>Anyone chooses their IP</h3>
+      <p><code>X-Forwarded-For</code> and <code>CF-Connecting-IP</code> are request headers: any client writes the
+        value it wants.</p>
+      <pre>curl -H 'X-Forwarded-For: 10.0.0.1' https://example.com/admin/</pre>
+      <ul>
+        <li>The request passes an allowlist of private addresses, or bypasses a rate limiter with a new address each
+          time, or writes the address of somebody else in your logs.</li>
+        <li>Common causes: trusting every proxy (<code>TRUSTED_PROXIES=REMOTE_ADDR</code>, <code>'*'</code>), or
+          <code>CF-Connecting-IP</code> while the server can be reached without Cloudflare.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="setup">
+  <h2><span class="step">2</span>Your setup</h2>
+  <div class="form">
+    <div class="box">
+      <div class="label">Reverse proxy</div>
+      <div class="chips" id="proxy">
+        <button data-v="traefik">Traefik</button>
+        <button data-v="nginx">nginx</button>
+        <button data-v="k8s">Kubernetes ingress (nginx)</button>
+        <button data-v="none">None</button>
+      </div>
+      <div class="hint" id="proxy-hint"></div>
+    </div>
+    <div class="box">
+      <div class="label">Cloudflare in front</div>
+      <div class="chips" id="cf">
+        <button data-v="0">No</button>
+        <button data-v="1">Yes, proxied (orange cloud)</button>
+      </div>
+      <div class="hint">A DNS-only record (grey cloud) does not go through Cloudflare: answer No.</div>
+    </div>
+    <div class="box" id="layout-box">
+      <div class="label" id="layout-label">Where the proxy runs</div>
+      <div class="chips" id="layout">
+        <button data-v="mono">In the compose file of the project</button>
+        <button data-v="multi">In a separate ingress stack</button>
+      </div>
+      <input type="text" id="name" spellcheck="false" aria-label="Name of the proxy">
+      <div class="hint" id="name-hint"></div>
+    </div>
+  </div>
+  <div class="label" style="margin-top:16px">Options <span style="text-transform:none;letter-spacing:0;font-weight:400">(the container stays zero trust either way)</span></div>
+  <div class="checks">
+    <label class="check" id="lock-box"><input type="checkbox" id="lock"><span>Accept only Cloudflare
+      <small>A request sent to the IP of the server without Cloudflare gets a 403: nobody bypasses its firewall and
+        its cache. Checked by the container, with the same up-to-date list of Cloudflare.</small></span></label>
+    <label class="check" id="extra-box"><input type="checkbox" id="extra-on"><span>Another hop in front of the proxy
+      <small>A load balancer or a CDN other than Cloudflare: its addresses are trusted too.</small>
+      <input type="text" id="extra" spellcheck="false" placeholder="10.0.0.0/16" aria-label="Addresses of the other hop"></span></label>
+  </div>
+  <p class="hint" id="nothing-hint"></p>
+  <div class="label" style="margin-top:16px">Logs of Apache</div>
+  <div class="form logs-form">
+    <div class="box">
+      <div class="label">Format</div>
+      <div class="chips" id="log-format">
+        <button data-v="combined">combined</button>
+        <button data-v="detailed">detailed</button>
+        <button data-v="json">json</button>
+        <button data-v="custom">custom</button>
+      </div>
+      <input type="text" id="log-custom" spellcheck="false" aria-label="Log format">
+      <div class="hint" id="log-format-hint"></div>
+    </div>
+    <div class="box">
+      <div class="label">Stored</div>
+      <div class="chips" id="log-out">
+        <button data-v="stdout">Docker logs (stdout)</button>
+        <button data-v="dir">Files in a directory of the server</button>
+        <button data-v="volume">Files in a Docker volume</button>
+      </div>
+      <div class="hint" id="log-out-hint"></div>
+    </div>
+    <div class="box" id="log-days-box">
+      <div class="label">Rotation</div>
+      <div class="inline"><label>Days kept <input type="text" id="log-days" spellcheck="false" placeholder="14"></label>
+        <label>Max size of a file <input type="text" id="log-size" spellcheck="false" placeholder="no limit"></label></div>
+      <div class="hint">A new file every day at midnight UTC, and when a file reaches the max size (100M, 1G...). The
+        previous files are gzipped, and deleted after the days kept.</div>
+    </div>
+  </div>
+  <div class="example"><span class="label">Example line</span><pre id="log-example"></pre></div>
+</section>
+
+<section class="panel">
+  <h2><span class="step">3</span>How a request goes through</h2>
+  <div class="diagram" id="diagram"></div>
+  <table class="hops" id="hops"></table>
+  <div class="verdicts" id="verdicts"></div>
+</section>
+
+<section class="panel" id="files">
+  <h2><span class="step">4</span>Configuration</h2>
+  <div id="config"></div>
+  <ul class="notes" id="notes"></ul>
+</section>
+
+<section class="panel" id="checks">
+  <h2><span class="step">5</span>Check it</h2>
+  <p>Add a temporary <code>ip.php</code> file to your application, then call it from your computer:</p>
+  <pre><span>&lt;?php echo $_SERVER['REMOTE_ADDR'], ' ', $_SERVER['HTTPS'] ?? 'off';</span></pre>
+  <pre id="checks-cmd"></pre>
+  <p class="hint">The access log of Apache (<code>docker compose logs app</code>, see <a href="#logs">Logs</a>) shows
+    the same addresses. Remove <code>ip.php</code> afterwards.</p>
+</section>
+
+<section class="panel">
+  <h2><span class="step">6</span>What the container does</h2>
+  <div class="explain">
+    <div class="ex"><h3>It checks every hop</h3>
+      <p>Each proxy adds the address it received the request from at the right of <code>X-Forwarded-For</code>.
+        Apache (<code>mod_remoteip</code>) reads the header from the right, from the address of the connection: it
+        skips the hops added by a trusted proxy, and stops at the first address that is not a trusted proxy: the client.
+        What a client writes at the left of the header is never reached.</p>
+      <p>Only the proxies you list are trusted: not the private networks, not the other containers of an ingress network
+        shared by several projects.</p></div>
+    <div class="ex"><h3>It resolves the names of the proxies</h3>
+      <p>A name (<code>traefik</code>) is resolved by the container at startup, then every 30 seconds: a restarted proxy
+        with a new IP is trusted again within 30 seconds. A name that does not resolve is reported in the logs, and its
+        requests keep the IP of the proxy in the meantime.</p></div>
+    <div class="ex"><h3>It keeps the Cloudflare ranges up to date</h3>
+      <p><code>APACHE_TRUSTED_CLOUDFLARE=1</code> trusts the <a href="https://www.cloudflare.com/ips/">ranges
+        published by Cloudflare</a>: downloaded at startup and every day, Apache being reloaded gracefully when they
+        change. Without internet access, the copy shipped in the image is used.</p>
+      <p><code>CF-Connecting-IP</code> is only used when the request reached the proxy from a Cloudflare address, even
+        when the proxy replaced <code>X-Forwarded-For</code> (default of Traefik and ingress-nginx): a request sent
+        to the server without Cloudflare cannot use it.</p></div>
+    <div class="ex"><h3>It fixes HTTPS too</h3>
+      <p>A request of a trusted proxy with <code>X-Forwarded-Proto: https</code> gets <code>HTTPS=on</code>: PHP
+        generates <code>https://</code> URLs and secure cookies, as if the container served HTTPS itself.</p>
+      <p>The access log of Apache, <code>Require ip</code> in a <code>.htaccess</code> and <code>REMOTE_ADDR</code> in
+        PHP all see the client IP.</p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><span class="step">7</span>Why not the trusted proxies of Symfony or Laravel</h2>
+  <ul class="notes">
+    <li><b>They only fix PHP</b>: the access log of Apache, <code>Require ip</code> and the other Apache rules keep the
+      IP of the proxy.</li>
+    <li><b>Their usual configuration trusts too much</b>: <code>TRUSTED_PROXIES=REMOTE_ADDR</code> (Symfony) or
+      <code>trustProxies(at: '*')</code> (Laravel) trusts whoever connects. It is safe only as long as the container
+      can never be reached without the proxy: one published port or one shared network, and anyone chooses their IP.
+      Listing the real proxies instead means following the IPs of the containers and the ranges of Cloudflare, in
+      each application.</li>
+    <li><b>Each application must do it</b>, and WordPress or an older application has no such setting.</li>
+  </ul>
+  <p>With <code>APACHE_TRUSTED_PROXIES</code>, <code>REMOTE_ADDR</code> and <code>HTTPS</code> are already right:
+    <b>leave the trusted proxies of the framework empty</b>. Keeping both would be worse than either one: the framework
+    would take the client for a proxy and read the rest of <code>X-Forwarded-For</code>, written by the client.</p>
+</section>
+
+<section class="panel" id="logs">
+  <h2><span class="step">8</span>Logs</h2>
+  <p>The access log and the error log of Apache show the client IP found by the container. Four variables set them,
+    chosen in <a href="#setup">Your setup</a>:</p>
+  <table>
+    <tr><th>Variable</th><th>Values</th></tr>
+    <tr><td><code>APACHE_LOG_FORMAT</code></td><td><code>combined</code> (default), <code>detailed</code> (combined +
+      response time in µs + address of the proxy), <code>json</code>, or your own
+      <a href="https://httpd.apache.org/docs/2.4/mod/mod_log_config.html#formats">format</a>, written as is:
+      <code>%a %t "%r" %&gt;s %Dus</code></td></tr>
+    <tr><td><code>APACHE_LOG_OUTPUT</code></td><td><code>stdout</code> (default): the access log on the standard output,
+      the error log on the standard error. <code>file</code>: files of <code>/var/log/apache2</code></td></tr>
+    <tr><td><code>APACHE_LOG_RETENTION_DAYS</code></td><td>With <code>file</code>: days kept, <code>14</code> by
+      default</td></tr>
+    <tr><td><code>APACHE_LOG_MAX_SIZE</code></td><td>With <code>file</code>: a new file when it reaches this size
+      (<code>100M</code>, <code>1G</code>), no limit by default</td></tr>
+  </table>
+  <div class="explain" style="margin-top:12px">
+    <div class="ex"><h3>stdout: Docker keeps them</h3>
+      <pre>docker compose logs -f app          <span class="c"># everything</span>
+docker logs app 2&gt;/dev/null          <span class="c"># the access log only</span>
+kubectl logs -f deploy/app           <span class="c"># on Kubernetes</span></pre>
+      <p>A log collector (Loki, Elastic, Datadog...) reads them like the logs of any container. Docker rotates them, but
+        its default driver, <code>json-file</code>, keeps everything: limit it per service, or for every container in
+        <code>/etc/docker/daemon.json</code> (<code>"log-opts"</code>):</p>
+      <pre>    logging:
+      driver: local      <span class="c"># compressed, 5 files of 20 MB by default</span>
+      options:
+        max-size: 50m
+        max-file: "5"</pre>
+      <p>On Kubernetes, the kubelet rotates them (<code>containerLogMaxSize</code>, 10 MB by default).</p></div>
+    <div class="ex"><h3>file: in a directory of the server or a volume</h3>
+      <pre>/var/log/apache2/access.2026-11-13.log
+/var/log/apache2/access.2026-11-12.log.gz
+/var/log/apache2/error.2026-11-13.log</pre>
+      <p>One file per day, rotated at midnight UTC by <code>rotatelogs</code> without restarting Apache, the previous
+        files gzipped, deleted after <code>APACHE_LOG_RETENTION_DAYS</code> days. With
+        <code>APACHE_LOG_MAX_SIZE</code>, a new file is also started at this size, and the names get the time
+        (<code>access.2026-11-13.143002.log</code>). Mount a directory of the server (<code>./logs:/var/log/apache2</code>)
+        or a volume on <code>/var/log/apache2</code>: without it, the logs are lost with the container.</p>
+      <pre>docker compose exec app tail -f /var/log/apache2/access.$(date -u +%F).log
+docker compose exec app zgrep ' 500 ' /var/log/apache2/access.*.log.gz</pre>
+      <p>With Cloudflare, the logs of Traefik or nginx show the addresses of Cloudflare: the logs of the container are
+        the reference.</p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><span class="step">9</span>Fine-tuning and custom setups</h2>
+  <p><code>APACHE_TRUSTED_PROXIES</code> lists the proxies whose <code>X-Forwarded-For</code> hop is trusted, separated
+    by spaces or commas. <code>APACHE_TRUSTED_CLOUDFLARE=1</code> adds Cloudflare:</p>
+  <table>
+    <tr><th>Value</th><th>Trusts</th></tr>
+    <tr><td><code>APACHE_TRUSTED_PROXIES=traefik</code></td><td>A host name: all the addresses it resolves to (all the
+      replicas of a service), resolved again every 30 seconds</td></tr>
+    <tr><td><code>APACHE_TRUSTED_PROXIES=172.18.0.5 10.0.0.0/16</code></td><td>IPs or CIDR ranges (IPv4 or IPv6), like
+      the network of a load balancer</td></tr>
+    <tr><td><code>APACHE_TRUSTED_CLOUDFLARE=1</code></td><td>The ranges of Cloudflare, updated every day, and its
+      <code>CF-Connecting-IP</code> header</td></tr>
+    <tr><td><code>APACHE_TRUSTED_CLOUDFLARE=only</code></td><td>The same, and a 403 for the requests of the proxies
+      that did not go through Cloudflare (every request but <code>localhost</code> without proxy)</td></tr>
+  </table>
+  <p>The configuration they generate is a good starting point:</p>
+  <pre>docker compose exec app cat /etc/apache2/conf-enabled/docker-trusted-proxies.conf</pre>
+
+  <h3>Your own mod_remoteip configuration</h3>
+  <p>These variables are a shortcut, not a replacement for
+    <a href="https://httpd.apache.org/docs/2.4/mod/mod_remoteip.html">mod_remoteip</a>. For another header, the PROXY
+    protocol or a list of proxies managed elsewhere, leave them empty, enable the modules and mount your own file:</p>
+  <pre>services:
+  app:
+    environment:
+      APACHE_EXTENSIONS: remoteip headers
+    volumes:
+      - ./remoteip.conf:/etc/apache2/conf-enabled/remoteip.conf:ro</pre>
+  <pre><span class="c"># remoteip.conf
+#
+# The header that carries the client IP. X-Forwarded-For is a list ("client, proxy 1, proxy 2"): Apache reads it from
+# the right and stops at the first address that is not a trusted proxy. A header with a single address (X-Real-IP,
+# True-Client-IP) is only used when the request comes from a trusted proxy.</span>
+RemoteIPHeader X-Real-IP
+
+<span class="c"># Proxies of your network: IPs, CIDR ranges, or host names (resolved once, when Apache starts: prefer the variables
+# above for containers whose IP changes)</span>
+RemoteIPInternalProxy 10.0.0.0/16
+
+<span class="c"># Proxies on the internet (a CDN): same, but a private address they forward is not accepted as the client IP</span>
+RemoteIPTrustedProxy 203.0.113.0/24
+
+<span class="c"># Or a file of addresses, one per line, that you keep up to date (reloaded with apache2ctl graceful)</span>
+<span class="c">#RemoteIPTrustedProxyList /etc/apache2/cdn-ips.txt</span>
+
+<span class="c"># PROXY protocol (HAProxy, AWS NLB): the address comes from the connection itself, no header is used. Every
+# connection must then use it, except the ones of the listed addresses (the health checks of Docker for instance).</span>
+<span class="c">#RemoteIPProxyProtocol On
+#RemoteIPProxyProtocolExceptions 127.0.0.1</span>
+
+<span class="c"># HTTPS=on for PHP, only when the request comes from the proxy: a SetEnvIf on X-Forwarded-Proto alone would let any
+# client set it</span>
+&lt;If "%{HTTP:X-Forwarded-Proto} == 'https' &amp;&amp; %{CONN_REMOTE_ADDR} -ipmatch '10.0.0.0/16'"&gt;
+    SetEnv HTTPS on
+&lt;/If&gt;</pre>
+  <p>Check it with <code>docker compose exec app apache2ctl configtest</code>, then with <code>ip.php</code>
+    (<a href="#checks">Check it</a>). <code>headers</code> is only needed for <code>RequestHeader</code> directives.</p>
+
+  <h3>The fpm variant behind your own nginx</h3>
+  <p>Without its built-in Apache, PHP-FPM receives the client IP from nginx: use its
+    <a href="https://nginx.org/en/docs/http/ngx_http_realip_module.html">real IP module</a>
+    (<code>set_real_ip_from</code> with the address of the proxy in front of it, <code>real_ip_header
+    X-Forwarded-For</code>, <code>real_ip_recursive on</code>).</p>
+</section>
+
+{% raw %}
+<script>
+'use strict';
+const IP = { user: '203.0.113.7', cf: '162.158.1.2', attacker: '198.51.100.6', forged: '10.0.0.1', lb: '10.0.3.4' };
+const PROXIES = {
+  traefik: { name: 'Traefik', defaultName: 'traefik', replaces: true },
+  nginx: { name: 'nginx', defaultName: 'nginx', replaces: false },
+  k8s: { name: 'ingress-nginx', defaultName: '10.244.0.0/16', replaces: true },
+  none: { name: '', defaultName: '' },
+};
+const IMAGE = 'thecodingmachine/php:8.4-v5-fpm';
+const LOG_FORMATS = {
+  combined: '%h %l %u %t "%r" %>s %O "%{Referer}i" "%{User-Agent}i"',
+  detailed: '%h %l %u %t "%r" %>s %O "%{Referer}i" "%{User-Agent}i" %D %{c}a',
+  json: '{"time":"%{%Y-%m-%dT%H:%M:%S%z}t","ip":"%a","proxy":"%{c}a","method":"%m","uri":"%U%q","protocol":"%H","status":%>s,"bytes":%O,"duration_us":%D,"referer":"%{Referer}i","user_agent":"%{User-Agent}i"}',
+};
+const DEFAULT_CUSTOM = '%a %t "%r" %>s %Dus';
+const state = { proxy: 'traefik', cf: false, layout: 'mono', name: '', lock: false, extraOn: false, extra: '',
+  logFormat: 'combined', logCustom: '', logOut: 'stdout', logDays: '', logSize: '' };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const proxyIp = () => (state.proxy === 'k8s' ? '10.244.1.12' : '172.18.0.2');
+const nameOf = () => state.name.trim() || PROXIES[state.proxy].defaultName;
+const extraOf = () => (state.extraOn ? state.extra.trim() || '10.0.0.0/16' : '');
+
+function trustedProxies() {
+  return [state.proxy === 'none' ? '' : nameOf(), extraOf()].filter(Boolean).join(' ');
+}
+
+// Hops of a request: [from, to, connection address, X-Forwarded-For, CF-Connecting-IP]
+function flow(attack) {
+  const p = state.proxy, proxyName = PROXIES[p].name || 'container';
+  const hops = [];
+  let xff = '', cfci = '';
+  const send = (from, to, addr) => {
+    hops.push({ from, to, addr, xff, cfci });
+  };
+  const lb = state.extraOn;
+  if (attack) {
+    xff = IP.forged;
+    cfci = state.cf ? IP.forged : '';
+    const target = p === 'none' ? 'Container' : proxyName;
+    send('Attacker', target, IP.attacker);
+    if (p !== 'none') {
+      // Traefik replaces the headers of an untrusted source, ingress-nginx too unless use-forwarded-headers is on
+      xff = p === 'traefik' || (p === 'k8s' && !lb) ? IP.attacker : `${xff}, ${IP.attacker}`;
+      send(proxyName, 'Container', proxyIp());
+    }
+    return hops;
+  }
+  let addr = IP.user, from = 'User';
+  if (state.cf) {
+    send(from, 'Cloudflare', addr);
+    xff = IP.user;
+    cfci = IP.user;
+    from = 'Cloudflare';
+    addr = IP.cf;
+  }
+  if (lb) {
+    send(from, 'Load balancer', addr);
+    xff = xff ? `${xff}, ${addr}` : addr;
+    from = 'Load balancer';
+    addr = IP.lb;
+  }
+  if (p !== 'none') {
+    send(from, proxyName, addr);
+    // The proxy keeps X-Forwarded-For when it trusts the other hop
+    if (PROXIES[p].replaces && !lb) xff = addr;
+    else xff = xff ? `${xff}, ${addr}` : addr;
+    from = proxyName;
+    addr = proxyIp();
+  }
+  send(from, 'Container', addr);
+  return hops;
+}
+
+// What Apache does with the last hop: list of steps and the client IP
+function resolve(hop) {
+  const steps = [];
+  const trusted = (a) => (a === proxyIp() && state.proxy !== 'none' ? `${nameOf()} (trusted proxy)` :
+    a === IP.cf && state.cf ? 'a Cloudflare range' : a === IP.lb && state.extraOn ? 'the other hop (trusted)' : '');
+  const chain = (hop.cfci && state.cf ? [hop.cfci] : []).concat(hop.xff ? hop.xff.split(', ') : []);
+  let addr = hop.addr;
+  steps.push(`The connection comes from <b class="ip">${addr}</b>: ${trusted(addr) || 'not a trusted proxy, the headers are ignored'}.`);
+  if (!trusted(addr) || !hop.xff && !hop.cfci) {
+    if (state.lock && state.cf && addr !== IP.cf) {
+      steps.push('No Cloudflare address in the chain (<code>APACHE_TRUSTED_CLOUDFLARE=only</code>): <b>refused, 403</b>.');
+      return { steps, ip: addr, blocked: true };
+    }
+    return { steps, ip: addr };
+  }
+  if (state.cf && hop.cfci) steps.push(`<code>CF-Connecting-IP</code> is added at the left of <code>X-Forwarded-For</code>: <code>${chain.join(', ')}</code>.`);
+  for (let i = chain.length - 1; i >= 0; i--) {
+    addr = chain[i];
+    const t = trusted(addr);
+    if (!t) {
+      steps.push(`Next address from the right: <b class="ip">${addr}</b>, not a trusted proxy: it is the client.`);
+      if (state.lock && state.cf && ![...chain.slice(i + 1), hop.addr].includes(IP.cf)) {
+        steps.push('No Cloudflare address in the chain (<code>APACHE_TRUSTED_CLOUDFLARE=only</code>): <b>refused, 403</b>.');
+        return { steps, ip: addr, blocked: true };
+      }
+      return { steps, ip: addr };
+    }
+    steps.push(`Next address from the right: <b class="ip">${addr}</b>, ${t}: skipped.`);
+  }
+  return { steps, ip: addr };
+}
+
+function svgNode(x, y, w, title, sub, color) {
+  return `<rect x="${x}" y="${y}" width="${w}" height="54" rx="8" fill="var(--panel)" stroke="${color}" stroke-width="2"/>` +
+    `<text x="${x + w / 2}" y="${y + 23}" text-anchor="middle" font-weight="700" font-size="14">${esc(title)}</text>` +
+    `<text x="${x + w / 2}" y="${y + 42}" text-anchor="middle" class="sub mono">${esc(sub)}</text>`;
+}
+
+function renderDiagram() {
+  const p = state.proxy;
+  const nodes = [{ id: 'User', sub: IP.user }];
+  if (state.cf) nodes.push({ id: 'Cloudflare', sub: '162.158.0.0/15...' });
+  if (state.extraOn) nodes.push({ id: 'Load balancer', sub: extraOf() });
+  if (p !== 'none') nodes.push({ id: PROXIES[p].name, sub: p === 'k8s' ? 'pod 10.244.1.12' : `${nameOf()} · ${proxyIp()}` });
+  nodes.push({ id: 'Container', sub: 'Apache → PHP' });
+  const W = 960, w = 150, gap = (W - 20 - nodes.length * w) / Math.max(1, nodes.length - 1);
+  const xs = nodes.map((_, i) => 10 + i * (w + gap));
+  let s = `<svg viewBox="0 0 ${W} 250" role="img" aria-label="Path of a request and of a forged request">` +
+    `<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>` +
+    `<marker id="arr-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker></defs>`;
+  nodes.forEach((n, i) => {
+    s += svgNode(xs[i], 20, w, n.id, n.sub, n.id === 'Container' ? 'var(--accent)' : 'var(--line)');
+    if (i > 0) s += `<line x1="${xs[i - 1] + w + 2}" y1="47" x2="${xs[i] - 4}" y2="47" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr)"/>`;
+  });
+  const legit = resolve(flow(false).at(-1));
+  const appX = xs.at(-1);
+  // Left of the arrow of the attacker when it goes straight to the container
+  const lx = p === 'none' ? appX + w / 2 - 12 : appX + w;
+  s += `<text x="${lx}" y="96" text-anchor="end" class="mono" style="fill:var(--ok)">users: REMOTE_ADDR ${legit.ip}</text>`;
+  // Forged request
+  s += svgNode(xs[0], 160, w, 'Attacker', IP.attacker, 'var(--bad)');
+  const attack = flow(true);
+  const targetIdx = p === 'none' ? nodes.length - 1 : nodes.length - 2;
+  const tx = xs[targetIdx] + w / 2;
+  const r = resolve(attack.at(-1));
+  s += `<path d="M${xs[0] + w + 2} 187 H${tx} V${80}" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arr-bad)"/>`;
+  const label = `X-Forwarded-For: ${IP.forged}` + (state.cf ? ` + CF-Connecting-IP: ${IP.forged}` : '');
+  s += `<text x="${xs[0] + w + 14}" y="180" class="mono" style="fill:var(--bad)">${esc(label)}</text>`;
+  s += `<text x="${xs[0] + w + 14}" y="208" class="sub">${state.cf ? 'sent to the IP of the server, without Cloudflare' : p === 'none' ? 'sent to the published port of the container' : 'sent to the proxy'}</text>`;
+  if (r.blocked) {
+    s += `<text x="${lx}" y="120" text-anchor="end" class="mono" style="fill:var(--ok)">attacker: 403 refused</text>`;
+    s += `<text x="${lx}" y="138" text-anchor="end" class="sub">did not go through Cloudflare</text>`;
+  } else {
+    s += `<text x="${lx}" y="120" text-anchor="end" class="mono" style="fill:var(--ok)">attacker: REMOTE_ADDR ${r.ip}</text>`;
+    s += `<text x="${lx}" y="138" text-anchor="end" class="sub">forged value ignored</text>`;
+  }
+  $('diagram').innerHTML = s + '</svg>';
+}
+
+function renderHops() {
+  const row = (h, attack) => `<tr${attack ? ' class="attack"' : ''}><td>${esc(h.from)} → ${esc(h.to)}</td><td><code>${h.addr}</code></td>` +
+    `<td>${h.xff ? `<code>${h.xff}</code>` : '–'}</td>${state.cf ? `<td>${h.cfci ? `<code>${h.cfci}</code>` : '–'}</td>` : ''}</tr>`;
+  $('hops').innerHTML = `<tr><th>Hop</th><th>Connection from</th><th>X-Forwarded-For</th>${state.cf ? '<th>CF-Connecting-IP</th>' : ''}</tr>` +
+    flow(false).map(h => row(h, false)).join('') + flow(true).map(h => row(h, true)).join('');
+  const legit = resolve(flow(false).at(-1)), attack = resolve(flow(true).at(-1));
+  $('verdicts').innerHTML = `<div class="verdict"><b>Your users</b><ol>${legit.steps.map(t => `<li>${t}</li>`).join('')}</ol></div>` +
+    `<div class="verdict attack"><b>A forged request</b><ol>${attack.steps.map(t => `<li>${t}</li>`).join('')}</ol></div>`;
+}
+
+const c = (t) => `<span class="c">${esc(t)}</span>`;
+function block(title, sub, code) {
+  return `<h3>${esc(title)} <small>${esc(sub)}</small></h3><pre>${code}</pre>`;
+}
+
+const logFormatString = () => (state.logFormat === 'custom' ? state.logCustom || DEFAULT_CUSTOM : LOG_FORMATS[state.logFormat]);
+
+// A line of the access log in this format, for a request of the user
+function logExample(format) {
+  const client = IP.user, proxy = state.proxy === 'none' ? (state.cf ? IP.cf : client) : proxyIp();
+  const headers = { referer: 'https://example.com/', 'user-agent': 'Mozilla/5.0 (X11; Linux x86_64)', host: 'example.com' };
+  const time = (f) => f.replace(/%Y/g, '2026').replace(/%m/g, '11').replace(/%d/g, '13').replace(/%H/g, '10')
+    .replace(/%M/g, '12').replace(/%S/g, '01').replace(/%z/g, '+0000').replace(/%b/g, 'Nov');
+  return format.replace(/%(?:\{([^}]*)\})?[<>]?([a-zA-Z%])/g, (m, arg, f) => ({
+    a: arg === 'c' ? proxy : client, h: client, l: '-', u: '-', r: 'GET /products?page=2 HTTP/1.1', s: '200', O: '5120',
+    b: '4980', B: '4980', D: '48213', T: '0', m: 'GET', U: '/products', q: '?page=2', H: 'HTTP/1.1', v: 'example.com',
+    p: '80', P: '42', '%': '%', t: arg ? time(arg) : '[13/Nov/2026:10:12:01 +0000]',
+    i: arg ? headers[arg.toLowerCase()] || '-' : '-',
+  }[f] ?? '-'));
+}
+
+function logEnv() {
+  const env = [];
+  if (state.logFormat === 'custom') env.push(['APACHE_LOG_FORMAT', state.logCustom.trim() || DEFAULT_CUSTOM]);
+  else if (state.logFormat !== 'combined') env.push(['APACHE_LOG_FORMAT', state.logFormat]);
+  if (state.logOut !== 'stdout') {
+    env.push(['APACHE_LOG_OUTPUT', 'file']);
+    if (logDays() !== '14') env.push(['APACHE_LOG_RETENTION_DAYS', logDays()]);
+    if (logSize()) env.push(['APACHE_LOG_MAX_SIZE', logSize()]);
+  }
+  return env;
+}
+const logSize = () => (/^\d+[KMG]$/i.test(state.logSize.trim()) ? state.logSize.trim().toUpperCase() : '');
+const logDays = () => (/^\d+$/.test(state.logDays.trim()) ? state.logDays.trim() : '14');
+const yamlValue = (v) => (/^[\w./:-]+$/.test(v) && !/^\d+$/.test(v) ? v : `'${v.replace(/'/g, "''")}'`);
+
+function appEnv() {
+  const env = [['PHP_FPM_WEB_SERVER', 'apache']];
+  const tp = trustedProxies();
+  if (tp) env.push(['APACHE_TRUSTED_PROXIES', tp]);
+  if (state.cf) env.push(['APACHE_TRUSTED_CLOUDFLARE', state.lock ? 'only' : '1']);
+  return env.concat(logEnv());
+}
+
+// The app service of the compose file, with the lines of its proxy
+function appService(lines) {
+  let y = `  app:\n    image: ${IMAGE}\n    environment:\n` + appEnv().map(([k, v]) => `      ${k}: ${esc(yamlValue(v))}\n`).join('');
+  y += lines;
+  if (state.logOut === 'volume') y += '    volumes:\n      - logs:/var/log/apache2\n';
+  if (state.logOut === 'dir') y += '    volumes:\n      - ./logs:/var/log/apache2\n';
+  return y;
+}
+const appVolumes = () => (state.logOut === 'volume' ? 'volumes:\n  logs:\n' : '');
+
+function traefikService(multi) {
+  return '  traefik:\n    image: traefik:v3\n    command:\n      - --providers.docker=true\n      - --providers.docker.exposedbydefault=false\n' +
+    '      - --entrypoints.web.address=:80\n      - --entrypoints.websecure.address=:443\n' +
+    (state.extraOn ? `      - --entrypoints.web.forwardedheaders.trustedips=${esc(extraOf())}\n` +
+      `      - --entrypoints.websecure.forwardedheaders.trustedips=${esc(extraOf())}\n` : '') +
+    '      ' + c('# + your TLS configuration') + '\n' +
+    '    ports: ["80:80", "443:443"]\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock:ro\n' +
+    (multi ? '    networks: [ingress]\n' : '');
+}
+
+function nginxConf(upstream) {
+  return 'server {\n    listen 80;\n    server_name example.com;\n    ' + c('# + your TLS configuration') + '\n\n' +
+    `    location / {\n        proxy_pass http://${upstream};\n        proxy_set_header Host $host;\n` +
+    '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}';
+}
+
+function column(title, sub, blocks) {
+  return `<div class="col"><div class="col-head"><b>${esc(title)}</b> <small>${esc(sub)}</small>` +
+    '<button class="btn copy">Copy</button></div>' + blocks + '</div>';
+}
+
+function renderConfig() {
+  const p = state.proxy, multi = state.layout === 'multi';
+  const notes = [];
+  let proxyCol = '', appCol = '';
+  const traefikLabels = '    labels:\n      - traefik.enable=true\n      - traefik.http.routers.app.rule=Host(`example.com`)\n';
+  if (p === 'traefik' && !multi) {
+    proxyCol = column('Traefik', 'compose.yaml of the project', block('compose.yaml', '', 'services:\n' + traefikService(false)));
+    appCol = column('Application', 'same compose.yaml', block('compose.yaml', '', 'services:\n' + appService(traefikLabels) + appVolumes()));
+  } else if (p === 'traefik') {
+    proxyCol = column('Traefik', 'ingress stack, once per server', block('compose.yaml', 'of the ingress stack',
+      'services:\n' + traefikService(true) + '\nnetworks:\n  ingress:\n    name: ingress\n'));
+    appCol = column('Application', 'each project', block('compose.yaml', 'of the project', 'services:\n' +
+      appService('    networks: [default, ingress]\n' + traefikLabels + '      - traefik.docker.network=ingress\n') +
+      '\nnetworks:\n  ingress:\n    external: true\n' + appVolumes()));
+  } else if (p === 'nginx' && !multi) {
+    proxyCol = column('nginx', 'compose.yaml of the project', block('compose.yaml', '', 'services:\n  nginx:\n    image: nginx:1-alpine\n' +
+      '    ports: ["80:80", "443:443"]\n    volumes:\n      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro\n') + block('nginx.conf', '', nginxConf('app')));
+    appCol = column('Application', 'same compose.yaml', block('compose.yaml', '', 'services:\n' + appService('') + appVolumes()));
+    notes.push('nginx does not send <code>X-Forwarded-For</code> by default: keep the two <code>proxy_set_header X-Forwarded-*</code> lines.');
+  } else if (p === 'nginx') {
+    proxyCol = column('nginx', 'ingress stack, once per server', block('compose.yaml', 'of the ingress stack', 'services:\n  nginx:\n    image: nginx:1-alpine\n' +
+      '    ports: ["80:80", "443:443"]\n    volumes:\n      - ./conf.d:/etc/nginx/conf.d:ro\n    networks: [ingress]\n\nnetworks:\n  ingress:\n    name: ingress\n') +
+      block('conf.d/example.com.conf', 'one file per project', nginxConf('example-app')));
+    appCol = column('Application', 'each project', block('compose.yaml', 'of the project', 'services:\n' +
+      appService('    networks:\n      default:\n      ingress:\n        aliases: [example-app]\n') + '\nnetworks:\n  ingress:\n    external: true\n' + appVolumes()));
+    notes.push('<code>example-app</code> is the name of the project on the <code>ingress</code> network: <code>app</code> would be shared by every project.');
+    notes.push('nginx does not send <code>X-Forwarded-For</code> by default: keep the two <code>proxy_set_header X-Forwarded-*</code> lines.');
+  } else if (p === 'k8s') {
+    const env = appEnv().map(([k, v]) => `  - name: ${k}\n    value: ${esc(JSON.stringify(v))}`).join('\n');
+    appCol = column('Application', 'container of the Deployment', block('env', '', env));
+    if (state.extraOn) {
+      proxyCol = column('ingress-nginx', 'ConfigMap, or controller.config of the Helm chart', block('data', '',
+        `use-forwarded-headers: "true"\nproxy-real-ip-cidr: "${esc(extraOf())}"`));
+    }
+    notes.push(`<code>${esc(nameOf())}</code> is the pod network of the ingress controller (<code>kubectl get pods -n ingress-nginx -o wide</code>). ` +
+      'To trust the controller only, use the name of a headless Service selecting its pods (<code>ingress-nginx-pods.ingress-nginx.svc.cluster.local</code>).');
+    if (!state.cf) notes.push('The Service of the ingress controller needs <code>externalTrafficPolicy: Local</code> (or the PROXY protocol of your load balancer): otherwise the controller sees the address of a node instead of the client.');
+  } else {
+    appCol = column('Application', '', block('compose.yaml', '', 'services:\n' + appService('    ports: ["80:80"]\n') + appVolumes()));
+  }
+  if (p === 'traefik' || p === 'nginx') {
+    notes.push(multi
+      ? `<code>${esc(nameOf())}</code> is the name of the proxy on the <code>ingress</code> network (its service name in the ingress stack). The other projects of this network are not trusted.`
+      : `<code>${esc(nameOf())}</code> is the name of the service of the proxy in the compose file.`);
+  }
+  if (state.lock && state.cf) {
+    notes.push(p === 'none' || p === 'k8s'
+      ? '<code>only</code>: a request that did not go through Cloudflare gets a 403, except from <code>localhost</code> (health checks).'
+      : `<code>only</code>: a request of ${esc(nameOf())} that did not go through Cloudflare gets a 403. Do not publish a port of the application: it would be reached without the proxy.`);
+  }
+  if (state.cf && p !== 'none') notes.push('The proxy is not configured to trust Cloudflare, on purpose (its list would not be updated): its own logs show the addresses of Cloudflare, the logs of the container show your users.');
+  if (state.extraOn && p !== 'nginx') notes.push(`<code>${esc(extraOf())}</code>: the addresses the other hop connects from. The proxy keeps its <code>X-Forwarded-For</code> (configuration above): otherwise all your users would get the address of the other hop.`);
+  if (state.logOut !== 'stdout') notes.push(`Logs in <code>${state.logOut === 'dir' ? './logs' : 'the logs volume'}</code>: <code>access.${logSize() ? 'YYYY-MM-DD.HHMMSS' : 'YYYY-MM-DD'}.log</code> and <code>error.…</code>, ` +
+    `a new file every day${logSize() ? ` and every ${logSize()}` : ''}, gzipped, deleted after ${logDays()} days.` + (state.logOut === 'dir' ? ' The files belong to root.' : ''));
+  notes.push('Leave the trusted proxies of your framework empty (see below). The <em>apache</em> variant takes the same variables.');
+  $('config').innerHTML = `<div class="cols${proxyCol ? '' : ' single'}">${proxyCol}${appCol}</div>`;
+  $('notes').innerHTML = notes.map(n => `<li>${n}</li>`).join('');
+  document.querySelectorAll('#config .copy').forEach(b => {
+    b.onclick = () => navigator.clipboard.writeText([...b.closest('.col').querySelectorAll('pre')].map(e => e.textContent).join('\n\n'));
+  });
+}
+
+function renderChecks() {
+  const lines = ['# Your IP, and "on" when you use HTTPS', 'curl https://example.com/ip.php', '',
+    '# A forged header: still your IP', "curl -H 'X-Forwarded-For: 10.0.0.1' https://example.com/ip.php"];
+  if (state.cf) {
+    lines.push('', '# Straight to the IP of the server, without Cloudflare: ' + (state.lock ? '403' : 'your IP, not 10.0.0.1'),
+      "curl -k --resolve example.com:443:<IP of the server> -H 'CF-Connecting-IP: 10.0.0.1' https://example.com/ip.php");
+  }
+  $('checks-cmd').innerHTML = lines.map(l => (l.startsWith('#') ? c(l) : esc(l))).join('\n');
+}
+
+function renderForm() {
+  const p = state.proxy;
+  document.querySelectorAll('#proxy button').forEach(b => b.classList.toggle('on', b.dataset.v === p));
+  document.querySelectorAll('#cf button').forEach(b => b.classList.toggle('on', b.dataset.v === (state.cf ? '1' : '0')));
+  document.querySelectorAll('#layout button').forEach(b => b.classList.toggle('on', b.dataset.v === state.layout));
+  $('layout').style.display = p === 'traefik' || p === 'nginx' ? '' : 'none';
+  $('layout-box').classList.toggle('off', p === 'none');
+  $('layout-label').textContent = p === 'k8s' ? 'Network of the ingress controller' : 'Where the proxy runs';
+  $('name').placeholder = PROXIES[p].defaultName;
+  $('name').style.display = p === 'none' ? 'none' : '';
+  if (document.activeElement !== $('name')) $('name').value = state.name;
+  $('name-hint').textContent = p === 'k8s' ? 'Pod network (CIDR) or name of a headless Service of the controller.'
+    : p === 'none' ? '' : `Name of the ${PROXIES[p].name} service, if it is not "${PROXIES[p].defaultName}".`;
+  $('proxy-hint').textContent = { traefik: 'Docker or Docker Swarm.', nginx: 'An nginx container in front of the application.',
+    k8s: 'The ingress-nginx controller (or another ingress controller that adds X-Forwarded-For).', none: 'The container is published directly, or only behind Cloudflare.' }[p];
+  $('lock-box').classList.toggle('off', !state.cf);
+  $('extra-box').classList.toggle('off', p === 'none');
+  $('lock').checked = state.lock;
+  $('extra-on').checked = state.extraOn;
+  $('extra').style.display = state.extraOn ? '' : 'none';
+  if (document.activeElement !== $('extra')) $('extra').value = state.extra;
+  document.querySelectorAll('#log-format button').forEach(b => b.classList.toggle('on', b.dataset.v === state.logFormat));
+  document.querySelectorAll('#log-out button').forEach(b => b.classList.toggle('on', b.dataset.v === state.logOut));
+  document.querySelectorAll('#log-out [data-v=volume], #log-out [data-v=dir]').forEach(b => { b.style.display = p === 'k8s' ? 'none' : ''; });
+  if (document.activeElement !== $('log-custom')) $('log-custom').value = logFormatString();
+  $('log-example').textContent = logExample(logFormatString());
+  $('log-format-hint').innerHTML = {
+    combined: 'The usual format of Apache, read by every log tool.',
+    detailed: 'combined + the response time (µs) and the address of the proxy.',
+    json: 'One JSON object per request, for Loki, Elastic or Datadog.',
+    custom: 'Any <a href="https://httpd.apache.org/docs/2.4/mod/mod_log_config.html#formats">format of mod_log_config</a>: %a client IP, %{c}a proxy, %D time (µs).',
+  }[state.logFormat] + (state.logFormat === 'custom' ? '' : ' Edit it to make your own.');
+  $('log-out-hint').textContent = { stdout: 'docker compose logs app, kubectl logs: rotated by Docker or the kubelet (see Logs below).',
+    dir: './logs next to compose.yaml: read them from the server, back them up with it.', volume: 'A volume managed by Docker, kept across the deployments.' }[state.logOut];
+  $('log-days-box').classList.toggle('off', state.logOut === 'stdout');
+  if (document.activeElement !== $('log-days')) $('log-days').value = state.logDays;
+  if (document.activeElement !== $('log-size')) $('log-size').value = state.logSize;
+  $('nothing-hint').textContent = !state.cf && p !== 'none' && !state.extraOn ? 'Without Cloudflare, the proxy already sees the IP of your users: nothing to add on its side.' : '';
+}
+
+function readHash() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (PROXIES[h.get('proxy')]) state.proxy = h.get('proxy');
+  state.cf = h.get('cf') === '1';
+  state.layout = h.get('layout') === 'multi' ? 'multi' : 'mono';
+  state.name = h.get('name') || '';
+  state.lock = h.get('lock') === '1';
+  state.extraOn = h.has('extra');
+  state.extra = h.get('extra') || '';
+  state.logFormat = ['detailed', 'json', 'custom'].includes(h.get('format')) ? h.get('format') : 'combined';
+  state.logCustom = h.get('custom') || '';
+  state.logOut = ['dir', 'volume'].includes(h.get('logs')) ? h.get('logs') : 'stdout';
+  state.logDays = h.get('days') || '';
+  state.logSize = h.get('size') || '';
+}
+function writeHash() {
+  const h = new URLSearchParams({ proxy: state.proxy });
+  if (state.cf) h.set('cf', '1');
+  if (state.layout === 'multi') h.set('layout', 'multi');
+  if (state.name) h.set('name', state.name);
+  if (state.lock) h.set('lock', '1');
+  if (state.extraOn) h.set('extra', state.extra);
+  if (state.logFormat !== 'combined') h.set('format', state.logFormat);
+  if (state.logFormat === 'custom' && state.logCustom) h.set('custom', state.logCustom);
+  if (state.logOut !== 'stdout') h.set('logs', state.logOut);
+  if (state.logOut !== 'stdout' && state.logDays) h.set('days', state.logDays);
+  if (state.logOut !== 'stdout' && state.logSize) h.set('size', state.logSize);
+  history.replaceState(null, '', '#' + h.toString());
+}
+
+function render() {
+  if (state.proxy === 'none') state.extraOn = false;
+  if (!state.cf) state.lock = false;
+  if (state.proxy === 'k8s') state.logOut = 'stdout';
+  renderForm();
+  renderDiagram();
+  renderHops();
+  renderConfig();
+  renderChecks();
+  writeHash();
+}
+
+$('proxy').onclick = (e) => { const v = e.target.dataset.v; if (v) { if (v !== state.proxy) state.name = ''; state.proxy = v; render(); } };
+$('cf').onclick = (e) => { const v = e.target.dataset.v; if (v) { state.cf = v === '1'; render(); } };
+$('layout').onclick = (e) => { const v = e.target.dataset.v; if (v) { state.layout = v; render(); } };
+$('name').oninput = (e) => { state.name = e.target.value.trim(); render(); };
+$('extra').oninput = (e) => { state.extra = e.target.value; render(); };
+$('lock').onchange = (e) => { state.lock = e.target.checked; render(); };
+$('log-format').onclick = (e) => { const v = e.target.dataset.v; if (v) { state.logFormat = v; render(); } };
+$('log-out').onclick = (e) => { const v = e.target.dataset.v; if (v) { state.logOut = v; render(); } };
+$('log-custom').oninput = (e) => { state.logFormat = 'custom'; state.logCustom = e.target.value; render(); };
+$('log-size').oninput = (e) => { state.logSize = e.target.value; render(); };
+$('log-days').oninput = (e) => { state.logDays = e.target.value; render(); };
+$('extra-on').onchange = (e) => { state.extraOn = e.target.checked; render(); };
+window.addEventListener('hashchange', () => { readHash(); render(); });
+readHash();
+render();
+</script>
+{% endraw %}

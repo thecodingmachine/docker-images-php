@@ -114,6 +114,54 @@ The [tuning simulator](tuning/) chooses these settings (and the PHP-FPM ones) fo
 your container, for instance a [CRM with 20 employees](tuning/#app=crm&users=20&front=proxy) or a
 [WordPress site with 100 visitors and HTTPS in the container](tuning/#app=wp&users=100&front=https).
 
+### Behind a reverse proxy
+
+Behind Traefik, nginx or a Kubernetes ingress, list the proxies in `APACHE_TRUSTED_PROXIES`, and set
+`APACHE_TRUSTED_CLOUDFLARE=1` behind Cloudflare: Apache and PHP get the IP of the users (`REMOTE_ADDR`, access log,
+`Require ip`) and `HTTPS=on` for the requests the proxy received in HTTPS. The container checks the address of each hop itself: a forged `X-Forwarded-For` or `CF-Connecting-IP` header is
+ignored.
+
+```yml
+services:
+  app:
+    image: thecodingmachine/php:8.4-v5-fpm
+    environment:
+      PHP_FPM_WEB_SERVER: apache
+      # The name of the Traefik service
+      APACHE_TRUSTED_PROXIES: traefik
+      # The ranges of Cloudflare (updated every day); "only" also refuses the requests sent without Cloudflare
+      APACHE_TRUSTED_CLOUDFLARE: "1"
+```
+
+The [reverse proxy guide](reverse-proxy/) gives the configuration of your setup (Traefik, nginx, Kubernetes, with or
+without Cloudflare) and explains why the trusted proxies of Symfony or Laravel are not enough.
+
+### Logs
+
+The access log goes to the standard output of the container and the error log to its standard error
+(`docker compose logs app`). `APACHE_LOG_FORMAT` chooses the format of the access log: `combined` (default), `detailed`
+(combined + response time in µs + address of the proxy), `json`, or a
+[format of mod_log_config](https://httpd.apache.org/docs/2.4/mod/mod_log_config.html#formats) written as is.
+
+`APACHE_LOG_OUTPUT=file` writes them in `/var/log/apache2` instead, one file per day (`access.2026-11-13.log`,
+`error.2026-11-13.log`), rotated at midnight UTC, gzipped and deleted after `APACHE_LOG_RETENTION_DAYS` days (14 by
+default). `APACHE_LOG_MAX_SIZE` (`100M`, `1G`) also starts a new file when it reaches this size, the names then getting
+the time (`access.2026-11-13.143002.log`). Mount a directory of the server or a volume on `/var/log/apache2`: without
+it, the logs are lost with the container.
+
+```yml
+services:
+  app:
+    image: thecodingmachine/php:8.4-v5-apache
+    environment:
+      APACHE_LOG_FORMAT: json
+      APACHE_LOG_OUTPUT: file
+      APACHE_LOG_RETENTION_DAYS: 30
+      APACHE_LOG_MAX_SIZE: 100M
+    volumes:
+      - ./logs:/var/log/apache2
+```
+
 ### Apache user
 
 Apache runs as the `docker` user, which has the rights of the owner of your files (see
