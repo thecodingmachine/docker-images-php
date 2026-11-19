@@ -1,11 +1,5 @@
 # Security
 
-## Ongoing: PHP security release of 2026-11-19
-
-The PHP security team [announced](https://www.php.net/index.php#2026-11-18-1) critical security releases for
-2026-11-19, 14:00-14:30 UTC. The images are rebuilt as soon as the fixed packages are published:
-follow [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437).
-
 ## How the security releases of PHP are handled
 
 The images take PHP from [Ondřej Surý's packages](https://packages.sury.org/php/). When a security release of PHP is
@@ -55,5 +49,10 @@ The v4 images get no security fix: migrate to v5, see the
 
 ## Past advisories
 
+- 2026-11-19: [17 vulnerabilities](https://www.php.net/archive/2026.php#2026-11-19-4), 7 of them critical
+  (CVE-2026-115560, CVE-2026-126714, CVE-2026-129481, CVE-2026-129496, CVE-2026-129289, CVE-2026-129474,
+  CVE-2026-129182), fixed in PHP 8.2.36, 8.3.37, 8.4.28 and 8.5.13. PHP 7.4, 8.0 and 8.1 got the sury backport of the
+  12 vulnerabilities fixed in 8.2.36 (`1:7.4.33-36`, `1:8.0.30-30`, `8.1.34-13`). All the v5 images were fixed on amd64
+  on 2026-11-19 and on arm64 on 2026-11-20. See [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437).
 - 2026-10-21: [php2shell](https://github.com/thecodingmachine/docker-images-php/blob/94f9647557c4fb8af550ba714c49bbf566a33458/docs/security-php2shell.md)
   (CVE-2026-109618 and CVE-2026-109619), fixed in all the v5 images.
