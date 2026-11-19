@@ -22,7 +22,7 @@ environment variables. The list of images and the quick start are in the
 
 ## Project
 
-- [Security: php2shell](security-php2shell.md)
+- [Security](security.md)
 - [Contributing](contributing.md)
 
 Coming with v6: a [FrankenPHP](https://frankenphp.dev/) variant, previewed in the [tuning simulator](tuning/).

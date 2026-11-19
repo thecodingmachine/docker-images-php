@@ -47,6 +47,8 @@ RUN apt update \
         openssh-client \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+# Version of the PHP packages published by sury for this arch: a new value rebuilds the layers below despite the cache
+ARG PHP_PACKAGE_VERSION=""
 # Note: From PHP 8.5, opcache is built-in and php${PHP_VERSION}-opcache package doesn't exist
 RUN OPCACHE_PACKAGE="" \
     && if [ "${PHP_VERSION}" != "8.5" ]; then \
