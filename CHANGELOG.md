@@ -3,6 +3,10 @@
 
 ### Minor changes
 
+* **2026-11-19**
+  * Security: the images are rebuilt automatically when sury publishes the PHP security release of 2026-11-19, PHP version by PHP version and arch by arch, followed in [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437). See the [security process](docs/security.md)
+  * The `X.Y.Z-v5-*` tags are only published when amd64 and arm64 have the same PHP version. PHP 7.4, 8.0 and 8.1 get no new `X.Y.Z` tag when they are rebuilt (the existing `X.Y.Z-php2shell-v5-*` tags are no longer overwritten)
+
 * **2026-11-13**
   * Apache: `APACHE_TRUSTED_PROXIES` lists the reverse proxies in front of the container (host names resolved every 30 seconds, IPs, CIDR ranges) and `APACHE_TRUSTED_CLOUDFLARE=1` trusts the ranges of Cloudflare, updated every day: Apache and PHP get the IP of the users and `HTTPS=on` behind them, a forged `X-Forwarded-For` or `CF-Connecting-IP` header being ignored. `APACHE_TRUSTED_CLOUDFLARE=only` also refuses (403) the requests that did not go through Cloudflare. New [reverse proxy guide](https://thecodingmachine.github.io/docker-images-php/reverse-proxy/)
   * Apache: `APACHE_LOG_FORMAT` sets the format of the access log (`combined` by default, `detailed`, `json` or a format of mod_log_config), and `APACHE_LOG_OUTPUT=file` writes the logs in `/var/log/apache2`, rotated every day and at `APACHE_LOG_MAX_SIZE`, gzipped and deleted after `APACHE_LOG_RETENTION_DAYS` days. The default virtual host no longer sets its own logs: they are set at the server level
@@ -29,7 +33,7 @@
   * PHP 7.4, 8.0 and 8.1: the images fixed against php2shell are tagged `7.4.33-php2shell-v5-*`, `8.0.30-php2shell-v5-*` and `8.1.34-php2shell-v5-*`, the existing `7.4.33-v5-*`, `8.0.30-v5-*` tags being kept unchanged
 
 * **2026-10-21**
-  * Security: fix of php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) in all the v5 amd64 images. PHP 7.4, 8.0 and 8.1 images are rebuilt with the backport of the fix (same PHP version: 7.4.33, 8.0.30, 8.1.34). The arm64 images will be fixed when the fixed PHP packages are published for arm64. See [php2shell](docs/security-php2shell.md)
+  * Security: fix of php2shell (CVE-2026-109618 and CVE-2026-109619, CVSS 9.2) in all the v5 amd64 images. PHP 7.4, 8.0 and 8.1 images are rebuilt with the backport of the fix (same PHP version: 7.4.33, 8.0.30, 8.1.34). The arm64 images will be fixed when the fixed PHP packages are published for arm64. See [php2shell](https://github.com/thecodingmachine/docker-images-php/blob/94f9647557c4fb8af550ba714c49bbf566a33458/docs/security-php2shell.md)
   * NodeJS 18 and 20 variants are built again for all the PHP versions, by the legacy workflow
   * New test checking that the images are not vulnerable to php2shell (only a warning on arm64 until the fixed packages are published)
   * Legacy build (`legacy-v5.yml`): the images are tested before being published, like in the main build
