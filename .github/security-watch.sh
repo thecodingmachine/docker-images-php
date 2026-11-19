@@ -35,6 +35,16 @@ dispatch() {
     -f php_version="${PHP}" -f package_amd64="${AMD64}" -f package_arm64="${ARM64}" -f security_issue="${ISSUE}"
 }
 
+# Same as comment, with state lines already formatted
+comment_states() {
+  local TEXT="$1" STATE_LINES="$2"
+  if [ "${DRY_RUN:-0}" == "1" ]; then
+    echo "[dry-run] comment: ${TEXT}"$'\n'"${STATE_LINES}"
+    return
+  fi
+  gh issue comment "${ISSUE}" --repo "${REPOSITORY}" --body "${TEXT}"$'\n\n'"${STATE_LINES}"
+}
+
 stop_watching() {
   if [ "${DRY_RUN:-0}" != "1" ]; then
     gh workflow disable security-watch.yml --repo "${REPOSITORY}"
@@ -61,6 +71,7 @@ has_event() {
   jq -e --arg event "$1" 'any(.[]; .event == $event)' <<< "${STATES}" > /dev/null
 }
 
+STATES_STARTED=""
 SUMMARY="| PHP | amd64 | arm64 | Images |"$'\n'"|---|---|---|---|"
 ALL_DONE=1
 MAINTAINED_DONE=1
@@ -87,37 +98,48 @@ for PHP in ${MAINTAINED} ${LEGACY}; do
   fi
   TARGET=$(jq -c --arg php "${PHP}" --arg amd64 "${AMD64}" --arg arm64 "${ARM64}" \
     '[.[] | select(.php == $php and .amd64 == $amd64 and .arm64 == $arm64)]' <<< "${STATES}")
-  DISPATCHES=$(jq '[.[] | select(.event == "dispatched")] | length' <<< "${TARGET}")
-  FAILURES=$(jq '[.[] | select(.event == "failed")] | length' <<< "${TARGET}")
+  # Each workflow is dispatched and retried on its own: a failed build of the legacy images does not rebuild the others
   PUBLISHED=1
+  STARTED=""
+  STATUSES=""
   for WORKFLOW in ${WORKFLOWS}; do
-    jq -e --arg wf "${WORKFLOW}" 'any(.[]; .event == "published" and .workflow == $wf)' <<< "${TARGET}" > /dev/null || PUBLISHED=0
-  done
-
-  if [ "${FIXED_ARCHS}" == "0" ]; then
-    IMAGES="waiting for sury"
-  elif [ "${PUBLISHED}" == "1" ]; then
-    IMAGES="published"
-  elif [ "${DISPATCHES}" == "0" ] || { [ "${FAILURES}" -ge "${DISPATCHES}" ] && [ "${DISPATCHES}" -lt "${MAX_DISPATCHES}" ]; }; then
-    IMAGES="build started"
-    for WORKFLOW in ${WORKFLOWS}; do
-      case "${WORKFLOW}" in
-        main) dispatch workflow.yml "${PHP}" "${AMD64}" "${ARM64}" ;;
-        legacy) dispatch legacy-v5.yml "${PHP}" "${AMD64}" "${ARM64}" ;;
-      esac
-    done
-    RETRY=""
-    if [ "${DISPATCHES}" -gt 0 ]; then
-      RETRY=" (retry ${DISPATCHES}/$((MAX_DISPATCHES - 1)))"
+    case "${WORKFLOW}" in
+      main) FILE=workflow.yml; NAME="images" ;;
+      legacy) FILE=legacy-v5.yml; NAME="legacy images" ;;
+    esac
+    DISPATCHES=$(jq --arg wf "${WORKFLOW}" '[.[] | select(.event == "dispatched" and .workflow == $wf)] | length' <<< "${TARGET}")
+    FAILURES=$(jq --arg wf "${WORKFLOW}" '[.[] | select(.event == "failed" and .workflow == $wf)] | length' <<< "${TARGET}")
+    if [ "${FIXED_ARCHS}" == "0" ]; then
+      STATUS="waiting for sury"
+      PUBLISHED=0
+    elif jq -e --arg wf "${WORKFLOW}" 'any(.[]; .event == "published" and .workflow == $wf)' <<< "${TARGET}" > /dev/null; then
+      STATUS="published"
+    elif [ "${DISPATCHES}" == "0" ] || { [ "${FAILURES}" -ge "${DISPATCHES}" ] && [ "${DISPATCHES}" -lt "${MAX_DISPATCHES}" ]; }; then
+      dispatch "${FILE}" "${PHP}" "${AMD64}" "${ARM64}"
+      RETRY=""
+      if [ "${DISPATCHES}" -gt 0 ]; then
+        RETRY=" (retry ${DISPATCHES}/$((MAX_DISPATCHES - 1)))"
+      fi
+      STARTED+="${STARTED:+, }${NAME}${RETRY}"
+      STATE=$(jq -nc --arg php "${PHP}" --arg amd64 "${AMD64}" --arg arm64 "${ARM64}" --arg wf "${WORKFLOW}" \
+        '{php: $php, amd64: $amd64, arm64: $arm64, event: "dispatched", workflow: $wf}')
+      STATES_STARTED+="${STATES_STARTED:+$'\n'}<!-- security-watch ${STATE} -->"
+      STATUS="build started"
+      PUBLISHED=0
+    elif [ "${FAILURES}" -ge "${DISPATCHES}" ]; then
+      STATUS="❌ failed ${FAILURES} times, needs a maintainer"
+      PUBLISHED=0
+    else
+      STATUS="build in progress"
+      PUBLISHED=0
     fi
-    STATE=$(jq -nc --arg php "${PHP}" --arg amd64 "${AMD64}" --arg arm64 "${ARM64}" \
-      '{php: $php, amd64: $amd64, arm64: $arm64, event: "dispatched"}')
-    comment "🔨 PHP ${PHP}: sury packages amd64 ${LABEL[amd64]}, arm64 ${LABEL[arm64]}. Build started${RETRY}. [Actions](${ACTIONS_URL})" "${STATE}"
-  elif [ "${FAILURES}" -ge "${DISPATCHES}" ]; then
-    IMAGES="❌ build failed ${FAILURES} times, needs a maintainer"
-  else
-    IMAGES="build in progress"
+    STATUSES+="${STATUSES:+, }${NAME}: ${STATUS}"
+  done
+  if [ -n "${STARTED}" ]; then
+    comment_states "🔨 PHP ${PHP}: sury packages amd64 ${LABEL[amd64]}, arm64 ${LABEL[arm64]}. Build started: ${STARTED}. [Actions](${ACTIONS_URL})" "${STATES_STARTED}"
+    STATES_STARTED=""
   fi
+  IMAGES="${STATUSES}"
   SUMMARY+=$'\n'"| ${PHP} | ${LABEL[amd64]} | ${LABEL[arm64]} | ${IMAGES} |"
 
   if [ "${FIXED_ARCHS}" != "2" ] || [ "${PUBLISHED}" != "1" ]; then
