@@ -2,11 +2,6 @@
 
 # General purpose PHP images for Docker
 
-> [!IMPORTANT]
-> **Critical PHP security release on 2026-11-19, 14:00-14:30 UTC**: the images are rebuilt as soon as the fixed PHP
-> packages are published. Follow [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437)
-> to be notified, and see the [security process](docs/security.md).
-
 > **The fpm variant has a built-in Apache** (`PHP_FPM_WEB_SERVER=apache`): the same features as the `apache` variant,
 > with 63% more traffic served with HTTPS and up to 29% more during a traffic peak
 > ([benchmark](benchmarks/capacity/README.md)). It is the recommended variant to serve a web application: see
