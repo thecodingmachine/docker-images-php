@@ -15,9 +15,6 @@ on:
       legacy_patch_suffix:
         description: 'Suffix of the X.Y.Z tags of 7.4, 8.0 and 8.1 (e.g. php2shell), no X.Y.Z tag for them if empty'
         default: ''
-      security_issue:
-        description: 'Issue that gets the result of the build (security releases)'
-        default: ''
 
 # A build of one PHP version (security release) cancels the previous one of the same version
 concurrency:
@@ -196,39 +193,3 @@ jobs:
                 retry regctl image copy "${TAG_ORI}" "thecodingmachine/${TAG_MINOR}"
             fi
           done
-
-  report:
-    if: ${{ !cancelled() && inputs.security_issue }}
-    needs:
-      - build
-      - merge-and-publish
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    steps:
-      - name: Comment the result on the security issue
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PHP_VERSION: ${{ inputs.php_version }}
-          PACKAGE_AMD64: ${{ inputs.package_amd64 }}
-          PACKAGE_ARM64: ${{ inputs.package_arm64 }}
-          RESULT: ${{ needs.merge-and-publish.result }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          if [[ " 7.4 8.0 8.1 " == *" ${PHP_VERSION} "* ]]; then
-            IMAGES="\`${PHP_VERSION}-v5-*\` images"
-          else
-            IMAGES="\`${PHP_VERSION}-v5-*-node18\` and \`-node20\` images"
-          fi
-          if [ "${RESULT}" == "success" ]; then
-            EVENT="published"
-            TEXT="✅ PHP ${PHP_VERSION}: ${IMAGES} published (packages ${PACKAGE_AMD64} on amd64, ${PACKAGE_ARM64} on arm64)."
-          else
-            EVENT="failed"
-            TEXT="❌ PHP ${PHP_VERSION}: the build of the ${IMAGES} failed, it is retried automatically."
-          fi
-          STATE=$(jq -nc --arg php "${PHP_VERSION}" --arg amd64 "${PACKAGE_AMD64}" --arg arm64 "${PACKAGE_ARM64}" \
-            --arg event "${EVENT}" --arg run "${GITHUB_RUN_ID}" \
-            '{php: $php, amd64: $amd64, arm64: $arm64, event: $event, workflow: "legacy", run: $run}')
-          gh issue comment "${{ inputs.security_issue }}" --repo "${{ github.repository }}" \
-            --body "${TEXT} [Run](${RUN_URL})"$'\n\n'"<!-- security-watch ${STATE} -->"
