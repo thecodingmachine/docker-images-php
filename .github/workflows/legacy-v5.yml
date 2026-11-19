@@ -48,12 +48,15 @@ jobs:
         uses: docker/setup-buildx-action@v4
       - name: Build
         run: |
+          PACKAGE_VERSIONS=$(.github/package-versions.sh "${BAKE_GROUP//.}" "${{ matrix.builder.arch }}")
+          mapfile -t PACKAGE_VERSIONS <<< "${PACKAGE_VERSIONS}"
+          printf '%s\n' "${PACKAGE_VERSIONS[@]}"
           REPO="ghcr.io/${{ github.repository_owner }}/php" \
           ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           TAG_PREFIX="rc${GITHUB_RUN_ID}-" \
           docker buildx bake \
             --set "*.platform=linux/${{ matrix.builder.arch }}" \
-            --set "*.args.PHP_PACKAGE_VERSION=${PHP_PACKAGE_VERSION}" \
+            "${PACKAGE_VERSIONS[@]}" \
             --progress=quiet \
             ${BAKE_GROUP//.}
       - name: Check the version of the PHP packages
