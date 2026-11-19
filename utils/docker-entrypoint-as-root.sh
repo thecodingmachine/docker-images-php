@@ -131,7 +131,7 @@ if [ -z "$XDEBUG_CLIENT_HOST" ]; then
     if [[ $? == 0 ]]; then
         # The host exists.
         DOCKER_HOST_INTERNAL=`host -t A host.docker.internal | awk '/has address/ { print $4 }'`
-        if [ "$DOCKER_HOST_INTERNAL" != "127.0.0.1" ]; then
+        if [ -n "$DOCKER_HOST_INTERNAL" ] && [ "$DOCKER_HOST_INTERNAL" != "127.0.0.1" ]; then
             export XDEBUG_CLIENT_HOST=$DOCKER_HOST_INTERNAL
             export REMOTE_HOST_FOUND=1
         fi
@@ -145,7 +145,7 @@ if [ -z "$XDEBUG_CLIENT_HOST" ]; then
       if [[ $? == 0 ]]; then
           # The host exists.
           DOCKER_FOR_MAC_REMOTE_HOST=`host -t A docker.for.mac.localhost | awk '/has address/ { print $4 }'`
-          if [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
+          if [ -n "$DOCKER_FOR_MAC_REMOTE_HOST" ] && [ "$DOCKER_FOR_MAC_REMOTE_HOST" != "127.0.0.1" ]; then
               export XDEBUG_CLIENT_HOST=$DOCKER_FOR_MAC_REMOTE_HOST
           fi
       fi
