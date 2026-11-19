@@ -26,6 +26,18 @@ ENV PHP_VERSION=${PHP_VERSION}
 # | Installs the main PHP extensions
 # |
 
+# amd64: apt takes the packages from the Azure mirror of Canonical, archive.ubuntu.com and security.ubuntu.com when it
+# does not answer (arm64 uses ports.ubuntu.com)
+RUN if [ "${TARGETARCH}" = "amd64" ]; then \
+        printf '%s\n' http://azure.archive.ubuntu.com/ubuntu/ http://archive.ubuntu.com/ubuntu/ > /etc/apt/ubuntu-mirrors.txt \
+        && printf '%s\n' http://azure.archive.ubuntu.com/ubuntu/ http://security.ubuntu.com/ubuntu/ > /etc/apt/ubuntu-security-mirrors.txt \
+        && sed -i \
+            -e 's|^URIs: http://archive.ubuntu.com/ubuntu/$|URIs: mirror+file:/etc/apt/ubuntu-mirrors.txt|' \
+            -e 's|^URIs: http://security.ubuntu.com/ubuntu/$|URIs: mirror+file:/etc/apt/ubuntu-security-mirrors.txt|' \
+            /etc/apt/sources.list.d/ubuntu.sources \
+        && grep -c 'mirror+file' /etc/apt/sources.list.d/ubuntu.sources | grep -qx 2; \
+    fi
+
 # Install php an other packages
 RUN apt update \
     && apt upgrade -y \
