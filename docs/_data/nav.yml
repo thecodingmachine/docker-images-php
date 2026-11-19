@@ -26,7 +26,7 @@
       url: /advanced.html
 - title: Project
   items:
-    - title: "Security: php2shell"
-      url: /security-php2shell.html
+    - title: Security
+      url: /security.html
     - title: Contributing
       url: /contributing.html

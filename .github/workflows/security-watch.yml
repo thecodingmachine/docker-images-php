@@ -1,0 +1,55 @@
+name: Security watch
+
+# Security release of 2026-11-19 (14:00-14:30 UTC): starts the builds of each PHP version as soon as sury publishes
+# its packages, on amd64 or arm64, and follows them in the security issue
+on:
+  schedule:
+    - cron: '*/5 14-18 19 11 *'
+    - cron: '7 19-23 19 11 *'
+    - cron: '7 * 20 11 *'
+    - cron: '7 0-14 21 11 *'
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 'Security issue (default: the one of the repository)'
+        default: ''
+      dry_run:
+        description: 'Only print what would be done'
+        type: boolean
+        default: false
+
+concurrency:
+  group: security-watch
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  issues: write
+  contents: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Check the sury packages and start the builds
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          ISSUE: ${{ inputs.issue || '437' }}
+          REF: ${{ github.ref_name }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+          DEADLINE: '2026-11-21T14:00:00Z'
+          # Packages published by sury before the security release
+          BASELINE: |
+            {
+              "8.5": {"amd64": "8.5.12-3+0~deb.sury.org.1+ubuntu24.04", "arm64": "8.5.12-1+0~20261021.27+ubuntu24.04~1.gbp1a3e8a"},
+              "8.4": {"amd64": "8.4.27-2+0~deb.sury.org.1+ubuntu24.04", "arm64": "8.4.27-1+0~20261021.57+ubuntu24.04~1.gbp7636b9"},
+              "8.3": {"amd64": "8.3.36-2+0~deb.sury.org.1+ubuntu24.04", "arm64": "8.3.36-1+0~20261021.88+ubuntu24.04~1.gbp250f7c"},
+              "8.2": {"amd64": "8.2.35-2+0~deb.sury.org.1+ubuntu24.04", "arm64": "8.2.35-1+0~20261021.94+ubuntu24.04~1.gbp8bff78"},
+              "8.1": {"amd64": "8.1.34-9+0~20261021.82+ubuntu24.04~1.gbp4e430a", "arm64": "8.1.34-9+0~20261021.82+ubuntu24.04~1.gbp4e430a"},
+              "8.0": {"amd64": "1:8.0.30-25+0~20261021.88+ubuntu24.04~1.gbpabebea", "arm64": "1:8.0.30-25+0~20261021.88+ubuntu24.04~1.gbpabebea"},
+              "7.4": {"amd64": "1:7.4.33-31+0~20261021.121+ubuntu24.04~1.gbpe9c428", "arm64": "1:7.4.33-31+0~20261021.121+ubuntu24.04~1.gbpe9c428"}
+            }
+        run: ./.github/security-watch.sh

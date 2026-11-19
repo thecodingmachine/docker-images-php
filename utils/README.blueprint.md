@@ -2,6 +2,11 @@
 
 # General purpose PHP images for Docker
 
+> [!IMPORTANT]
+> **Critical PHP security release on 2026-11-19, 14:00-14:30 UTC**: the images are rebuilt automatically as soon as the
+> fixed PHP packages are published. Follow [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437)
+> to be notified, and see the [security process](docs/security.md).
+
 > **The fpm variant has a built-in Apache** (`PHP_FPM_WEB_SERVER=apache`): the same features as the `apache` variant,
 > with 63% more traffic served with HTTPS and up to 29% more during a traffic peak
 > ([benchmark](benchmarks/capacity/README.md)). It is the recommended variant to serve a web application: see
@@ -72,8 +77,8 @@ Bugs are fixed on maintained versions only.
 | 20             | **Not maintained** (end of life: 2026-04-30)  |
 
 Images of non-maintained versions are still available but no longer receive fixes: use them at your own risk and plan your upgrade.
-Critical vulnerabilities may get an exceptional fix: [php2shell](docs/security-php2shell.md) (CVE-2026-109618 and
-CVE-2026-109619) is fixed in all the v5 images, not in the v4 ones.
+Critical vulnerabilities may get an exceptional fix: php2shell (CVE-2026-109618 and CVE-2026-109619) is fixed in
+all the v5 images, not in the v4 ones. See [Security](docs/security.md).
 
 ## Usage
 
