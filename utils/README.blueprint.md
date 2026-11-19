@@ -3,8 +3,8 @@
 # General purpose PHP images for Docker
 
 > [!IMPORTANT]
-> **Critical PHP security release on 2026-11-19, 14:00-14:30 UTC**: the images are rebuilt automatically as soon as the
-> fixed PHP packages are published. Follow [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437)
+> **Critical PHP security release on 2026-11-19, 14:00-14:30 UTC**: the images are rebuilt as soon as the fixed PHP
+> packages are published. Follow [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437)
 > to be notified, and see the [security process](docs/security.md).
 
 > **The fpm variant has a built-in Apache** (`PHP_FPM_WEB_SERVER=apache`): the same features as the `apache` variant,

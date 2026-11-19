@@ -4,7 +4,7 @@
 ### Minor changes
 
 * **2026-11-19**
-  * Security: the images are rebuilt automatically when sury publishes the PHP security release of 2026-11-19, PHP version by PHP version and arch by arch, followed in [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437). See the [security process](docs/security.md)
+  * Security: the images are rebuilt when sury publishes the PHP security release of 2026-11-19, PHP version by PHP version and arch by arch (`workflow_dispatch` of `workflow.yml` and `legacy-v5.yml` with `php_version`), followed in [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437). See the [security process](docs/security.md)
   * The `X.Y.Z-v5-*` tags are only published when amd64 and arm64 have the same PHP version. PHP 7.4, 8.0 and 8.1 get no new `X.Y.Z` tag when they are rebuilt (the existing `X.Y.Z-php2shell-v5-*` tags are no longer overwritten)
 
 * **2026-11-13**

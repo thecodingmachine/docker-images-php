@@ -3,7 +3,7 @@
 ## Ongoing: PHP security release of 2026-11-19
 
 The PHP security team [announced](https://www.php.net/index.php#2026-11-18-1) critical security releases for
-2026-11-19, 14:00-14:30 UTC. The images are rebuilt automatically as soon as the fixed packages are published:
+2026-11-19, 14:00-14:30 UTC. The images are rebuilt as soon as the fixed packages are published:
 follow [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437).
 
 ## How the security releases of PHP are handled
@@ -12,10 +12,9 @@ The images take PHP from [Ondřej Surý's packages](https://packages.sury.org/ph
 announced:
 
 1. An issue is opened on this repository: subscribe to it to be notified, ask your questions there.
-2. The CI checks the sury packages every few minutes, then every hour, during the 48 hours after the release.
-3. Each PHP version is rebuilt as soon as its fixed packages are published on amd64 **or** arm64, and rebuilt again
-   when the other arch follows: sury publishes the arm64 packages later, sometimes a day later.
-4. The CI comments the issue at each step: build started, images published, build failed.
+2. The maintainers follow the sury packages and rebuild each PHP version as soon as its fixed packages are published on
+   amd64 **or** arm64, then again when the other arch follows: sury publishes the arm64 packages later, sometimes a day
+   later.
 
 The tags of the images:
 
