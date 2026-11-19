@@ -20,9 +20,6 @@ on:
       package_arm64:
         description: 'Version of the sury PHP packages expected on arm64'
         default: ''
-      security_issue:
-        description: 'Issue that gets the result of the build (security releases)'
-        default: ''
 
 # A build of one PHP version (security release) cancels the previous one of the same version
 concurrency:
@@ -231,41 +228,3 @@ jobs:
           export -f retry publish
           # 4 targets at the same time
           printf '%s\n' $TARGETS | xargs -P 4 -I {} bash -ec 'publish {}'
-
-  report:
-    if: ${{ !cancelled() && inputs.security_issue }}
-    needs:
-      - build
-      - merge-and-publish
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    steps:
-      - name: Comment the result on the security issue
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PHP_VERSION: ${{ inputs.php_version }}
-          PACKAGE_AMD64: ${{ inputs.package_amd64 }}
-          PACKAGE_ARM64: ${{ inputs.package_arm64 }}
-          PATCH_AMD64: ${{ needs.merge-and-publish.outputs.php_patch_amd64 }}
-          PATCH_ARM64: ${{ needs.merge-and-publish.outputs.php_patch_arm64 }}
-          RESULT: ${{ needs.merge-and-publish.result }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          if [ "${RESULT}" == "success" ]; then
-            EVENT="published"
-            TEXT="✅ PHP ${PHP_VERSION}: \`${PHP_VERSION}-v5-*\` images published, PHP ${PATCH_AMD64} on amd64 and ${PATCH_ARM64} on arm64."
-            if [ "${PATCH_AMD64}" == "${PATCH_ARM64}" ]; then
-              TEXT="${TEXT} \`${PATCH_AMD64}-v5-*\` tags published."
-            else
-              TEXT="${TEXT} The \`X.Y.Z-v5-*\` tags wait for both archs."
-            fi
-          else
-            EVENT="failed"
-            TEXT="❌ PHP ${PHP_VERSION}: the build failed, it is retried automatically."
-          fi
-          STATE=$(jq -nc --arg php "${PHP_VERSION}" --arg amd64 "${PACKAGE_AMD64}" --arg arm64 "${PACKAGE_ARM64}" \
-            --arg event "${EVENT}" --arg run "${GITHUB_RUN_ID}" \
-            '{php: $php, amd64: $amd64, arm64: $arm64, event: $event, workflow: "main", run: $run}')
-          gh issue comment "${{ inputs.security_issue }}" --repo "${{ github.repository }}" \
-            --body "${TEXT} [Run](${RUN_URL})"$'\n\n'"<!-- security-watch ${STATE} -->"
