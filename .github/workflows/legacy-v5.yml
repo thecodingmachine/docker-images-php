@@ -76,9 +76,10 @@ jobs:
           PHP_VERSION="${{ matrix.php_version }}" \
           ARCH_SUFFIX="-${{ matrix.builder.arch }}" \
           BRANCH="v5" \
-          VARIANT="${{ matrix.variant }}" \
           PLATFORM="linux/${{ matrix.builder.arch }}" \
-          ./tests-suite/bash_unit -f tap ./tests-suite/*.sh
+          VARIANTS="${{ matrix.variant }}" \
+          NODE_VERSIONS="$(docker buildx bake --print --progress=quiet ${BAKE_GROUP//.} | jq -r '[.target[].args.NODE_VERSION // empty] | unique | join(" ")')" \
+          ./tests-suite/run_tests.sh
       - name: Publish specific arch version
         run: |
           TAGS=$(REPO="ghcr.io/${{ github.repository_owner }}/php" \
