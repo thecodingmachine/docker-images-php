@@ -18,9 +18,20 @@ test_presenceOfPDO() {
   assert_equals "PDO" "${RESULT}" "Missing php-PDO"
 }
 #################################################################
+## Let's check that the default extensions of fat are enabled
+#################################################################
+test_defaultExtensionsOnFat() {
+  MODULES=$(docker run ${RUN_OPTIONS} --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m 2>&1 | tail -n +1)
+  for EXTENSION in apcu igbinary redis mysqli pdo_mysql soap; do
+    RESULT=$(echo "${MODULES}" | grep --color=never -x "${EXTENSION}")
+    assert_equals "${EXTENSION}" "${RESULT}" "Missing php-${EXTENSION}"
+  done
+}
+#################################################################
 ## Let's check that uploadprogress is enabled explicitly with fat
 #################################################################
 test_presenceOfUploadprogressOnFat() {
+  has_extension uploadprogress || return 0
   RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=uploadprogress" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m | tail -n +1 | grep --color=never uploadprogress)
   assert_equals "uploadprogress" "${RESULT}" "Missing php-uploadprogress"
 }
@@ -28,6 +39,7 @@ test_presenceOfUploadprogressOnFat() {
 ## Let's check that Imagick can read SVG images on fat
 ###################################################################
 test_imagickSvgOnFat() {
+  has_extension imagick || return 0
   RESULT=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=imagick" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
     php -r 'echo in_array("SVG", Imagick::queryFormats(), true) ? "SVG" : "missing";' 2>&1)
   assert_equals "SVG" "${RESULT}" "Imagick cannot read SVG images"
@@ -48,6 +60,9 @@ test_presenceOfPhp82ExtensionsOnFat() {
   if [[ "$(printf '%s\n' "$PHP_VERSION" "8.2" | sort -V | head -n 1)" != "8.2" ]]; then return 0; fi
   # Extension name in PHP_EXTENSIONS => name displayed by "php -m"
   declare -A EXTENSIONS=([gnupg]=gnupg [mcrypt]=mcrypt [odbc]=odbc [pdo_odbc]=PDO_ODBC [zstd]=zstd [lz4]=lz4 [decimal]=decimal [inotify]=inotify [opentelemetry]=opentelemetry)
+  for EXTENSION in "${!EXTENSIONS[@]}"; do
+    has_extension "${EXTENSION}" || unset "EXTENSIONS[${EXTENSION}]"
+  done
   MODULES=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=${!EXTENSIONS[*]}" --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m | tail -n +1)
   for EXTENSION in "${!EXTENSIONS[@]}"; do
     RESULT=$(echo "${MODULES}" | grep --color=never -x "${EXTENSIONS[$EXTENSION]}")
@@ -59,6 +74,7 @@ test_presenceOfPhp82ExtensionsOnFat() {
 ## extension are enabled too (even if explicitly disabled)
 #################################################################
 test_dependenciesOfExtensionsOnFat() {
+  has_extension memcached && has_extension mailparse || return 0
   MODULES=$(docker run ${RUN_OPTIONS} -e "PHP_EXTENSIONS=memcached mailparse" -e PHP_EXTENSION_IGBINARY=0 -e PHP_EXTENSION_MBSTRING=0 \
     --rm "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" php -m 2>&1 | tail -n +1)
   assert_equals "0" "$(echo "${MODULES}" | grep -c 'Unable to load dynamic library')" "An extension cannot be loaded"

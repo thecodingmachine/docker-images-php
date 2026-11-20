@@ -24,7 +24,7 @@ See the [documentation](#documentation) for all the features.
 {{ $image := .Orbit.Images }}
 ## Images
 
-{{ $versions := list "8.5" "8.4" "8.3" "8.2" "8.1" }}
+{{ $versions := list "8.6" "8.5" "8.4" "8.3" "8.2" "8.1" }}
 {{ $nodeVersions := list "22" "24" "26" }}{{ $legacyVersions := list "8.1" }}{{ $legacyNodeVersions := list "20" "22" "24" "26" }}
 
 | Name                                                                    | PHP version                                                                                                                                        | type                                       |variant | NodeJS version  | Size 
@@ -56,6 +56,7 @@ Bugs are fixed on maintained versions only.
 
 | PHP version | Status                                        |
 |-------------|-----------------------------------------------|
+| 8.6         | Maintained (until 2030-12-31)                 |
 | 8.5         | Maintained (until 2029-12-31)                 |
 | 8.4         | Maintained (until 2028-12-31)                 |
 | 8.3         | Maintained (until 2027-12-31)                 |

@@ -1,4 +1,4 @@
-{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" "7.4" }}{{ $nodeVersions := list "26" "24" "22" }}{{ $legacyVersions := list "8.1" "8.0" "7.4" }}{{ $legacyNodeVersions := list "26" "24" "22" "20" "18" }}{{ $oldNodeVersions := list "20" "18" }}
+{{ $variants := list "apache" "fpm" "cli" }}{{ $versions := list "8.6" "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" "7.4" }}{{ $nodeVersions := list "26" "24" "22" }}{{ $legacyVersions := list "8.1" "8.0" "7.4" }}{{ $legacyNodeVersions := list "26" "24" "22" "20" "18" }}{{ $oldNodeVersions := list "20" "18" }}
 group "default" {
    targets = [
      {{range $phpV := $versions}}

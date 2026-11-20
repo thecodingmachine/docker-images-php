@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.6", "8.5", "8.4", "8.3", "8.2"]') }}
         builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
     env:
@@ -140,7 +140,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.6", "8.5", "8.4", "8.3", "8.2"]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7

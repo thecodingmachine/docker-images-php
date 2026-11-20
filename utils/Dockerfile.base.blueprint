@@ -64,7 +64,7 @@ RUN apt update \
 ARG PHP_PACKAGE_VERSION=""
 # Note: From PHP 8.5, opcache is built-in and php${PHP_VERSION}-opcache package doesn't exist
 RUN OPCACHE_PACKAGE="" \
-    && if [ "${PHP_VERSION}" != "8.5" ]; then \
+    && if [ "$(printf '%s\n' "${PHP_VERSION}" 8.5 | sort -V | head -n 1)" != "8.5" ]; then \
         OPCACHE_PACKAGE="php${PHP_VERSION}-opcache"; \
     fi \
     && apt update \

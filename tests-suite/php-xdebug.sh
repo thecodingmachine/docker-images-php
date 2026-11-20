@@ -5,6 +5,7 @@
 ## xdebug
 ############################################################
 test_config() {
+  has_extension xdebug || return 0
   # Let's check that the "xdebug.client_host" contains a value different from "no value"
   docker run ${RUN_OPTIONS} --rm -e PHP_EXTENSION_XDEBUG=1 "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
     php -i | grep xdebug.client_host | grep -v -q "no value"

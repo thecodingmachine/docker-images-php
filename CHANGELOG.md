@@ -3,6 +3,9 @@
 
 ### Minor changes
 
+* **2026-11-20**
+  * New PHP 8.6 images. Only the extensions enabled by default (`apcu`, `igbinary`, `redis`…), those of the PHP source and *blackfire* are available for now: the others (`xdebug`, `imagick`, `memcached`…) are added as soon as sury publishes them for PHP 8.6. See [Extensions](docs/extensions.md)
+
 * **2026-11-19**
   * Security: 17 vulnerabilities fixed in all the v5 images (7 critical: CVE-2026-115560, CVE-2026-126714, CVE-2026-129481, CVE-2026-129496, CVE-2026-129289, CVE-2026-129474, CVE-2026-129182), PHP 8.2.36, 8.3.37, 8.4.28 and 8.5.13, sury backports for PHP 7.4, 8.0 and 8.1. See [Security](docs/security.md)
   * New test checking that the images are not vulnerable to the security release of 2026-11-19

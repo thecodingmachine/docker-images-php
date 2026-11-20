@@ -8,6 +8,7 @@ test_enable() {
   assert_equals "0" "$?"
 }
 test_alertConflictWithXDebug() {
+  has_extension xdebug || return 0
   # Tests that blackfire + xdebug will output an error
   RESULT="$(docker run ${RUN_OPTIONS} --rm -e PHP_EXTENSION_XDEBUG=1 -e PHP_EXTENSION_BLACKFIRE=1 \
     "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" \

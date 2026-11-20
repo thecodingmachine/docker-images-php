@@ -32,6 +32,10 @@ This list can be outdated, you can verify it with: `docker run --rm thecodingmac
 **Notes:**
 
 - *ev* is not available in PHP 8.1+
+- PHP 8.6 only comes with the extensions enabled by default, those of the PHP source (`bcmath` `bz2` `dba` `enchant`
+  `ffi` `gd` `gettext` `gmp` `intl` `ldap` `odbc` `pdo_dblib` `pdo_odbc` `pdo_pgsql` `pdo_sqlite` `pgsql` `snmp` `soap`
+  `sqlite3` `tidy` `zip`) and *blackfire*: the other extensions are added when the
+  [Ondřej Surý's PHP repository](https://packages.sury.org/php/) publishes them for PHP 8.6
 - *mcrypt* is deprecated and its usage is discouraged: it is provided for legacy applications only
 - *imagick* supports SVG, WMF, DjVu and OpenEXR images in addition to the common formats. If you process untrusted
   images, you can restrict the allowed formats in the ImageMagick policy (`/etc/ImageMagick-6/policy.xml`)

@@ -11,6 +11,13 @@ export REPO="${REPO:-thecodingmachine/php}"
 export TAG_PREFIX="${TAG_PREFIX:-}"
 export SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+# Extensions shipped for PHP_VERSION: extensions/<version> only lists those packaged by sury for this version
+function has_extension() {
+  [[ -e "${SCRIPT_DIR}/../extensions/${PHP_VERSION}/$1" ]] && return 0
+  >&2 echo "Extension $1 not available for PHP ${PHP_VERSION}: check skipped"
+  return 1
+}
+
 function unused_port() {
     N=${1:-1}
     comm -23 \

@@ -3,6 +3,7 @@
 group "default" {
    targets = [
      
+     "php86",
      "php85",
      "php84",
      "php83",
@@ -13,6 +14,51 @@ group "default" {
    ]
 }
 
+group "php86-apache-all" {
+   targets = [
+     "php86-slim-apache",
+     "php86-apache",
+     "php86-apache-node26","php86-apache-node24","php86-apache-node22",
+   ]
+}
+# NodeJS versions no longer maintained, built by the legacy workflow
+group "php86-apache-legacy-node" {
+   targets = [
+     "php86-slim-apache",
+     "php86-apache",
+     "php86-apache-node20","php86-apache-node18",
+   ]
+}
+group "php86-fpm-all" {
+   targets = [
+     "php86-slim-fpm",
+     "php86-fpm",
+     "php86-fpm-node26","php86-fpm-node24","php86-fpm-node22",
+   ]
+}
+# NodeJS versions no longer maintained, built by the legacy workflow
+group "php86-fpm-legacy-node" {
+   targets = [
+     "php86-slim-fpm",
+     "php86-fpm",
+     "php86-fpm-node20","php86-fpm-node18",
+   ]
+}
+group "php86-cli-all" {
+   targets = [
+     "php86-slim-cli",
+     "php86-cli",
+     "php86-cli-node26","php86-cli-node24","php86-cli-node22",
+   ]
+}
+# NodeJS versions no longer maintained, built by the legacy workflow
+group "php86-cli-legacy-node" {
+   targets = [
+     "php86-slim-cli",
+     "php86-cli",
+     "php86-cli-node20","php86-cli-node18",
+   ]
+}
 group "php85-apache-all" {
    targets = [
      "php85-slim-apache",
@@ -258,6 +304,9 @@ group "php74-cli-all" {
 }
 
 
+group "php86" {
+   targets = ["php86-apache-all","php86-fpm-all","php86-cli-all",]
+}
 group "php85" {
    targets = ["php85-apache-all","php85-fpm-all","php85-cli-all",]
 }
@@ -322,6 +371,437 @@ target "default" {
   output = ["type=docker"] # export in local docker
 }
 
+
+###########################
+##    PHP 8.6
+###########################
+# Layers shared by the images of all the variants (not published)
+target "php86-base" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-base")
+  cache-to = cache_to("php86-base")
+  dockerfile = "Dockerfile.base"
+  output = ["type=cacheonly"]
+  args = {
+    PHP_VERSION = "8.6"
+  }
+}
+
+target "php86-extensions" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-extensions")
+  cache-to = cache_to("php86-extensions")
+  dockerfile = "Dockerfile.extensions"
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php86-base"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-slim-apache
+target "php86-slim-apache" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-slim-apache")
+  cache-to = cache_to("php86-slim-apache")
+  tags = tag("8.6", "slim-apache")
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  contexts = {
+    base = "target:php86-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php86-slim-apache-with-extensions" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-slim-apache-with-extensions")
+  cache-to = cache_to("php86-slim-apache-with-extensions")
+  dockerfile = "Dockerfile.slim.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php86-extensions"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-apache
+target "php86-apache" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-apache")
+  cache-to = cache_to("php86-apache")
+  tags = tag("8.6", "apache")
+  dockerfile = "Dockerfile.apache"
+  args = {
+    VARIANT = "apache"
+  }
+  contexts = {
+    slim-with-extensions = "target:php86-slim-apache-with-extensions"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-apache-node26
+target "php86-apache-node26" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-apache-node26")
+  cache-to = cache_to("php86-apache-node26")
+  tags = tag("8.6", "apache-node26")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "apache-node26"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "26"
+  }
+  contexts = {
+    fat = "target:php86-apache"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-apache-node24
+target "php86-apache-node24" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-apache-node24")
+  cache-to = cache_to("php86-apache-node24")
+  tags = tag("8.6", "apache-node24")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "apache-node24"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "24"
+  }
+  contexts = {
+    fat = "target:php86-apache"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-apache-node22
+target "php86-apache-node22" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-apache-node22")
+  cache-to = cache_to("php86-apache-node22")
+  tags = tag("8.6", "apache-node22")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "apache-node22"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "22"
+  }
+  contexts = {
+    fat = "target:php86-apache"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-apache-node20
+target "php86-apache-node20" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-apache-node20")
+  cache-to = cache_to("php86-apache-node20")
+  tags = tag("8.6", "apache-node20")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "apache-node20"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "20"
+  }
+  contexts = {
+    fat = "target:php86-apache"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-apache-node18
+target "php86-apache-node18" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-apache-node18")
+  cache-to = cache_to("php86-apache-node18")
+  tags = tag("8.6", "apache-node18")
+  dockerfile = "Dockerfile.apache.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "apache-node18"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "18"
+  }
+  contexts = {
+    fat = "target:php86-apache"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-slim-fpm
+target "php86-slim-fpm" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-slim-fpm")
+  cache-to = cache_to("php86-slim-fpm")
+  tags = tag("8.6", "slim-fpm")
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  contexts = {
+    base = "target:php86-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php86-slim-fpm-with-extensions" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-slim-fpm-with-extensions")
+  cache-to = cache_to("php86-slim-fpm-with-extensions")
+  dockerfile = "Dockerfile.slim.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php86-extensions"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-fpm
+target "php86-fpm" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-fpm")
+  cache-to = cache_to("php86-fpm")
+  tags = tag("8.6", "fpm")
+  dockerfile = "Dockerfile.fpm"
+  args = {
+    VARIANT = "fpm"
+  }
+  contexts = {
+    slim-with-extensions = "target:php86-slim-fpm-with-extensions"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-fpm-node26
+target "php86-fpm-node26" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-fpm-node26")
+  cache-to = cache_to("php86-fpm-node26")
+  tags = tag("8.6", "fpm-node26")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "fpm-node26"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "26"
+  }
+  contexts = {
+    fat = "target:php86-fpm"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-fpm-node24
+target "php86-fpm-node24" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-fpm-node24")
+  cache-to = cache_to("php86-fpm-node24")
+  tags = tag("8.6", "fpm-node24")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "fpm-node24"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "24"
+  }
+  contexts = {
+    fat = "target:php86-fpm"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-fpm-node22
+target "php86-fpm-node22" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-fpm-node22")
+  cache-to = cache_to("php86-fpm-node22")
+  tags = tag("8.6", "fpm-node22")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "fpm-node22"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "22"
+  }
+  contexts = {
+    fat = "target:php86-fpm"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-fpm-node20
+target "php86-fpm-node20" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-fpm-node20")
+  cache-to = cache_to("php86-fpm-node20")
+  tags = tag("8.6", "fpm-node20")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "fpm-node20"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "20"
+  }
+  contexts = {
+    fat = "target:php86-fpm"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-fpm-node18
+target "php86-fpm-node18" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-fpm-node18")
+  cache-to = cache_to("php86-fpm-node18")
+  tags = tag("8.6", "fpm-node18")
+  dockerfile = "Dockerfile.fpm.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "fpm-node18"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "18"
+  }
+  contexts = {
+    fat = "target:php86-fpm"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-slim-cli
+target "php86-slim-cli" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-slim-cli")
+  cache-to = cache_to("php86-slim-cli")
+  tags = tag("8.6", "slim-cli")
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  contexts = {
+    base = "target:php86-base"
+  }
+}
+
+# The slim image of the variant with the extensions (not published)
+target "php86-slim-cli-with-extensions" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-slim-cli-with-extensions")
+  cache-to = cache_to("php86-slim-cli-with-extensions")
+  dockerfile = "Dockerfile.slim.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  output = ["type=cacheonly"]
+  contexts = {
+    base = "target:php86-extensions"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-cli
+target "php86-cli" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-cli")
+  cache-to = cache_to("php86-cli")
+  tags = tag("8.6", "cli")
+  dockerfile = "Dockerfile.cli"
+  args = {
+    VARIANT = "cli"
+  }
+  contexts = {
+    slim-with-extensions = "target:php86-slim-cli-with-extensions"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-cli-node26
+target "php86-cli-node26" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-cli-node26")
+  cache-to = cache_to("php86-cli-node26")
+  tags = tag("8.6", "cli-node26")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "cli-node26"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "26"
+  }
+  contexts = {
+    fat = "target:php86-cli"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-cli-node24
+target "php86-cli-node24" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-cli-node24")
+  cache-to = cache_to("php86-cli-node24")
+  tags = tag("8.6", "cli-node24")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "cli-node24"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "24"
+  }
+  contexts = {
+    fat = "target:php86-cli"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-cli-node22
+target "php86-cli-node22" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-cli-node22")
+  cache-to = cache_to("php86-cli-node22")
+  tags = tag("8.6", "cli-node22")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "cli-node22"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "22"
+  }
+  contexts = {
+    fat = "target:php86-cli"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-cli-node20
+target "php86-cli-node20" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-cli-node20")
+  cache-to = cache_to("php86-cli-node20")
+  tags = tag("8.6", "cli-node20")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "cli-node20"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "20"
+  }
+  contexts = {
+    fat = "target:php86-cli"
+  }
+}
+
+# thecodingmachine/php:8.6-v5-cli-node18
+target "php86-cli-node18" {
+  inherits = ["default"]
+  cache-from = cache_from("php86-cli-node18")
+  cache-to = cache_to("php86-cli-node18")
+  tags = tag("8.6", "cli-node18")
+  dockerfile = "Dockerfile.cli.node"
+  args = {
+    PHP_VERSION = "8.6"
+    VARIANT = "cli-node18"
+    FROM_IMAGE = "fat"
+    NODE_VERSION = "18"
+  }
+  contexts = {
+    fat = "target:php86-cli"
+  }
+}
 
 ###########################
 ##    PHP 8.5
