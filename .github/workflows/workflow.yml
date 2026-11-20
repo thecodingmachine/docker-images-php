@@ -30,10 +30,18 @@ concurrency:
   cancel-in-progress: ${{ inputs.php_version && true || false }}
 
 jobs:
+  purge-cache:
+    if: ${{ github.event_name == 'schedule' && vars.SECURITY_RELEASE != '1' }}
+    uses: ./.github/workflows/purge-cache.yml
+    permissions:
+      packages: write
+
   build:
+    needs: purge-cache
     # During a security release (variable SECURITY_RELEASE=1), only the rebuilds launched by hand or by php-watch.yml,
     # and the pull requests with the label force-ci
     if: >
+      !cancelled() && needs.purge-cache.result != 'failure' &&
       (github.event.action != 'labeled' || github.event.label.name == 'force-ci') &&
       (vars.SECURITY_RELEASE != '1' || github.event_name == 'workflow_dispatch' ||
        contains(github.event.pull_request.labels.*.name, 'force-ci'))
@@ -138,7 +146,9 @@ jobs:
           printf '%s\n' $TAGS | xargs -P 4 -I {} bash -c 'for i in 1 2 3; do docker push --quiet "{}" && exit 0; sleep 5; done; exit 1'
 
   merge-and-publish:
-    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    if: >
+      !cancelled() && needs.build.result == 'success' &&
+      (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs:
       - build
     runs-on: ubuntu-latest
