@@ -1,15 +1,13 @@
 name: Purge the cache of the layers
 
-# Runs before the weekly build of v5, so that it starts from an empty cache and takes the updates of the packages
+# Called by the weekly build of v5 (workflow.yml) before it builds, so that it starts from an empty cache and takes the
+# updates of the packages
 on:
-  schedule:
-    - cron: '12 3 * * 0'
+  workflow_call:
   workflow_dispatch:
 
 jobs:
   purge-cache:
-    # The cache stays during a security release (variable SECURITY_RELEASE=1)
-    if: ${{ vars.SECURITY_RELEASE != '1' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
     permissions:
       packages: write
