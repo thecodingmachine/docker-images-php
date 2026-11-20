@@ -87,7 +87,23 @@ function getPhpVersionEnvVar()
 }
 
 
-function enableExtension(string $extensionName): bool {
+/**
+ * The profiler of PHP_PROFILER (excimer, xhprof, spx or xdebug), or an empty string
+ */
+function getProfiler(): string
+{
+    $profiler = strtolower(trim((string) getenv('PHP_PROFILER')));
+    if ($profiler !== '' && !in_array($profiler, ['excimer', 'xhprof', 'spx', 'xdebug'], true)) {
+        file_put_contents('php://stderr', 'Invalid value found for PHP_PROFILER: "'.$profiler.'". Valid values are "excimer", "xhprof", "spx", "xdebug".'."\n");
+        exit(1);
+    }
+    return $profiler;
+}
+
+/**
+ * @param bool $withProfiler whether the extension of PHP_PROFILER counts as enabled
+ */
+function enableExtension(string $extensionName, bool $withProfiler = true): bool {
     $phpExtensions = getPhpExtensionsEnvVar();
 
     // If an extension name is set explicitly to "0" or "false" or "no", then it is not enabled.
@@ -101,6 +117,10 @@ function enableExtension(string $extensionName): bool {
     }
 
     if (in_array($extensionName, $phpExtensions, true)) {
+        return true;
+    }
+
+    if ($withProfiler && getProfiler() === $extensionName) {
         return true;
     }
 
