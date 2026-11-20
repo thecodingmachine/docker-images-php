@@ -1,12 +1,12 @@
 name: Watch the PHP packages
 
 # Rebuilds each PHP version when sury publishes new packages (see .github/php-watch.sh).
-# - schedule: one pass every hour (GitHub may start it hours late).
+# - schedule: one pass every day (GitHub may start it hours late).
 # - workflow_dispatch (security release): a pass every 5 minutes from start_at to until, with the table of the images
 #   in the issue. A job lasts 6 hours at most: the watch starts a new run of itself before, and stops.
 on:
   schedule:
-    - cron: '23 * * * *'
+    - cron: '23 6 * * *'
   workflow_dispatch:
     inputs:
       issue:

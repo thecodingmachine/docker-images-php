@@ -8,6 +8,8 @@ on:
 
 jobs:
   purge-cache:
+    # The cache stays during a security release (variable SECURITY_RELEASE=1)
+    if: ${{ vars.SECURITY_RELEASE != '1' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
     permissions:
       packages: write
