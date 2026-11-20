@@ -124,8 +124,11 @@ Same scenario, 60 s at about twice the capacity.
 | `PHP_FPM_PM_MAX_CHILDREN` | | `10` (v5 default: `5`), start `4`, spare `2`-`6` |
 
 The v5 images keep their defaults: set `APACHE_KEEPALIVE`, `APACHE_MAX_REQUEST_WORKERS` and the `PHP_FPM_PM_*`
-variables (the measured configurations are in [configs](configs)). These settings are a median for a typical
-application on 1-2 CPUs: size them for your application with the
+variables (the measured configurations are in [configs](configs)). The v6 images use them as defaults, with up to 20
+mod_php processes instead of 30: the pages of this benchmark use 16 MB, business applications rather 64 to 128 MB, and
+30 such processes exhaust the memory of a 2 to 4 GB container in a traffic peak (20 processes still saturate the CPU
+behind a reverse proxy). These settings are a median for a typical application on 1-2 CPUs: size them for your
+application with the
 [tuning simulator](https://thecodingmachine.github.io/docker-images-php/tuning/).
 
 ## What is not covered
