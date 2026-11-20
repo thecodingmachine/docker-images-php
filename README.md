@@ -197,7 +197,7 @@ Most features are configured with environment variables:
 | [Serving with the fpm variant](docs/fpm.md)        | Built-in Apache or your own web server, constraints of PHP-FPM, migration from *apache*        | `PHP_FPM_WEB_SERVER`, `PHP_FPM_PM_*`                               |
 | [Behind a reverse proxy](https://thecodingmachine.github.io/docker-images-php/reverse-proxy/) | Real IP of the users behind Traefik, nginx, Kubernetes or Cloudflare, without trusting forged headers | `APACHE_TRUSTED_PROXIES`, `APACHE_TRUSTED_CLOUDFLARE` |
 | [Processes](docs/processes.md)                     | Startup commands, cron jobs and daemons run along with the main command                        | `STARTUP_COMMAND_*`, `CRON_*`, `DAEMON_*`                          |
-| [Debugging and profiling](docs/debugging.md)       | Xdebug and Blackfire                                                                           | `PHP_EXTENSION_XDEBUG`, `XDEBUG_CLIENT_HOST`, `BLACKFIRE_AGENT`    |
+| [Debugging, profiling, coverage](https://thecodingmachine.github.io/docker-images-php/debugging/) | The tools for your needs (Xdebug, PCOV, Excimer, XHProf, SPX, Blackfire, OpenTelemetry), the setup of your IDE and your AI agent | `PHP_EXTENSION_XDEBUG`, `PHP_PROFILER`, `XDEBUG_CLIENT_HOST` |
 | [Advanced features](docs/advanced.md)              | Permissions, NodeJS, Composer version, locales, SSH keys, Kubernetes                           | `DOCKER_USER`, `COMPOSER_VERSION`, `LOCALES`                       |
 
 The slim images install some tools during the build of your image with an ARG before the `FROM`: `PHP_EXTENSIONS`,

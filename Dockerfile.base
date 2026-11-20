@@ -134,6 +134,8 @@ COPY utils/php_env_fingerprint.sh /usr/local/bin/php_env_fingerprint.sh
 RUN touch /opt/php_env_fingerprint
 COPY utils/generate_conf.php /usr/local/bin/generate_conf.php
 COPY utils/setup_extensions.php /usr/local/bin/setup_extensions.php
+COPY utils/php-profiler.php /usr/local/lib/thecodingmachine-php/php-profiler.php
+COPY utils/php-profile /usr/local/bin/php-profile
 
 # |--------------------------------------------------------------------------
 # | Default PHP extensions to be enabled
