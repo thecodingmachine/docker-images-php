@@ -1,9 +1,12 @@
 name: Auto test and build v5
+# Title of the rebuilds of php-watch.sh
+run-name: ${{ inputs.php_version && format('Rebuild PHP {0} (amd64 {1}, arm64 {2})', inputs.php_version, inputs.package_amd64, inputs.package_arm64) || '' }}
 
 on:
   pull_request:
     branches:
       - 'v5'
+    types: [opened, synchronize, reopened, labeled]
   push:
     branches:
       - 'v5'
@@ -28,6 +31,12 @@ concurrency:
 
 jobs:
   build:
+    # During a security release (variable SECURITY_RELEASE=1), only the rebuilds launched by hand or by php-watch.yml,
+    # and the pull requests with the label force-ci
+    if: >
+      (github.event.action != 'labeled' || github.event.label.name == 'force-ci') &&
+      (vars.SECURITY_RELEASE != '1' || github.event_name == 'workflow_dispatch' ||
+       contains(github.event.pull_request.labels.*.name, 'force-ci'))
     strategy:
       fail-fast: false
       matrix:
@@ -134,6 +143,9 @@ jobs:
       - build
     runs-on: ubuntu-latest
     name: Merge and publish ${{ matrix.php_version }}
+    # One publication of a PHP version at a time, whatever the event
+    concurrency:
+      group: publish-v5-${{ matrix.php_version }}
     outputs:
       php_patch_amd64: ${{ steps.patch.outputs.amd64 }}
       php_patch_arm64: ${{ steps.patch.outputs.arm64 }}
