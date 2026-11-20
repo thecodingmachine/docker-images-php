@@ -69,3 +69,7 @@ groups of the maintained PHP versions) are built and tested by the `legacy-v5.ym
 - `.github/workflows/workflow.yml` (maintained versions) or `.github/workflows/legacy-v5.yml` (non-maintained
   versions): the CI matrix
 - `extensions/<PHP version>`: the extensions available for this PHP version
+
+Right after a PHP release, sury only publishes the extensions of the PHP source: the others come in the following
+weeks. `make sury-extensions VERSION=8.6` compares `extensions/8.6` with `extensions/8.5` and with the packages of sury
+on amd64 and arm64, and tells which symlinks to add, or which ones make the build fail.

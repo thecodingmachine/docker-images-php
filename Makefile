@@ -81,6 +81,9 @@ _test-version-quick: _test-prerequisites ## Test php build for VERSION="" and VA
 	PHP_VERSION="$(VERSION)" BRANCH=v5 VARIANT=$(VARIANT) ./tests-suite/bash_unit -f tap ./tests-suite/*.sh || (notify-send -u critical "Tests failed ($(VERSION)-$(VARIANT))" && exit 1)
 	notify-send -u critical "Tests passed with success ($(VERSION)-$(VARIANT)) - without node-*"
 
+sury-extensions: ## Compare the extensions of VERSION with the sury packages (e.g. make sury-extensions VERSION=8.6)
+	utils/sury-extensions.sh $(VERSION)
+
 clean: ## Clean dangles image after build
 	rm -rf /tmp/buildx-cache
 
