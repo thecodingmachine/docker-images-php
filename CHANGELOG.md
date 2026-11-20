@@ -4,6 +4,8 @@
 ### Minor changes
 
 * **2026-11-19**
+  * Security: 17 vulnerabilities fixed in all the v5 images (7 critical: CVE-2026-115560, CVE-2026-126714, CVE-2026-129481, CVE-2026-129496, CVE-2026-129289, CVE-2026-129474, CVE-2026-129182), PHP 8.2.36, 8.3.37, 8.4.28 and 8.5.13, sury backports for PHP 7.4, 8.0 and 8.1. See [Security](docs/security.md)
+  * New test checking that the images are not vulnerable to the security release of 2026-11-19
   * Security: the images are rebuilt when sury publishes the PHP security release of 2026-11-19, PHP version by PHP version and arch by arch (`workflow_dispatch` of `workflow.yml` and `legacy-v5.yml` with `php_version`), followed in [issue #437](https://github.com/thecodingmachine/docker-images-php/issues/437). See the [security process](docs/security.md)
   * The `X.Y.Z-v5-*` tags are only published when amd64 and arm64 have the same PHP version. PHP 7.4, 8.0 and 8.1 get no new `X.Y.Z` tag when they are rebuilt (the existing `X.Y.Z-php2shell-v5-*` tags are no longer overwritten)
 

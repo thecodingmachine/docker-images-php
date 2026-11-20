@@ -32,3 +32,25 @@ test_php2shellPatched() {
       "PHP ${RESULT} is vulnerable to CVE-2026-109618 (fixed in ${FIXED_VERSION})"
   fi
 }
+
+############################################################
+## Security release of 2026-11-19: 17 vulnerabilities, CVE-2026-115560 among them
+############################################################
+# Fixed upstream in 8.2.36, 8.3.37, 8.4.28 and 8.5.13. The end-of-life branches (7.4, 8.0, 8.1) got
+# the sury backport of the fixes of 8.2.36, which keeps the PHP version: the package version is checked.
+test_securityRelease20261119Patched() {
+  case "${PHP_VERSION}" in
+    7.4) FIXED_VERSION="1:7.4.33-36" ;;
+    8.0) FIXED_VERSION="1:8.0.30-30" ;;
+    8.1) FIXED_VERSION="8.1.34-13" ;;
+    8.2) FIXED_VERSION="8.2.36" ;;
+    8.3) FIXED_VERSION="8.3.37" ;;
+    8.4) FIXED_VERSION="8.4.28" ;;
+    *) FIXED_VERSION="8.5.13" ;;
+  esac
+  RESULT="$(docker run ${RUN_OPTIONS} --rm \
+    "${REPO}:${TAG_PREFIX}${PHP_VERSION}-${BRANCH}-${BRANCH_VARIANT}${ARCH_SUFFIX}" \
+    dpkg-query -W -f '${Version}' "php${PHP_VERSION}-cli" 2>/dev/null)"
+  dpkg --compare-versions "${RESULT}" ge "${FIXED_VERSION}"
+  assert_equals 0 $? "php${PHP_VERSION}-cli ${RESULT} is vulnerable to the security release of 2026-11-19 (fixed in ${FIXED_VERSION})"
+}
