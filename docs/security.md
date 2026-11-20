@@ -11,19 +11,19 @@ announced:
 2. Each PHP version is rebuilt as soon as its fixed packages are published on amd64 **or** arm64, and rebuilt again
    when the other arch follows: sury publishes the arm64 packages later, sometimes a day later.
 
-Outside of the security releases, each PHP version is also rebuilt within a few hours when sury publishes new packages.
+Outside of the security releases, each PHP version is also rebuilt within a day when sury publishes new packages.
 
 The tags of the images:
 
 - `X.Y-v5-*` (e.g. `8.4-v5-apache`) is updated at each build: use it to get the fixes.
-- `X.Y.Z-v5-*` (e.g. `8.4.28-v5-apache`) is only published once amd64 and arm64 have the same PHP version, and never
-  changes afterwards.
+- `X.Y.Z-v5-*` (e.g. `8.4.28-v5-apache`) is the last build of PHP X.Y.Z: it is published once amd64 and arm64 have
+  the same PHP version, then updated by each build until the next PHP version. Use the digest of an image to pin it.
 - PHP 7.4, 8.0 and 8.1 are not maintained: they are rebuilt when sury publishes a fix for them, which keeps the PHP
   version number, without new `X.Y.Z` tag.
 
 ## Maintainers: following a security release
 
-[`php-watch.yml`](../.github/workflows/php-watch.yml) checks the packages of sury every hour, and launches
+[`php-watch.yml`](../.github/workflows/php-watch.yml) checks the packages of sury every day, and launches
 `workflow.yml` and `legacy-v5.yml` for each PHP version whose images do not have them. The schedules of GitHub can
 start hours late: for a security release, launch it by hand the day before, it checks every 5 minutes from `start_at`:
 
@@ -36,8 +36,8 @@ $ gh workflow run php-watch.yml --ref v5 -f issue=437 -f start_at="2026-12-17 13
 - `fixed` gives the fixed versions once they are known (the watch can be launched again with them): the table says
   fixed or vulnerable instead of up to date. Without `fixed`, the watch stops as soon as the images have the packages
   of sury.
-- `SECURITY_RELEASE=1` pauses the builds of the pushes, of the pull requests and of the weekly schedule: only the
-  rebuilds of the watch publish images. The label `force-ci` runs the CI of a pull request anyway.
+- `SECURITY_RELEASE=1` pauses the builds of the pushes, of the pull requests and the weekly build with its purge of
+  the cache: only the rebuilds of the watch publish images. The label `force-ci` runs the CI of a pull request anyway.
 - Afterwards: `gh variable set SECURITY_RELEASE --body 0`, then `gh workflow run workflow.yml --ref v5` to publish the
   commits merged meanwhile.
 
