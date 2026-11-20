@@ -17,6 +17,8 @@ USER root
 
 ENV BLACKFIRE_VERSION=${BLACKFIRE_VERSION}
 
+# Version of the NodeJS package published by nodesource for this arch: a new value rebuilds the layers below despite the cache
+ARG NODE_PACKAGE_VERSION=""
 RUN apt update && \
     apt install -y --no-install-recommends gnupg && \
     if [[ "${NODE_VERSION}" -lt "16" ]]; then \
