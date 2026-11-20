@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One pass of the watch of the PHP packages of sury: rebuilds each PHP version whose published images do not have the
 # packages published by sury (label com.thecodingmachine.php.package of each arch), with workflow.yml (8.2 to 8.5) and
-# legacy-v5.yml (NodeJS 18 and 20, PHP 7.4 to 8.1). At most 3 builds for the same packages.
+# legacy-v5.yml (NodeJS 18 and 20, PHP 7.4 to 8.1). At most 3 builds for the same packages, successful or not.
 #
 # Environment:
 #   GITHUB_REPOSITORY, GITHUB_REPOSITORY_OWNER, GITHUB_REF_NAME, GH_TOKEN  set by GitHub Actions
@@ -20,6 +20,16 @@ IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER}/php"
 LABEL="com.thecodingmachine.php.package"
 MAX_BUILDS=3
 DIGEST_INTERVAL=1800
+
+[[ "${ISSUE:-}" =~ ^[0-9]*$ ]] || { echo "::error::ISSUE: an issue number"; exit 1; }
+[[ "${SURY_URL}" =~ ^https:// ]] || { echo "::error::SURY_URL: https only"; exit 1; }
+for V in ${PHP_VERSIONS}; do
+  [[ " 8.5 8.4 8.3 8.2 8.1 8.0 7.4 " == *" ${V} "* ]] || { echo "::error::Unknown PHP version: ${V}"; exit 1; }
+done
+for F in ${FIXED:-}; do
+  [[ "${F}" =~ ^[0-9]\.[0-9]=[0-9A-Za-z.:+~-]+$ ]] || { echo "::error::FIXED: X.Y=version, e.g. 8.4=8.4.28"; exit 1; }
+done
+
 TMP=$(mktemp -d)
 trap 'rm -rf "${TMP}"' EXIT
 
@@ -74,9 +84,9 @@ check() {
     STATE="up to date"
   elif awk -F'\t' -v t="${TITLE}" '$1 == t && $2 != "completed" {f = 1} END {exit !f}' "${TMP}/runs-${WF}"; then
     STATE="🔄 rebuilding"
-  elif [ "$(awk -F'\t' -v t="${TITLE}" '$1 == t && $3 != "success"' "${TMP}/runs-${WF}" | wc -l)" -ge "${MAX_BUILDS}" ]; then
-    STATE="⚠️ build failed ${MAX_BUILDS} times"
-    echo "::error::${WF} PHP ${V}: ${MAX_BUILDS} failed builds for ${TITLE}" >&2
+  elif [ "$(awk -F'\t' -v t="${TITLE}" '$1 == t' "${TMP}/runs-${WF}" | wc -l)" -ge "${MAX_BUILDS}" ]; then
+    STATE="⚠️ built ${MAX_BUILDS} times, not published"
+    echo "::error::${WF} PHP ${V}: ${MAX_BUILDS} builds for ${TITLE}, the images do not have these packages" >&2
   else
     STATE="🔄 rebuilding"
     echo "${WF}: ${TITLE}" >&2
