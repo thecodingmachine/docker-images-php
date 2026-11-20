@@ -1,9 +1,12 @@
 name: Auto test and build v5
+# Title of the rebuilds of php-watch.sh
+run-name: ${{ inputs.php_version && format('Rebuild PHP {0} (amd64 {1}, arm64 {2})', inputs.php_version, inputs.package_amd64, inputs.package_arm64) || '' }}
 
 on:
   pull_request:
     branches:
       - 'v5'
+    types: [opened, synchronize, reopened, labeled]
   push:
     branches:
       - 'v5'
@@ -26,12 +29,30 @@ concurrency:
   group: ${{ inputs.php_version && format('build-{0}', inputs.php_version) || github.run_id }}
   cancel-in-progress: ${{ inputs.php_version && true || false }}
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
+  purge-cache:
+    if: ${{ github.event_name == 'schedule' && vars.SECURITY_RELEASE != '1' }}
+    uses: ./.github/workflows/purge-cache.yml
+    permissions:
+      packages: write
+
   build:
+    needs: purge-cache
+    # During a security release (variable SECURITY_RELEASE=1), only the rebuilds launched by hand or by php-watch.yml,
+    # and the pull requests with the label force-ci
+    if: >
+      !cancelled() && needs.purge-cache.result != 'failure' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'force-ci') &&
+      (vars.SECURITY_RELEASE != '1' || github.event_name == 'workflow_dispatch' ||
+       contains(github.event.pull_request.labels.*.name, 'force-ci'))
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && (contains(fromJSON('["8.5", "8.4", "8.3", "8.2"]'), inputs.php_version) && format('["{0}"]', inputs.php_version) || '[]') || '["8.5", "8.4", "8.3", "8.2"]') }}
         builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
     env:
@@ -129,18 +150,23 @@ jobs:
           printf '%s\n' $TAGS | xargs -P 4 -I {} bash -c 'for i in 1 2 3; do docker push --quiet "{}" && exit 0; sleep 5; done; exit 1'
 
   merge-and-publish:
-    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    if: >
+      !cancelled() && needs.build.result == 'success' &&
+      (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs:
       - build
     runs-on: ubuntu-latest
     name: Merge and publish ${{ matrix.php_version }}
+    # One publication of a PHP version at a time, whatever the event
+    concurrency:
+      group: publish-v5-${{ matrix.php_version }}
     outputs:
       php_patch_amd64: ${{ steps.patch.outputs.amd64 }}
       php_patch_arm64: ${{ steps.patch.outputs.arm64 }}
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && (contains(fromJSON('["8.5", "8.4", "8.3", "8.2"]'), inputs.php_version) && format('["{0}"]', inputs.php_version) || '[]') || '["8.5", "8.4", "8.3", "8.2"]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7

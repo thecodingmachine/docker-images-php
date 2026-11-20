@@ -3,6 +3,9 @@
 
 ### Minor changes
 
+* **2026-11-20**
+  * Each PHP version is rebuilt within a day when sury publishes new packages, instead of waiting for the weekly build. During a security release, the watch checks every 5 minutes and keeps the state of the images in the description of the issue, with a comment every 30 minutes at most when it changes. See the [security process](docs/security.md)
+
 * **2026-11-19**
   * Security: 17 vulnerabilities fixed in all the v5 images (7 critical: CVE-2026-115560, CVE-2026-126714, CVE-2026-129481, CVE-2026-129496, CVE-2026-129289, CVE-2026-129474, CVE-2026-129182), PHP 8.2.36, 8.3.37, 8.4.28 and 8.5.13, sury backports for PHP 7.4, 8.0 and 8.1. See [Security](docs/security.md)
   * New test checking that the images are not vulnerable to the security release of 2026-11-19

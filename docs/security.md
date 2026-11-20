@@ -5,18 +5,41 @@
 The images take PHP from [Ondřej Surý's packages](https://packages.sury.org/php/). When a security release of PHP is
 announced:
 
-1. An issue is opened on this repository: subscribe to it to be notified, ask your questions there.
-2. The maintainers follow the sury packages and rebuild each PHP version as soon as its fixed packages are published on
-   amd64 **or** arm64, then again when the other arch follows: sury publishes the arm64 packages later, sometimes a day
-   later.
+1. An issue is opened on this repository: subscribe to it to be notified, ask your questions there. Its description
+   gives the state of each image, checked every 5 minutes, and a comment is posted when it changes, every 30 minutes at
+   most.
+2. Each PHP version is rebuilt as soon as its fixed packages are published on amd64 **or** arm64, and rebuilt again
+   when the other arch follows: sury publishes the arm64 packages later, sometimes a day later.
+
+Outside of the security releases, each PHP version is also rebuilt within a day when sury publishes new packages.
 
 The tags of the images:
 
 - `X.Y-v5-*` (e.g. `8.4-v5-apache`) is updated at each build: use it to get the fixes.
-- `X.Y.Z-v5-*` (e.g. `8.4.28-v5-apache`) is only published once amd64 and arm64 have the same PHP version, and never
-  changes afterwards.
+- `X.Y.Z-v5-*` (e.g. `8.4.28-v5-apache`) is the last build of PHP X.Y.Z: it is published once amd64 and arm64 have
+  the same PHP version, then updated by each build until the next PHP version. Use the digest of an image to pin it.
 - PHP 7.4, 8.0 and 8.1 are not maintained: they are rebuilt when sury publishes a fix for them, which keeps the PHP
   version number, without new `X.Y.Z` tag.
+
+## Maintainers: following a security release
+
+[`php-watch.yml`](../.github/workflows/php-watch.yml) checks the packages of sury every day, and launches
+`workflow.yml` and `legacy-v5.yml` for each PHP version whose images do not have them. The schedules of GitHub can
+start hours late: for a security release, launch it by hand the day before, it checks every 5 minutes from `start_at`:
+
+```bash
+$ gh variable set SECURITY_RELEASE --body 1
+$ gh workflow run php-watch.yml --ref v5 -f issue=437 -f start_at="2026-12-17 13:45" -f until="2026-12-19 14:00" \
+    -f fixed="8.5=8.5.14 8.4=8.4.29 8.3=8.3.38 8.2=8.2.37"
+```
+
+- `fixed` gives the fixed versions once they are known (the watch can be launched again with them): the table says
+  fixed or vulnerable instead of up to date. Without `fixed`, the watch stops as soon as the images have the packages
+  of sury.
+- `SECURITY_RELEASE=1` pauses the builds of the pushes, of the pull requests and the weekly build with its purge of
+  the cache: only the rebuilds of the watch publish images. The label `force-ci` runs the CI of a pull request anyway.
+- Afterwards: `gh variable set SECURITY_RELEASE --body 0`, then `gh workflow run workflow.yml --ref v5` to publish the
+  commits merged meanwhile.
 
 ## What to do once your version is fixed
 

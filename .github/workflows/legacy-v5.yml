@@ -1,4 +1,6 @@
 name: Direct build v5 of legacy php
+# Title of the rebuilds of php-watch.sh
+run-name: ${{ inputs.php_version && format('Rebuild PHP {0} (amd64 {1}, arm64 {2})', inputs.php_version, inputs.package_amd64, inputs.package_arm64) || '' }}
 
 on:
   workflow_dispatch:
@@ -21,12 +23,16 @@ concurrency:
   group: ${{ inputs.php_version && format('legacy-{0}', inputs.php_version) || github.run_id }}
   cancel-in-progress: ${{ inputs.php_version && true || false }}
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2", "8.1", "8.0", "7.4"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && (contains(fromJSON('["8.5", "8.4", "8.3", "8.2", "8.1", "8.0", "7.4"]'), inputs.php_version) && format('["{0}"]', inputs.php_version) || '[]') || '["8.5", "8.4", "8.3", "8.2", "8.1", "8.0", "7.4"]') }}
         variant: ['apache','cli','fpm']
         builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
@@ -100,10 +106,13 @@ jobs:
       # Non-maintained PHP versions: all the images. Maintained PHP versions: only the non-maintained NodeJS versions
       BAKE_GROUP: php${{ matrix.php_version }}-${{ matrix.variant }}-${{ contains(fromJSON('["8.1", "8.0", "7.4"]'), matrix.php_version) && 'all' || 'legacy-node' }}
     name: Merge and publish ${{ matrix.php_version }}-${{ matrix.variant }}
+    # One publication of a group of images at a time
+    concurrency:
+      group: publish-legacy-${{ matrix.php_version }}-${{ matrix.variant }}
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2", "8.1", "8.0", "7.4"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && (contains(fromJSON('["8.5", "8.4", "8.3", "8.2", "8.1", "8.0", "7.4"]'), inputs.php_version) && format('["{0}"]', inputs.php_version) || '[]') || '["8.5", "8.4", "8.3", "8.2", "8.1", "8.0", "7.4"]') }}
         variant: ['apache','cli','fpm']
     steps:
       - name: Checkout
@@ -129,6 +138,8 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
       - name: Fetch the patch version of php
+        env:
+          LEGACY_PATCH_SUFFIX: ${{ inputs.legacy_patch_suffix }}
         run: |
           for ARCH in amd64 arm64; do
             IMAGE="ghcr.io/${{ github.repository_owner }}/php:rc${GITHUB_RUN_ID}-${{ matrix.php_version }}-v5-slim-${{ matrix.variant }}-${ARCH}"
@@ -145,7 +156,7 @@ jobs:
           fi
           # The backports of 7.4, 8.0 and 8.1 keep the version number: their X.Y.Z tags need a suffix (e.g. 7.4.33-php2shell)
           if [[ " 7.4 8.0 8.1 " == *" ${{ matrix.php_version }} "* ]]; then
-            SUFFIX="${{ inputs.legacy_patch_suffix }}"
+            SUFFIX="${LEGACY_PATCH_SUFFIX}"
             PHP_PATCH_MINOR="${PHP_PATCH_MINOR:+${SUFFIX:+${PHP_PATCH_MINOR}-${SUFFIX}}}"
           fi
           echo "PHP_PATCH_MINOR=${PHP_PATCH_MINOR}"

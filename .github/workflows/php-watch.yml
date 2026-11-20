@@ -1,0 +1,99 @@
+name: Watch the PHP packages
+
+# Rebuilds each PHP version when sury publishes new packages (see .github/php-watch.sh).
+# - schedule: one pass every day (GitHub may start it hours late).
+# - workflow_dispatch (security release): a pass every 5 minutes from start_at to until, with the table of the images
+#   in the issue. A job lasts 6 hours at most: the watch starts a new run of itself before, and stops.
+on:
+  schedule:
+    - cron: '23 6 * * *'
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 'Issue of the security release: table of the images, digest every 30 minutes when it changes'
+        default: ''
+      fixed:
+        description: 'Fixed versions, e.g. "8.4=8.4.28 8.1=8.1.34-13"'
+        default: ''
+      start_at:
+        description: 'Start of the watch (UTC, e.g. 2026-12-17 13:45), now if empty'
+        default: ''
+      until:
+        description: 'End of the watch (UTC, e.g. 2026-12-19 14:00)'
+        required: true
+      php_versions:
+        description: 'PHP versions to watch, all if empty'
+        default: ''
+      sury_url:
+        description: 'sury repository (tests), https://packages.sury.org/php if empty'
+        default: ''
+      relaunch_after:
+        description: 'Minutes before the watch starts a new run of itself'
+        default: '340'
+
+concurrency:
+  group: php-watch-${{ github.event_name }}
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+  packages: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE: ${{ inputs.issue }}
+      FIXED: ${{ inputs.fixed }}
+      PHP_VERSIONS: ${{ inputs.php_versions }}
+      SURY_URL: ${{ inputs.sury_url }}
+      START_AT: ${{ inputs.start_at }}
+      UNTIL: ${{ inputs.until }}
+      RELAUNCH_AFTER: ${{ inputs.relaunch_after }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Watch
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
+            # The watch of a security release does the passes
+            if [ -n "$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow php-watch.yml --event workflow_dispatch --status in_progress --json databaseId --jq '.[]')" ]; then
+              echo "Watch of a security release in progress"
+              exit 0
+            fi
+            .github/php-watch.sh || [ $? = 3 ]
+            exit 0
+          fi
+
+          NOW=$(date -u +%s)
+          STOP=$(date -u -d "${UNTIL}" +%s)
+          START=$(date -u -d "${START_AT:-now}" +%s)
+          [[ "${RELAUNCH_AFTER}" =~ ^[0-9]+$ ]] && [ "${RELAUNCH_AFTER}" -ge 10 ] && [ "${RELAUNCH_AFTER}" -le 340 ] \
+            || { echo "::error::relaunch_after: 10 to 340 minutes"; exit 1; }
+          [ "${STOP}" -le $((NOW + 7 * 86400)) ] || { echo "::error::until: 7 days from now at most"; exit 1; }
+          RELAUNCH=$((NOW + RELAUNCH_AFTER * 60))
+          while [ "$(date -u +%s)" -lt "${START}" ] && [ "$(date -u +%s)" -lt "${RELAUNCH}" ]; do sleep 60; done
+          while [ "$(date -u +%s)" -lt "${STOP}" ] && [ "$(date -u +%s)" -lt "${RELAUNCH}" ]; do
+            if [ "$(date -u +%s)" -ge "${START}" ]; then
+              echo "Pass of $(date -u '+%H:%M') UTC"
+              RC=0; .github/php-watch.sh || RC=$?
+              # All the images are up to date (and fixed)
+              [ "${RC}" = 0 ] && exit 0
+            fi
+            sleep 300
+          done
+          if [ "$(date -u +%s)" -lt "${STOP}" ]; then
+            echo "Start of a new run of the watch"
+            gh workflow run php-watch.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}" \
+              -f issue="${ISSUE}" -f fixed="${FIXED}" -f start_at="${START_AT}" -f until="${UNTIL}" \
+              -f php_versions="${PHP_VERSIONS}" -f sury_url="${SURY_URL}" -f relaunch_after="${RELAUNCH_AFTER}"
+          fi
