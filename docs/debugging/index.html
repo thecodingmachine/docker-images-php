@@ -1,0 +1,1293 @@
+---
+layout: default
+title: Debugging, profiling, coverage
+wide: true
+description: Start from your needs in development, CI and production, get the fewest tools that cover them, and a ready-to-use configuration for your IDE, your CI and your AI agent.
+---
+<style>
+.lead { color: var(--muted); margin: 0; max-width: 860px; }
+.draft { border-left: 4px solid var(--warn); background: var(--soft); border-radius: 0 8px 8px 0; padding: 8px 14px; font-size: 14px; margin: 14px 0 0; max-width: 860px; }
+.step { display: inline-flex; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; align-items: center; justify-content: center; margin-right: 8px; vertical-align: 2px; }
+section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin: 16px 0; }
+section.panel h2 { font-size: 18px; margin: 0 0 14px; }
+section.panel > h3 { font-size: 15px; margin: 18px 0 6px; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+.hint { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.box { background: var(--soft); border-radius: var(--radius); padding: 12px 14px; }
+.box.off { opacity: 0.45; pointer-events: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chips button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.chips button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.check { display: flex; gap: 10px; align-items: flex-start; background: var(--soft); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; cursor: pointer; }
+.check input { margin-top: 4px; accent-color: var(--accent); }
+.check span small { display: block; color: var(--muted); font-size: 12.5px; }
+.scroll { overflow-x: auto; }
+.meter { display: inline-block; width: 64px; height: 8px; border-radius: 4px; background: var(--line); vertical-align: 1px; margin-right: 6px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); }
+.grid-wrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: start; }
+[data-tip] { position: relative; }
+[data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--panel); font: 12px/1.4 system-ui, sans-serif; font-weight: 400; padding: 4px 8px;
+  border-radius: 6px; white-space: nowrap; z-index: 10; pointer-events: none; text-transform: none; letter-spacing: 0; }
+.alerts { display: grid; gap: 8px; margin-top: 14px; }
+.alert { border-left: 4px solid var(--ok); background: var(--soft); border-radius: 0 8px 8px 0; padding: 8px 14px; font-size: 14px; }
+.alert.warn { border-left-color: var(--warn); }
+.alert.bad { border-left-color: var(--bad); }
+.diagram { overflow-x: auto; }
+.diagram svg { width: 100%; min-width: 760px; height: auto; display: block; }
+.diagram text { font-family: system-ui, sans-serif; fill: var(--ink); font-size: 13px; }
+.diagram .sub { fill: var(--muted); font-size: 11.5px; }
+.diagram .mono { font-family: var(--mono); font-size: 11.5px; }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.col { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-width: 0; }
+.col-head { display: flex; align-items: baseline; gap: 8px; }
+.col-head small { color: var(--muted); }
+.col-head .btn { margin-left: auto; }
+.btn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.usage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.use { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 14px; min-width: 0; }
+.use h3 { margin: 0 0 4px; font-size: 15px; }
+.use pre { font-size: 12px; margin: 6px 0; white-space: pre-wrap; word-break: break-all; }
+body[data-lang=fr] [data-l=en], body:not([data-lang=fr]) [data-l=fr] { display: none !important; }
+.lang { float: right; margin-top: 4px; }
+.needs { display: table; width: 100%; min-width: 900px; font-size: 14px; }
+.needs th.env { text-align: center; }
+.needs th.env small { display: block; font-weight: 400; font-size: 11.5px; }
+.needs td.need b { display: block; }
+.needs td.need small { color: var(--muted); font-size: 12.5px; }
+.needs td.cell { text-align: center; white-space: nowrap; vertical-align: middle; }
+.needs td.na { color: var(--muted); text-align: center; vertical-align: middle; }
+.needs tr.group td { background: var(--soft); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { font: inherit; font-size: 12.5px; border: 0; background: var(--panel); color: var(--ink); padding: 3px 10px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on[data-f=s] { background: color-mix(in srgb, var(--accent) 55%, var(--panel)); color: #fff; }
+.seg button.on[data-f=a] { background: var(--accent); color: #fff; }
+.seg button.on[data-f=n] { background: var(--soft); color: var(--muted); font-weight: 600; }
+.seg button[aria-disabled] { color: var(--line); cursor: not-allowed; }
+.needs label.sub { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink); margin-top: 4px; cursor: pointer; }
+.needs label.sub input { accent-color: var(--accent); margin: 0; }
+.presets { margin: 0 0 12px; }
+.presets .chips { margin-top: 0; }
+.presets .custom { cursor: default; }
+.presetdesc { margin: 6px 0 0; font-size: 13px; }
+.presets [data-tip]:hover::after { white-space: normal; width: 260px; }
+.needs td.hl { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.tool .pinned { font-size: 11px; color: var(--muted); }
+.tool .covers span i { font-style: normal; color: var(--muted); }
+.tool .pc { font-size: 12.5px; }
+.tool .pc .pro { color: var(--ok); }
+.tool .pc .con { color: var(--warn); }
+.swaps { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+.swaps button { font: inherit; font-size: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 1px 10px; cursor: pointer; }
+.swaps button:hover { border-color: var(--accent); color: var(--accent); }
+.swaps [data-tip]:hover::after { white-space: normal; width: 280px; left: 0; transform: none; }
+.swaps button.reset { border-style: dashed; color: var(--muted); }
+.loadline { font-size: 12.5px; color: var(--muted); margin: -2px 0 4px; }
+.loadline b { color: var(--ink); font-weight: 600; }
+.tool.flip { animation: flip 0.5s ease; }
+@keyframes flip { 0% { transform: perspective(600px) rotateY(90deg); opacity: 0.3; } 100% { transform: none; opacity: 1; } }
+.tool p.ai { border-top: 1px dashed var(--line); padding-top: 6px; }
+.tool p.ai b { color: var(--accent); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 4px; }
+.total { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
+.total b { color: var(--ink); font-weight: 600; }
+.textin { display: block; width: 100%; box-sizing: border-box; margin-top: 8px; font: 13px var(--mono); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--panel); color: var(--ink); }
+.chipdesc { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+.mapping { font-family: var(--mono); font-size: 13px; background: var(--soft); border-radius: 8px; padding: 10px 14px; margin: 12px 0 0; line-height: 1.7; white-space: pre-wrap; }
+.mapping .c { color: var(--muted); font-family: system-ui, sans-serif; font-size: 12.5px; }
+.how { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-top: 12px; }
+.how h3 { margin: 0 0 4px; font-size: 15px; }
+.how ol, .how ul { margin: 4px 0; padding-left: 20px; }
+.how li { margin: 3px 0; }
+.prompts li { font-style: italic; }
+.panel pre .c { color: var(--muted); }
+.panel .file pre { margin: 6px 0 8px; font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.panel .file { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-width: 0; margin-top: 12px; }
+.envs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.envc { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 14px; min-width: 0; }
+.envc h3 { margin: 0 0 8px; font-size: 15px; }
+.tool { background: var(--soft); border-radius: 8px; padding: 8px 12px; margin-top: 8px; }
+.tool .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+.tool .head b { font-size: 15px; }
+.tool .covers span { display: inline-block; font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; margin: 4px 4px 0 0; background: var(--panel); }
+.tool .load { font-size: 12px; font-weight: 600; color: var(--accent); margin-left: auto; }
+.tool p { margin: 6px 0 0; font-size: 13px; }
+.tool p.warn { color: var(--warn); }
+.tool p.bad { color: var(--bad); }
+@media (max-width: 1100px) { .envs { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1100px) { .form, .checks, .cols, .grid-wrap { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) { .usage { grid-template-columns: minmax(0, 1fr); } }
+.file .path { font-family: var(--mono); font-size: 13.5px; }
+.ref tr.dim td { color: var(--muted); }
+.ref tr.sel td { background: var(--soft); }
+.ref td { font-size: 13px; }
+h3.env-title { font-size: 15px; margin: 4px 0 8px; }
+h3.env-title ~ h3.env-title { margin-top: 16px; }
+#machine .form { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+#ide .diagram { margin-top: 12px; }
+.tool p.same { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; }
+.tool p.same button, .setup button { font: inherit; font-size: 12px; }
+.tool p.same button { border: 1px solid var(--accent); color: var(--accent); background: var(--panel); border-radius: 999px; padding: 0 10px; cursor: pointer; margin-left: 2px; }
+.peek { margin-top: 6px; font-size: 12.5px; }
+.peek summary { cursor: pointer; color: var(--accent); }
+.shot { margin-top: 8px; min-width: 0; }
+.shot pre { margin: 0; font-size: 11.5px; line-height: 1.5; overflow-x: auto; white-space: pre; }
+.shot .term { background: #1e2230; color: #d8dde8; border-radius: 6px; padding: 8px 10px; }
+.shot .term .ok { color: #7ad48a; } .shot .term .warn { color: #e8b75a; }
+.shot .cap { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+.flame { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px; }
+.flame .row { position: relative; height: 20px; margin-bottom: 2px; }
+.flame .row span { position: absolute; top: 0; bottom: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 11px var(--mono); color: #1d1d1d; padding: 2px 4px; box-sizing: border-box; border-radius: 3px; border-right: 1px solid var(--panel); }
+.flame .k0 { background: #f2a65a; } .flame .k1 { background: #f4bf75; } .flame .k2 { background: #f6d28f; } .flame .k3 { background: #e9875b; } .flame .k4 { background: #f0e0a0; }
+.flame.timeline .k0 { background: #8fb3e8; } .flame.timeline .k1 { background: #a9c5ee; } .flame.timeline .k2 { background: #c2d6f3; }
+.flame.timeline .k3 { background: #9ad1a4; } .flame.timeline .k4 { background: #d7b8ec; }
+.wf { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: 11.5px var(--mono); }
+.wf .row { display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr) 4.5em; gap: 8px; align-items: center; height: 20px; }
+.wf .lbl { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.wf .row:not(:first-child) .lbl { padding-left: 1em; }
+.wf .track { position: relative; height: 12px; }
+.wf .track i { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.wf .ms { text-align: right; color: var(--muted); }
+.wf .k0 { background: #8fb3e8; } .wf .k2 { background: #f2a65a; } .wf .k3 { background: #9ad1a4; } .wf .k4 { background: #d7b8ec; }
+.spx .bar { font: 11.5px var(--mono); background: #2b3a55; color: #fff; padding: 4px 8px; border-radius: 6px 6px 0 0; }
+.spx .flame { border-radius: 0; border-top: 0; }
+.spx .term { border-radius: 0 0 6px 6px; }
+.ide-shot { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.ide-shot pre { padding: 8px; background: var(--panel); }
+.ide-shot .vars { background: var(--soft); border-left: 1px solid var(--line); }
+.ide-shot .ln { display: inline-block; width: 2.2em; color: var(--muted); }
+.ide-shot .ln.bp { color: #fff; background: #d9534f; border-radius: 50%; width: 1.5em; text-align: center; margin-right: 0.7em; }
+.ide-shot .hit { display: inline-block; width: 100%; background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.envc .ide-shot { grid-template-columns: minmax(0, 1fr); }
+.envc .ide-shot .vars { border-left: 0; border-top: 1px solid var(--line); }
+.gallery { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 16px; margin-top: 12px; align-items: start; }
+.gallery .shot { margin-top: 0; }
+.gallery .shot pre { font-size: 12.5px; }
+.facts { margin: 0; font-size: 14px; }
+.facts dt { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 10px; }
+.facts dt:first-child { margin-top: 0; }
+.facts dd { margin: 2px 0 0; }
+.facts .prop { color: var(--warn); }
+.tip { border-left: 3px solid var(--accent); background: var(--soft); border-radius: 0 8px 8px 0; padding: 8px 12px; margin-top: 12px; font-size: 13.5px; }
+.tip b { color: var(--accent); margin-right: 4px; }
+.setup { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+@media (max-width: 860px) { .gallery, .ide-shot { grid-template-columns: minmax(0, 1fr); } }
+.chips.tabs { border-bottom: 1px solid var(--line); gap: 2px; margin-bottom: 12px; }
+.chips.tabs button { border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; background: none; margin-bottom: -1px; padding: 6px 14px; }
+.chips.tabs button.on { border-color: var(--line); background: var(--panel); color: var(--accent); font-weight: 600; }
+</style>
+
+<div class="lang chips" id="lang"><button data-v="en">English</button><button data-v="fr">Français</button></div>
+<h1><span data-l="en">Debugging, profiling, coverage</span><span data-l="fr">Débogage, profilage, couverture</span></h1>
+<p class="lead" data-l="en">The fat images ship a step debugger, two coverage drivers, four profilers and OpenTelemetry,
+  all disabled by default. Start from your needs in development, in the CI and on the live environments: the page picks
+  as few tools as possible, helps you connect your IDE and your AI agent, and writes the configuration of each
+  environment.</p>
+<p class="lead" data-l="fr">Les images fat embarquent un débogueur pas à pas, deux outils de couverture, quatre profileurs
+  et OpenTelemetry, tous désactivés par défaut. Partez de vos besoins en développement, en CI et sur les environnements
+  live : la page choisit le moins d'outils possible, vous aide à brancher votre IDE et votre agent IA, et écrit la
+  configuration de chaque environnement.</p>
+
+<section class="panel" id="needs-panel">
+  <h2><span class="step">1</span><span data-l="en">Your needs</span><span data-l="fr">Vos besoins</span></h2>
+  <p class="hint" style="margin:0 0 10px" data-l="en">Start from a situation, then adjust: how often each need comes up
+    in each environment. Pre-production and production are both live environments: the same answers.</p>
+  <p class="hint" style="margin:0 0 10px" data-l="fr">Partez d'une situation, puis ajustez : à quelle fréquence chaque
+    besoin se présente dans chaque environnement. Préproduction et production sont toutes deux des environnements live :
+    mêmes réponses.</p>
+  <div class="presets" id="presets"></div>
+  <div class="scroll"><table class="needs" id="needs"></table></div>
+</section>
+
+<section class="panel" id="tools-panel">
+  <h2><span class="step">2</span><span data-l="en">The tools for these needs</span><span data-l="fr">Les outils pour ces besoins</span></h2>
+  <p class="hint" style="margin:0 0 10px" data-l="en">As few tools as possible per environment. Xdebug comes in only
+    where nothing else can do the job, and the same tool is preferred from one environment to the next. Under each tool, the other choices:
+    hover one to see what you gain or lose, click it to switch. Each tool in detail: <a href="#tools-detail">step 9</a>.</p>
+  <p class="hint" style="margin:0 0 10px" data-l="fr">Le moins d'outils possible par environnement. Xdebug n'entre que là
+    où aucun autre outil ne sait faire, et le même outil est préféré d'un environnement à l'autre. Sous chaque outil, les autres
+    choix : survolez-en un pour voir ce que vous gagnez ou perdez, cliquez pour changer. Chaque outil en détail : <a href="#tools-detail">étape 9</a>.</p>
+  <div class="envs" id="envs"></div>
+  <p class="total" id="total"></p>
+</section>
+
+<section class="panel" id="machine">
+  <h2><span class="step">3</span><span data-l="en">Your machine</span><span data-l="fr">Votre machine</span></h2>
+  <p class="hint" style="margin:0 0 10px" data-l="en">What the IDE configuration depends on: where Docker runs, which image, and where your code is.</p>
+  <p class="hint" style="margin:0 0 10px" data-l="fr">Ce dont dépend la configuration de l'IDE : où tourne Docker, quelle image, et où se trouve votre code.</p>
+  <div class="form" id="machine-form"></div>
+  <div id="machine-notes"></div>
+</section>
+
+<section class="panel" id="ide">
+  <h2><span class="step">4</span><span data-l="en">Your IDE</span><span data-l="fr">Votre IDE</span></h2>
+  <div id="ide-chips"></div>
+  <p class="chipdesc" id="ide-desc"></p>
+  <div id="ide-setup"></div>
+  <div class="diagram" id="diagram"></div>
+  <div id="ide-files"></div>
+</section>
+
+<section class="panel" id="agent">
+  <h2><span class="step">5</span><span data-l="en">Your AI agent</span><span data-l="fr">Votre agent IA</span></h2>
+  <div id="agent-chips"></div>
+  <div id="agent-files"></div>
+</section>
+
+<section class="panel" id="envconf">
+  <h2><span class="step">6</span><span data-l="en">Configure each environment</span><span data-l="fr">Configurer chaque environnement</span></h2>
+  <div id="env-tabs"></div>
+  <div class="tab" data-tab="dev">
+    <p class="hint" style="margin:0 0 10px" data-l="en">The comments say when to switch each optional line on or off.</p>
+    <p class="hint" style="margin:0 0 10px" data-l="fr">Les commentaires disent quand activer ou désactiver chaque ligne optionnelle.</p>
+    <div id="dev-files"></div>
+  </div>
+  <div class="tab" data-tab="ci">
+    <div id="ci-chips"></div>
+    <div id="ci-files"></div>
+  </div>
+  <div class="tab" data-tab="live">
+    <p class="hint" style="margin:0 0 10px" data-l="en">The image carries the settings; the secrets and the addresses are given at runtime.</p>
+    <p class="hint" style="margin:0 0 10px" data-l="fr">L'image porte les réglages ; les secrets et les adresses sont fournis à l'exécution.</p>
+    <div id="live-files"></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><span class="step">7</span><span data-l="en">Use it</span><span data-l="fr">Au quotidien</span></h2>
+  <div id="usage"></div>
+</section>
+
+<section class="panel">
+  <h2><span class="step">8</span><span data-l="en">Reference</span><span data-l="fr">Référence</span></h2>
+  <p class="hint" style="margin:0 0 10px" data-l="en">The variables of your tools are highlighted.</p>
+  <p class="hint" style="margin:0 0 10px" data-l="fr">Les variables de vos outils sont mises en avant.</p>
+  <div class="scroll"><table id="ref" class="ref"></table></div>
+</section>
+
+<section class="panel" id="tools-detail">
+  <h2><span class="step">9</span><span data-l="en">The tools in detail</span><span data-l="fr">Les outils en détail</span></h2>
+  <p class="hint" style="margin:0 0 10px" data-l="en">Pick a tool to see what it does and what it looks like. The screens are illustrative examples.</p>
+  <p class="hint" style="margin:0 0 10px" data-l="fr">Choisissez un outil pour voir ce qu'il fait et à quoi il ressemble. Les écrans sont des exemples illustratifs.</p>
+  <div id="gallery-chips"></div>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+{% raw %}
+<script>
+'use strict';
+// Needs: per environment, def = default frequency (n never, s sometimes, a always), off = { frequency: reason } for the
+// frequencies that make no sense; no entry for an environment = not relevant, na = the reason
+const T = (en, fr) => ({ en, fr });
+const ENVS = [
+  { id: 'dev', name: T('Development', 'Développement'), sub: T('your machine', 'votre machine') },
+  { id: 'ci', name: T('CI', 'CI'), sub: T('tests, pipelines', 'tests, pipelines') },
+  { id: 'live', name: T('Live', 'Live'), sub: T('pre-production, production', 'préproduction, production') },
+];
+const FREQ = [['n', T('Never', 'Jamais')], ['s', T('Sometimes', 'Parfois')], ['a', T('Always', 'Toujours')]];
+const NEEDS = [
+  { id: 'step', short: T('step debugging', 'pas à pas'),
+    text: T('Step through the code', 'Exécuter le code pas à pas'),
+    hint: T('Breakpoints, variable inspection, call stack.', "Points d'arrêt, inspection des variables, pile d'appels."),
+    dev: { def: 's' },
+    na: { ci: T('Nobody drives a debugger in a pipeline', 'Personne ne pilote un débogueur dans un pipeline'),
+      live: T('No IDE connects to a live server', 'Aucun IDE ne se connecte à un serveur live') } },
+  { id: 'time', short: T('time per function', 'temps par fonction'),
+    text: T('Profile the execution time per function', "Profiler le temps d'exécution par fonction"),
+    hint: T('The most expensive functions of a request or a command.', "Les fonctions les plus coûteuses d'une requête ou d'une commande."),
+    dev: { def: 'n' }, live: { def: 'n' },
+    na: { ci: T('Timings vary too much between CI runners', "Les temps varient trop d'un runner CI à l'autre") } },
+  { id: 'mem', short: T('memory and calls', 'mémoire et appels'),
+    text: T('Measure memory allocation and call counts per function', "Mesurer la mémoire allouée et le nombre d'appels par fonction"),
+    hint: T('Deterministic figures: compare two versions, find a leak.', 'Valeurs déterministes : comparer deux versions, trouver une fuite.'),
+    dev: { def: 'n' }, ci: { def: 'n' },
+    live: { def: 'n', off: { a: T('Recording every call slows every request', 'Enregistrer chaque appel ralentit chaque requête') } } },
+  { id: 'traces', short: T('traces', 'traces'),
+    text: T('Trace the requests: duration, SQL queries, HTTP calls', 'Tracer les requêtes : durée, requêtes SQL, appels HTTP'),
+    hint: T('Across the services, request by request.', 'À travers les services, requête par requête.'),
+    dev: { def: 'n' }, live: { def: 'n' },
+    na: { ci: T('No real traffic to observe', 'Pas de trafic réel à observer') } },
+  { id: 'cov', short: T('coverage', 'couverture'),
+    text: T('Measure the code coverage of the tests', 'Mesurer la couverture de code des tests'),
+    hint: T('Lines run by the tests.', 'Lignes exécutées par les tests.'),
+    dev: { def: 's' }, ci: { def: 'a' },
+    na: { live: T('Tests do not run on live environments', 'Les tests ne tournent pas en live') } },
+];
+// In the CI, a need is met by every pipeline or not at all
+const CI_FREQ = 'na';
+const freq = {};
+const opts = { branch: false };
+NEEDS.forEach(n => ENVS.forEach(e => { if (n[e.id]) freq[n.id + '.' + e.id] = n[e.id].def; }));
+const f = (need, env) => freq[need + '.' + env] || 'n';
+const on = (need, env) => f(need, env) !== 'n';
+
+function renderNeeds() {
+  let h = '<tr><th></th>' + ENVS.map(e => `<th class="env">${L(e.name)}<small>${L(e.sub)}</small></th>`).join('') + '</tr>';
+  for (const n of NEEDS) {
+    h += `<tr><td class="need"><b>${esc(L(n.text))}</b><small>${esc(L(n.hint))}</small>`;
+    if (n.id === 'cov') h += `<br><label class="sub"><input type="checkbox" id="opt-branch"${opts.branch ? ' checked' : ''}>${L(T('Branches and paths too', 'Aussi les branches et les chemins'))}</label>`;
+    h += '</td>';
+    for (const e of ENVS) {
+      const d = n[e.id];
+      if (!d) { h += `<td class="na"><span data-tip="${esc(L(n.na[e.id]))}">—</span></td>`; continue; }
+      const cur = freq[n.id + '.' + e.id];
+      h += `<td class="cell" data-cell="${n.id}.${e.id}"><span class="seg" data-k="${n.id}.${e.id}">` + FREQ.filter(([v]) => e.id !== 'ci' || CI_FREQ.includes(v)).map(([v, label]) => {
+        const off = d.off && d.off[v];
+        return `<button data-f="${v}" class="${cur === v ? 'on' : ''}"${off ? ` aria-disabled="true" data-tip="${esc(L(off))}"` : ''}>${L(label)}</button>`;
+      }).join('') + '</span></td>';
+    }
+    h += '</tr>';
+  }
+  $('needs').innerHTML = h;
+}
+
+// Situations: preset answers; the other cells are Never
+const PRESETS = [
+  { id: 'standard', name: T('Standard', 'Standard'),
+    desc: T('Usual development, the CI measures the coverage, production runs without tool.', 'Développement classique, la CI mesure la couverture, la production tourne sans outil.'),
+    freq: { 'step.dev': 's', 'cov.dev': 's', 'cov.ci': 'a' } },
+  { id: 'power', name: T('Power user', 'Power user'), branch: true,
+    desc: T('A custom CI tracks the coverage and the memory between branches; traces in production.', 'Une CI sur mesure suit la couverture et la mémoire entre les branches ; traces en production.'),
+    freq: { 'step.dev': 's', 'time.dev': 's', 'mem.dev': 's', 'cov.dev': 's', 'cov.ci': 'a', 'mem.ci': 'a', 'traces.live': 'a' } },
+  { id: 'panic', name: T('Panic room', 'Panic room'),
+    desc: T('Production has problems: observe them live, reproduce them locally.', 'La production a des problèmes : on les observe en live, on les reproduit en local.'),
+    freq: { 'step.dev': 's', 'time.dev': 's', 'mem.dev': 's', 'traces.dev': 's', 'cov.ci': 'a', 'time.live': 'a', 'mem.live': 's', 'traces.live': 'a' } },
+  { id: 'perf', name: T('Performance audit', 'Audit de perf'),
+    desc: T('Locally, measure everything to find the bottlenecks.', 'En local, on mesure tout pour trouver les goulots.'),
+    freq: { 'time.dev': 'a', 'mem.dev': 'a', 'traces.dev': 's', 'cov.ci': 'a' } },
+  { id: 'call', name: T('Audit of a call', "Audit d'un appel"),
+    desc: T('One precise call, stepped through and profiled.', 'Un appel précis, exécuté pas à pas et profilé.'),
+    freq: { 'step.dev': 'a', 'time.dev': 's', 'mem.dev': 's', 'cov.ci': 'a' } },
+];
+function applyPreset(p) {
+  NEEDS.forEach(n => ENVS.forEach(e => { if (n[e.id]) freq[n.id + '.' + e.id] = p.freq[n.id + '.' + e.id] || 'n'; }));
+  opts.branch = !!p.branch;
+  for (const k of Object.keys(pins)) pins[k] = [];
+}
+const currentPreset = () => PRESETS.find(p => !!p.branch === opts.branch &&
+  NEEDS.every(n => ENVS.every(e => !n[e.id] || freq[n.id + '.' + e.id] === (p.freq[n.id + '.' + e.id] || 'n'))));
+
+// What each tool covers: quality per need (3 best), environments, frequencies it supports there
+const CAN = {
+  Xdebug: { step: 3, cov: 1, time: 1, mem: 1, envs: ['dev', 'ci'], lastResort: true },
+  PCOV: { cov: 3, envs: ['dev', 'ci'], linesOnly: true },
+  Excimer: { time: 3, envs: ['dev', 'live'] },
+  XHProf: { time: 2, mem: 3, envs: ['dev', 'ci', 'live'], liveOnDemand: true },
+  SPX: { time: 3, mem: 3, envs: ['dev'] },
+  Blackfire: { time: 3, mem: 3, envs: ['dev', 'ci', 'live'], paid: true },
+  OpenTelemetry: { traces: 3, envs: ['dev', 'live'] },
+};
+const PROS = {
+  Xdebug: [T('The only step debugger; also coverage of the branches', 'Le seul débogueur pas à pas ; couvre aussi les branches'),
+    T('Slows every request while loaded; distorted profiles', 'Ralentit chaque requête tant qu\'il est chargé ; profils faussés')],
+  PCOV: [T('Coverage several times faster', 'Couverture plusieurs fois plus rapide'), T('Lines only, no branches', 'Lignes seulement, pas les branches')],
+  Excimer: [T('Negligible overhead, usable in production', 'Surcoût négligeable, utilisable en production'), T('Sampling: approximate, no memory', 'Échantillonnage : approximatif, sans la mémoire')],
+  XHProf: [T('Exact call counts and memory, text summary', "Nombre d'appels et mémoire exacts, résumé texte"), T('Slows the recorded requests', 'Ralentit les requêtes enregistrées')],
+  SPX: [T('Web UI: flame graph, timeline, metrics', 'Interface web : flame graph, timeline, métriques'), T('Development only: its UI must not be exposed', "Développement seulement : son interface ne doit pas être exposée")],
+  Blackfire: [T('Comparisons, history, CI assertions, monitoring', 'Comparaisons, historique, assertions en CI, monitoring'), T('Paid, needs an account and an agent container', 'Payant, demande un compte et un conteneur agent')],
+  OpenTelemetry: [T('Traces across the services: SQL, HTTP, durations', 'Traces à travers les services : SQL, HTTP, durées'), T('No detail per function', 'Aucun détail par fonction')],
+};
+// How an AI agent uses a tool for a need, in development
+const AI_USE = {
+  step: T('drives the debugging sessions through the MCP server of the IDE', "pilote les sessions de débogage via le serveur MCP de l'IDE"),
+  cov: T('runs phpunit --coverage-text and reads the result', 'lance phpunit --coverage-text et lit le résultat'),
+  prof: T('runs php-profile, then reads var/profiles/*.summary.txt', 'lance php-profile, puis lit var/profiles/*.summary.txt'),
+  SPX: T('reads the flat profile printed by php-profile', 'lit le profil à plat affiché par php-profile'),
+  Blackfire: T('runs the blackfire CLI, with your credentials', 'utilise la CLI blackfire, avec vos identifiants'),
+  traces: T('queries the API of the local Jaeger', "interroge l'API du Jaeger local"),
+};
+const pins = { dev: [], ci: [], live: [] };
+let reuse = new Set();
+
+function canCover(tool, need, env) {
+  const c = CAN[tool];
+  if (!c[need] || !c.envs.includes(env)) return false;
+  if (need === 'cov' && c.linesOnly && opts.branch) return false;
+  if (env === 'live' && c.liveOnDemand && f(need, env) === 'a') return false;
+  return true;
+}
+
+// Smallest set of tools covering the needs of an environment, pinned tools first, then the best quality
+function plan(env) {
+  const needs = NEEDS.filter(n => n[env] && on(n.id, env)).map(n => n.id);
+  if (!needs.length) return [];
+  // A choice that covers no need any more is dropped; the latest choices win
+  pins[env] = pins[env].filter(x => needs.some(n => canCover(x, n, env)));
+  for (;;) {
+    const r = cover(env, needs, pins[env]);
+    if (r || !pins[env].length) return r || [];
+    pins[env].shift();
+  }
+}
+function cover(env, needs, pinned) {
+  const tools = Object.keys(CAN).filter(x => CAN[x].envs.includes(env) && (!CAN[x].paid || pinned.includes(x)));
+  let best = null;
+  for (let mask = 1; mask < 1 << tools.length; mask++) {
+    const set = tools.filter((_, i) => mask & (1 << i));
+    if (!pinned.every(p => set.includes(p))) continue;
+    if (!needs.every(n => set.some(x => canCover(x, n, env)))) continue;
+    // Every tool must be useful: assign each need to a pinned tool if possible, else to the best one
+    const assign = {};
+    for (const n of needs) {
+      let c = set.filter(x => canCover(x, n, env));
+      // Xdebug takes a need only when no other tool of the environment can, unless it is your choice
+      if (!pinned.includes('Xdebug') && tools.some(x => x !== 'Xdebug' && canCover(x, n, env))) c = c.filter(x => x !== 'Xdebug');
+      if (!c.length) { assign[n] = null; continue; }
+      const mine = [...pinned].reverse().find(x => c.includes(x));
+      assign[n] = mine || c.sort((a, b) => CAN[b][n] - CAN[a][n])[0];
+    }
+    if (Object.values(assign).includes(null) || set.some(x => !Object.values(assign).includes(x))) continue;
+    // Quality of the assignment; a tool already used in another environment counts a little more: one tool less to learn
+    const quality = needs.reduce((s, n) => s + CAN[assign[n]][n], 0) + set.filter(x => reuse.has(x)).length * 1.5;
+    const score = [set.length, -quality];
+    if (!best || score[0] < best.score[0] || (score[0] === best.score[0] && score[1] < best.score[1])) best = { set, assign, score };
+  }
+  if (!best) return null;
+  return best.set.map(tool => {
+    const covers = needs.filter(n => best.assign[n] === tool);
+    return { tool, covers, level: covers.some(n => f(n, env) === 'a') ? 'a' : 's', pinned: pinned.includes(tool) };
+  });
+}
+
+function why(o, env) {
+  const c = o.covers;
+  if (o.tool === 'Xdebug') {
+    if (c.includes('step')) return o.level === 'a' && f('step', env) === 'a'
+      ? T('Always loaded; a session starts on a trigger.', 'Toujours chargé ; une session démarre sur déclencheur.')
+      : T('Off by default: start the container with XDEBUG=1 when you need it.', 'Désactivé par défaut : démarrez le conteneur avec XDEBUG=1 quand vous en avez besoin.');
+    return T('Loaded for one run, in the mode of the need (coverage, profile).', "Chargé le temps d'une exécution, dans le mode du besoin (coverage, profile).");
+  }
+  if (o.tool === 'PCOV') return env === 'ci' ? T('Enabled in the job of the tests.', 'Activé dans le job des tests.') : T('Enabled for one PHPUnit run.', "Activé le temps d'une exécution de PHPUnit.");
+  if (o.tool === 'Excimer') return o.level === 'a' && env === 'live'
+    ? T('Continuous profiling: samples a small share of the requests.', 'Profilage continu : échantillonne une petite part des requêtes.')
+    : T('Idle until a request or a command carries the profiling trigger.', "Inactif tant qu'une requête ou une commande ne porte pas le déclencheur de profilage.");
+  if (o.tool === 'XHProf') return env === 'ci' ? T('Profiles a benchmark command and compares it with the main branch.', 'Profile une commande de benchmark et la compare avec la branche principale.')
+    : env === 'live' ? T('Idle until a request carries the secret trigger.', "Inactif tant qu'une requête ne porte pas le déclencheur secret.")
+    : T('Idle until a request or a command carries the profiling trigger.', "Inactif tant qu'une requête ou une commande ne porte pas le déclencheur de profilage.");
+  if (o.tool === 'SPX') return T('Profiles from its web UI, or on a trigger.', 'Profile depuis son interface web, ou sur déclencheur.');
+  if (o.tool === 'Blackfire') return T('Probe in the container, agent next to it.', 'Sonde dans le conteneur, agent à côté.');
+  return env === 'live' ? T('Sends the traces to your observability stack.', "Envoie les traces à votre outil d'observabilité.") : T('Sends the traces to a local Jaeger.', 'Envoie les traces à un Jaeger local.');
+}
+
+function warn(o, env, all) {
+  if (o.tool === 'Xdebug' && o.covers.includes('step') && f('step', env) === 'a') {
+    const prof = all.find(x => x !== o && (x.covers.includes('time') || x.covers.includes('mem')));
+    if (prof) return [prof.tool === 'Blackfire' ? 'bad' : 'warn', prof.tool === 'Blackfire'
+      ? T('Never with Blackfire: answer Sometimes for step debugging.', 'Jamais avec Blackfire : répondez Parfois pour le pas à pas.')
+      : T(`Distorts the profiles of ${prof.tool}: answer Sometimes for step debugging.`, `Fausse les profils de ${prof.tool} : répondez Parfois pour le pas à pas.`)];
+  }
+  if (o.tool === 'Xdebug' && (o.covers.includes('time') || o.covers.includes('mem')))
+    return ['warn', T('Its profiles are the least accurate: prefer a profiler below.', 'Ses profils sont les moins fidèles : préférez un profileur ci-dessous.')];
+  return null;
+}
+
+function aiLine(o) {
+  const parts = o.covers.map(n => n === 'time' || n === 'mem' ? (AI_USE[o.tool] || AI_USE.prof) : AI_USE[n]);
+  return [...new Set(parts.map(p => L(p)))].join(' ; ');
+}
+
+// Another environment covers the same need with a tool that could take over every need of this card: suggest it, unless
+// this tool is your choice; Xdebug is never suggested
+function sameHint(o, env) {
+  if (o.pinned) return '';
+  const seen = new Map();
+  for (const e of ENVS) {
+    if (e.id === env) continue;
+    for (const n of o.covers) {
+      const other = toolFor(e.id, n);
+      if (other && other.tool !== o.tool && other.tool !== 'Xdebug' && o.covers.every(m => canCover(other.tool, m, env)) && !seen.has(other.tool)) seen.set(other.tool, e);
+    }
+  }
+  return [...seen].map(([x, e]) => `<p class="same">${L(T(`${L(e.name)} uses ${x}. The same tool everywhere: one tool to learn, comparable results.`,
+    `${L(e.name)} : ${x}. Un même outil partout : un seul à apprendre, des résultats comparables.`))} ` +
+    `<button data-pick="${x}" data-env="${env}">${L(T(`${x} here too`, `${x} ici aussi`))}</button></p>`).join('');
+}
+
+// Cards flip when the needs change what they cover, not when you switch a tool yourself
+let shown = {}, picked = false;
+const peekOpen = new Set();
+const needIndex = (o) => Math.min(...o.covers.map(n => NEEDS.findIndex(x => x.id === n)));
+function renderTools() {
+  const per = ENVS.map(e => [e, [...plans[e.id]].sort((a, b) => needIndex(a) - needIndex(b))]);
+  const all = [...new Set(per.flatMap(([, r]) => r.map(o => o.tool)))];
+  $('total').innerHTML = all.length
+    ? L(T(`In all, across the environments: ${all.length === 1 ? '1 tool' : all.length + ' tools'}, `, `Au total, sur l'ensemble des environnements : ${all.length === 1 ? '1 outil' : all.length + ' outils'}, `)) + all.map(x => `<b>${esc(x)}</b>`).join(', ') + '.'
+    : L(T('No tool: nothing loaded, nothing slowed down.', 'Aucun outil : rien de chargé, rien de ralenti.'));
+  const LOAD = { a: T('all the time', 'en permanence'), s: T('when needed', 'au besoin') };
+  const FR = { s: T('sometimes', 'parfois'), a: T('always', 'toujours') };
+  const now = {};
+  $('envs').innerHTML = per.map(([e, r]) => {
+    const perm = r.filter(o => o.level === 'a').map(o => o.tool), dem = r.filter(o => o.level === 's').map(o => o.tool);
+    let h = `<div class="envc" data-env="${e.id}"><h3>${L(e.name)}</h3>`;
+    if (r.length) h += `<p class="loadline">${L(T('Loaded all the time:', 'Chargés en permanence :'))} <b>${perm.join(', ') || L(T('none', 'aucun'))}</b>` +
+      (dem.length ? ` · ${L(T('when needed:', 'au besoin :'))} <b>${dem.join(', ')}</b>` : '') + '</p>';
+    h += r.length ? r.map(o => {
+      for (const n of o.covers) now[e.id + ':' + n] = o.tool;
+      const flip = !picked && o.covers.some(n => shown[e.id + ':' + n] && shown[e.id + ':' + n] !== o.tool);
+      const w = warn(o, e.id, r);
+      const alts = Object.keys(CAN).filter(x => x !== o.tool && !r.some(y => y.tool === x) && o.covers.some(n => canCover(x, n, e.id)));
+      const tip = (x) => `${x}: ${o.covers.filter(n => canCover(x, n, e.id)).map(n => L(NEEDS.find(y => y.id === n).short)).join(', ')} · + ${L(PROS[x][0])} · − ${L(PROS[x][1])}`;
+      return `<div class="tool${flip ? ' flip' : ''}" data-tool="${o.tool}" data-cells="${o.covers.map(n => n + '.' + e.id).join(' ')}">` +
+        `<div class="head"><b>${esc(o.tool)}</b>${o.pinned ? `<span class="pinned">${L(T('your choice', 'votre choix'))}</span>` : ''}<span class="load">${L(LOAD[o.level])}</span></div>` +
+        `<div class="covers">${o.covers.map(n => `<span>${esc(L(NEEDS.find(x => x.id === n).short))} <i>· ${L(FR[f(n, e.id)])}</i></span>`).join('')}</div>` +
+        `<p>${esc(L(why(o, e.id)))}</p>` + (w ? `<p class="${w[0]}">${esc(L(w[1]))}</p>` : '') +
+        `<p class="pc"><span class="pro">+ ${esc(L(PROS[o.tool][0]))}</span><br><span class="con">− ${esc(L(PROS[o.tool][1]))}</span></p>` +
+        (e.id === 'dev' ? `<p class="ai"><b>${L(T('AI agent', 'Agent IA'))}</b>${esc(aiLine(o))}</p>` : '') +
+        sameHint(o, e.id) +
+        (alts.length || o.pinned ? `<div class="swaps">${L(T('Or:', 'Ou :'))}` +
+          alts.map(x => `<button data-pick="${x}" data-env="${e.id}" data-tip="${esc(tip(x))}">${esc(x)}</button>`).join('') +
+          (o.pinned ? `<button class="reset" data-unpin="${o.tool}" data-env="${e.id}">${L(T('automatic choice', 'choix automatique'))}</button>` : '') + '</div>' : '') +
+        `<details class="peek" data-peek="${e.id}:${o.tool}"${peekOpen.has(e.id + ':' + o.tool) ? ' open' : ''}><summary>${L(T('What it looks like', 'À quoi ça ressemble'))}</summary>${shot(o.tool)}</details>` +
+        '</div>';
+    }).join('') : `<p class="hint">${L(T('Nothing to load.', 'Rien à charger.'))}</p>`;
+    return h + '</div>';
+  }).join('');
+  shown = now;
+  picked = false;
+}
+
+function renderPresets() {
+  const cur = currentPreset();
+  $('presets').innerHTML = `<div class="chips">${PRESETS.map(p => `<button data-preset="${p.id}" class="${cur === p ? 'on' : ''}" data-tip="${esc(L(p.desc))}">${esc(L(p.name))}</button>`).join('')}` +
+    (cur ? '' : `<button class="on custom">${L(T('Custom', 'Personnalisé'))}</button>`) + '</div>' +
+    `<p class="hint presetdesc">${esc(L(cur ? cur.desc : T('Your own answers below.', 'Vos propres réponses ci-dessous.')))}</p>`;
+}
+
+const $ = (id) => document.getElementById(id);
+let lang = 'en';
+const L = (o) => (o && typeof o === 'object' ? o[lang] : o);
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// A comment line of a configuration file, in the language of the page
+const c = (o, prefix = '# ') => `<span class="c">${esc(prefix + L(o))}</span>`;
+const cx = (o) => `<span class="c">${esc('<' + '!-- ' + L(o) + ' --' + '>')}</span>`;
+// Lines of an XML or JSON file: comments are already HTML, the rest is escaped
+const code = (lines) => lines.map(l => (l.trimStart().startsWith('<span class="c">') ? l : esc(l))).join('\n') + '\n';
+
+// Plan of each environment, computed once per render
+let plans = { dev: [], ci: [], live: [] };
+const toolFor = (env, need) => plans[env].find(o => o.covers.includes(need));
+const profilerOf = (env) => plans[env].find(o => o.covers.includes('time') || o.covers.includes('mem'));
+const used = () => new Set(ENVS.flatMap(e => plans[e.id].map(o => o.tool)));
+const writesProfiles = (env) => { const p = profilerOf(env); return p && ['Excimer', 'XHProf', 'Xdebug'].includes(p.tool); };
+
+// What the needs cannot tell: the machine, the IDE, the agent, the CI
+const ctx = { os: 'linux', docker: 'engine', variant: 'apache', dir: '.', ide: 'phpstorm', setup: 'ui', agent: 'none', ci: 'github', tab: 'dev' };
+const DEFAULTS = { ...ctx };
+const CHOICES = {
+  os: [['linux', 'Linux'], ['mac', 'macOS'], ['win', 'Windows']],
+  docker: () => ({
+    linux: [['engine', 'Docker Engine'], ['desktop', 'Docker Desktop']],
+    mac: [['desktop', 'Docker Desktop'], ['orbstack', 'OrbStack']],
+    win: [['desktop', 'Docker Desktop'], ['wsl', T('Docker Engine in WSL2', 'Docker Engine dans WSL2')]],
+  })[ctx.os],
+  variant: [['apache', 'apache'], ['fpm', 'fpm'], ['cli', 'cli']],
+  ide: [['phpstorm', 'PhpStorm'], ['vscode', 'VS Code'], ['devcontainer', T('VS Code in the container (Dev Containers)', 'VS Code dans le conteneur (Dev Containers)')], ['other', T('Another one', 'Un autre')]],
+  setup: [['ui', T('Through the menus', 'Par les menus')], ['files', T('Files to copy', 'Fichiers à copier')]],
+  agent: [['none', T('None', 'Aucun')], ['claude', 'Claude Code'], ['codex', 'Codex'], ['other', T('Another one (Cursor, Copilot…)', 'Un autre (Cursor, Copilot…)')]],
+  ci: [['github', 'GitHub Actions'], ['gitlab', 'GitLab CI']],
+  tab: [['dev', T('Local development', 'Développement local')], ['ci', T('CI', 'CI')], ['live', T('Pre-production and production', 'Préproduction et production')]],
+};
+const values = (k) => (typeof CHOICES[k] === 'function' ? CHOICES[k]() : CHOICES[k]);
+const chips = (k) => `<div class="chips" data-ctx="${k}">` +
+  values(k).map(([v, l]) => `<button data-v="${v}" class="${ctx[k] === v ? 'on' : ''}">${esc(L(l))}</button>`).join('') + '</div>';
+const cleanDir = (v) => String(v || '').trim().replace(/^\.\/+/, '').replace(/\/+$/, '').replace(/[^\w./-]/g, '') || '.';
+
+const IMAGE = (variant) => 'thecodingmachine/php:8.4-v5-' + variant;
+const web = () => ctx.variant !== 'cli';
+const sub = () => (ctx.dir === '.' ? '' : '/' + ctx.dir);
+const hostDir = () => (ctx.dir === '.' ? '.' : './' + ctx.dir);
+const prefix = () => (ctx.dir === '.' ? '' : ctx.dir + '/');
+const gateway = () => ['engine', 'wsl'].includes(ctx.docker);
+const clientHost = () => (ctx.ide === 'devcontainer' ? '127.0.0.1' : gateway() ? 'xdebug://gateway' : 'host.docker.internal');
+const AGENT_NAME = () => ({ claude: 'Claude Code', codex: 'Codex', other: L(T('Your agent', 'Votre agent')) })[ctx.agent];
+
+const howBox = (title, items, tag = 'ol') => `<div class="how"><h3>${esc(L(title))}</h3><${tag}>${items.filter(Boolean).map(i => `<li>${L(i)}</li>`).join('')}</${tag}></div>`;
+function block(path, sub, body) {
+  return `<div class="file"><div class="col-head"><b class="path">${esc(path)}</b> <small>${esc(L(sub))}</small><button class="btn copy">${L(T('Copy', 'Copier'))}</button></div><pre>${body}</pre></div>`;
+}
+
+// ---------------------------------------------------------------- 3. Your machine
+function renderMachine() {
+  const box = (label, inner, hint) => `<div class="box"><div class="label">${esc(L(label))}</div>${inner}${hint ? `<p class="hint">${L(hint)}</p>` : ''}</div>`;
+  const DOCKER_HINT = {
+    engine: T('Xdebug reaches the IDE through the gateway of the Docker network.', "Xdebug joint l'IDE par la passerelle du réseau Docker."),
+    desktop: T('Xdebug reaches the IDE through <code>host.docker.internal</code>.', "Xdebug joint l'IDE par <code>host.docker.internal</code>."),
+    orbstack: T('Xdebug reaches the IDE through <code>host.docker.internal</code>.', "Xdebug joint l'IDE par <code>host.docker.internal</code>."),
+    wsl: T('Run the IDE in WSL too (JetBrains Gateway, VS Code WSL): Xdebug then reaches it through the gateway, as on Linux.',
+      "Lancez aussi l'IDE dans WSL (JetBrains Gateway, VS Code WSL) : Xdebug le joint alors par la passerelle, comme sous Linux."),
+  };
+  $('machine-form').innerHTML =
+    box(T('System', 'Système'), chips('os')) +
+    box(T('Docker', 'Docker'), chips('docker'), toolFor('dev', 'step') ? DOCKER_HINT[ctx.docker] : null) +
+    box(T('Variant of the image', "Variante de l'image"), chips('variant'),
+      T('<i>apache</i> and <i>fpm</i> serve pages, <i>cli</i> only runs commands.', '<i>apache</i> et <i>fpm</i> servent des pages, <i>cli</i> ne lance que des commandes.')) +
+    box(T('Folder of your PHP code, from the root of the repository', 'Dossier de votre code PHP, depuis la racine du dépôt'),
+      `<input class="textin" data-ctx-in="dir" value="${esc(ctx.dir)}" placeholder="." spellcheck="false">`,
+      T('The folder of <code>composer.json</code>: <code>.</code>, <code>app</code>, <code>src/api</code>…', 'Le dossier de <code>composer.json</code> : <code>.</code>, <code>app</code>, <code>src/api</code>…'));
+  const d = hostDir(), rows = [[d, '⇄', '/var/www/html', T('mounted in the container, and mapped in the IDE', "monté dans le conteneur, et associé dans l'IDE")]];
+  const w = Math.max(...rows.map(r => r[0].length)) + 2;
+  $('machine-notes').innerHTML = `<div class="mapping">${rows.map(([l, s, r, t]) => esc(l.padEnd(w)) + s + '  ' + esc(r.padEnd(24)) + c(t, '')).join('\n')}</div>` +
+    `<div class="tip"><b>${L(T('Tip', 'Conseil'))}</b> ${L(T('Mount the folder that holds <code>composer.json</code>, even when the web root is a subfolder such as <code>public/</code> (Symfony, Laravel; it is only an example): the commands (<code>bin/console</code>, <code>vendor/bin/phpunit</code>) then run from <code>/var/www/html</code> too, and the web server serves the subfolder. The IDE maps this same folder to <code>/var/www/html</code> to open the right file on a breakpoint: with a wrong mapping, the breakpoints never stop.',
+      'Montez le dossier qui contient <code>composer.json</code>, même quand la racine web est un sous-dossier comme <code>public/</code> (Symfony, Laravel ; ce n\'est qu\'un exemple) : les commandes (<code>bin/console</code>, <code>vendor/bin/phpunit</code>) tournent alors aussi depuis <code>/var/www/html</code>, et le serveur web sert le sous-dossier. L\'IDE associe ce même dossier à <code>/var/www/html</code> pour ouvrir le bon fichier sur un point d\'arrêt : avec une association fausse, les points d\'arrêt ne s\'arrêtent jamais.'))}</div>`;
+}
+
+// ---------------------------------------------------------------- 4. Your IDE
+const IDE_DESC = {
+  phpstorm: T('PhpStorm on your machine, PHP in the container. The files and the menus give the same settings, stored in <code>.idea/</code>: shared with the team if you commit it.',
+    "PhpStorm sur votre machine, PHP dans le conteneur. Les fichiers et les menus donnent les mêmes réglages, rangés dans <code>.idea/</code> : partagés avec l'équipe si vous le versionnez."),
+  vscode: T('VS Code on your machine, PHP in the container, with the <i>PHP Debug</i> extension.', "VS Code sur votre machine, PHP dans le conteneur, avec l'extension <i>PHP Debug</i>."),
+  devcontainer: T('The <i>Dev Containers</i> extension reopens the project inside the <code>app</code> container: the window stays on your machine, the terminal, PHP and the extensions run in the container. No path mapping: Xdebug connects to <code>127.0.0.1</code>.',
+    "L'extension <i>Dev Containers</i> rouvre le projet dans le conteneur <code>app</code> : la fenêtre reste sur votre machine, le terminal, PHP et les extensions tournent dans le conteneur. Pas d'association de chemins : Xdebug se connecte à <code>127.0.0.1</code>."),
+  other: T('Any IDE that speaks DBGp: listen on port 9003 and map the folder of your code to <code>/var/www/html</code>.',
+    "Tout IDE qui parle DBGp : écoutez sur le port 9003 et associez le dossier de votre code à <code>/var/www/html</code>."),
+};
+const PS_SERVER_ID = '3c5e2f0a-6b1d-4e8a-9f27-0d4b8a1c7e55', PS_INTERP_ID = '9a7d4c1e-2f3b-4a5c-8d6e-1b0f3e2a4c77';
+const covEnv = (cov) => (cov.tool === 'PCOV' ? [['PHP_EXTENSION_PCOV', '1']] : [['PHP_EXTENSION_XDEBUG', '1'], ['XDEBUG_MODE', 'coverage']]);
+const covFlags = (cov) => covEnv(cov).map(([k, v]) => `-e ${k}=${v}`).join(' ');
+
+function phpstormFiles() {
+  const x = toolFor('dev', 'step'), cov = toolFor('dev', 'cov'), out = [];
+  const l = ['<?xml version="1.0" encoding="UTF-8"?>', '<project version="4">'];
+  if (x) l.push('  ' + cx(T('Step debugging: the server named by PHP_IDE_CONFIG, and where your code is in the container', 'Pas à pas : le serveur nommé par PHP_IDE_CONFIG, et où est votre code dans le conteneur')),
+    '  <component name="PhpProjectServersManager">', '    <servers>',
+    `      <server host="localhost" id="${PS_SERVER_ID}" name="app" use_path_mappings="true">`, '        <path_mappings>',
+    `          <mapping local-root="$PROJECT_DIR$${sub()}" remote-root="/var/www/html" />`, '        </path_mappings>', '      </server>', '    </servers>', '  </component>');
+  if (cov) l.push('  ' + cx(T('Tests and coverage: PHP of the running app service; DOCKER_ACCOUNT_NAME is the name of your Docker connection in Settings › Build, Execution, Deployment › Docker',
+    "Tests et couverture : le PHP du service app démarré ; DOCKER_ACCOUNT_NAME est le nom de votre connexion Docker dans Settings › Build, Execution, Deployment › Docker")),
+    '  <component name="PhpInterpreters">', '    <interpreters>',
+    `      <interpreter id="${PS_INTERP_ID}" name="app" home="docker-compose://DATA" debugger_id="php.debugger.XDebug">`,
+    '        <remote_data INTERPRETER_PATH="php" HELPERS_PATH="/opt/.phpstorm_helpers" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" DOCKER_ACCOUNT_NAME="Docker" DOCKER_COMPOSE_SERVICE_NAME="app" DOCKER_REMOTE_PROJECT_PATH="/opt/project">',
+    '          <type_data command="EXEC" />', '          <dockerComposeConfigurationPaths>', '            <item value="$PROJECT_DIR$/compose.yaml" />',
+    '          </dockerComposeConfigurationPaths>', '          <envs />', '        </remote_data>', '      </interpreter>', '    </interpreters>', '  </component>',
+    '  <component name="PhpUnit">', '    <phpunit_settings>',
+    `      <phpunit_by_interpreter interpreter_id="${PS_INTERP_ID}" custom_loader_path="/var/www/html/vendor/autoload.php" />`, '    </phpunit_settings>', '  </component>');
+  if (!x && !cov) return out;
+  l.push('</project>');
+  out.push(block('.idea/php.xml', T('add these components', 'ajoutez ces composants'), code(l)));
+  if (cov) out.push(block('.run/Tests.run.xml', T('Run › Tests, with coverage', 'Run › Tests, avec couverture'), code([
+    '<component name="ProjectRunConfigurationManager">',
+    '  <configuration default="false" name="Tests" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">',
+    '    <CommandLine>', '      <envs>',
+    '        ' + cx(T(`Loads ${cov.tool} for the tests only`, `Charge ${cov.tool} pour les tests seulement`)),
+    ...covEnv(cov).map(([k, v]) => `        <env name="${k}" value="${v}" />`),
+    '      </envs>', '    </CommandLine>', '    <TestRunner scope="XML" />', '    <method v="2" />', '  </configuration>', '</component>'])));
+  return out;
+}
+
+function vscodeFiles(inside) {
+  const x = toolFor('dev', 'step'), cov = toolFor('dev', 'cov'), out = [];
+  if (inside && (x || cov)) out.push(block('.devcontainer/devcontainer.json', T('the IDE in the app container', "l'IDE dans le conteneur app"), code([
+    '{', '  "name": "app",', '  "dockerComposeFile": "../compose.yaml",', '  "service": "app",', '  "workspaceFolder": "/var/www/html",',
+    '  "customizations": {', '    "vscode": {',
+    '      "extensions": [' + [x && '"xdebug.php-debug"', cov && '"ryanluker.vscode-coverage-gutters"'].filter(Boolean).join(', ') + ']',
+    '    }', '  }', '}'])));
+  if (!inside && (x || cov)) out.push(block('.vscode/extensions.json', T('recommended extensions', 'extensions recommandées'), code([
+    '{', '  "recommendations": [' + [x && '"xdebug.php-debug"', cov && '"ryanluker.vscode-coverage-gutters"'].filter(Boolean).join(', ') + ']', '}'])));
+  if (x) out.push(block('.vscode/launch.json', T('step debugging', 'pas à pas'), code([
+    '{', '  "version": "0.2.0",', '  "configurations": [{', '    "name": "Listen for Xdebug",', '    "type": "php",', '    "request": "launch",',
+    inside ? '    "port": 9003' : '    "port": 9003,',
+    ...(inside ? [] : ['    ' + c(T('Where your code is in the container', 'Où est votre code dans le conteneur'), '// '),
+      `    "pathMappings": { "/var/www/html": "\${workspaceFolder}${sub()}" }`]),
+    '  }]', '}'])));
+  if (!inside && cov) out.push(block('.vscode/settings.json', T('coverage in the editor', "couverture dans l'éditeur"), code([
+    '{', '  ' + c(T('The coverage report names the files as the container sees them', 'Le rapport de couverture nomme les fichiers comme le conteneur les voit'), '// '),
+    `  "coverage-gutters.remotePathResolve": ["/var/www/html", "${ctx.dir === '.' ? '.' : ctx.dir}"]`, '}'])));
+  return out;
+}
+
+function renderIde() {
+  $('ide-chips').innerHTML = chips('ide');
+  $('ide-desc').innerHTML = L(IDE_DESC[ctx.ide]);
+  const x = toolFor('dev', 'step'), cov = toolFor('dev', 'cov');
+  $('ide-setup').innerHTML = ctx.ide !== 'other' && (x || cov) ? `<div class="setup"><span>${L(T('Configure with', 'Configurer avec'))}</span>${chips('setup')}</div>` : '';
+  const files = [], steps = [];
+  const trig = web()
+    ? T('Trigger a session: the <a href="https://xdebug.org/docs/step_debug#browser-extensions">Xdebug helper</a> of your browser (Debug), or <code>XDEBUG_TRIGGER=1</code> on a command.',
+      'Déclenchez une session : l\'extension <a href="https://xdebug.org/docs/step_debug#browser-extensions">Xdebug helper</a> du navigateur (Debug), ou <code>XDEBUG_TRIGGER=1</code> sur une commande.')
+    : T('Trigger a session: <code>XDEBUG_TRIGGER=1</code> on a command.', 'Déclenchez une session : <code>XDEBUG_TRIGGER=1</code> sur une commande.');
+  const start = x && x.level === 's' ? (ctx.ide === 'devcontainer'
+    ? T('To debug, put <code>XDEBUG=1</code> in the <code>.env</code> file next to <code>compose.yaml</code>, then <i>Dev Containers: Rebuild Container</i>.', 'Pour déboguer, mettez <code>XDEBUG=1</code> dans le fichier <code>.env</code> à côté de <code>compose.yaml</code>, puis <i>Dev Containers: Rebuild Container</i>.')
+    : T('To debug, start the container with Xdebug: <code>XDEBUG=1 docker compose up -d</code>.', 'Pour déboguer, démarrez le conteneur avec Xdebug : <code>XDEBUG=1 docker compose up -d</code>.')) : null;
+  const fw = x && gateway() && ctx.ide !== 'devcontainer'
+    ? T('With a firewall (ufw), let the containers reach the IDE: <code>sudo ufw allow from 172.16.0.0/12 to any port 9003</code>.',
+      'Avec un pare-feu (ufw), laissez les conteneurs joindre l\'IDE : <code>sudo ufw allow from 172.16.0.0/12 to any port 9003</code>.') : null;
+  const ui = ctx.setup === 'ui', d = esc(hostDir());
+  if (ctx.ide === 'phpstorm') {
+    if (!ui) files.push(...phpstormFiles());
+    if (x || cov) steps.push(howBox(T('In PhpStorm', 'Dans PhpStorm'), [
+      !ui && T('PhpStorm closed, add the components above to <code>.idea/php.xml</code>: create the file if it is missing, otherwise replace the components of the same name. Copy <code>.run/Tests.run.xml</code> as is.',
+        'PhpStorm fermé, ajoutez les composants ci-dessus à <code>.idea/php.xml</code> : créez le fichier s\'il manque, sinon remplacez les composants de même nom. Copiez <code>.run/Tests.run.xml</code> tel quel.'),
+      ui && x && T(`<i>Settings › PHP › Servers</i>, <i>+</i>: name <code>app</code> (the <code>serverName</code> of <code>PHP_IDE_CONFIG</code>), host <code>localhost</code>, port <code>80</code>, debugger Xdebug. Check <i>Use path mappings</i> and, in front of <code>${d}</code>, type <code>/var/www/html</code>.`,
+        `<i>Settings › PHP › Servers</i>, <i>+</i> : nom <code>app</code> (le <code>serverName</code> de <code>PHP_IDE_CONFIG</code>), hôte <code>localhost</code>, port <code>80</code>, débogueur Xdebug. Cochez <i>Use path mappings</i> et, en face de <code>${d}</code>, saisissez <code>/var/www/html</code>.`),
+      ui && cov && T('<i>Settings › PHP</i>, <i>CLI Interpreter › …</i>, <i>+ › From Docker, Vagrant, VM, WSL, Remote…</i>: <i>Docker Compose</i>, file <code>compose.yaml</code>, service <code>app</code>. Then <i>Lifecycle</i>: <i>Connect to existing container</i>. Name it <code>app</code>.',
+        '<i>Settings › PHP</i>, <i>CLI Interpreter › …</i>, <i>+ › From Docker, Vagrant, VM, WSL, Remote…</i> : <i>Docker Compose</i>, fichier <code>compose.yaml</code>, service <code>app</code>. Puis <i>Lifecycle</i> : <i>Connect to existing container</i>. Nommez-le <code>app</code>.'),
+      ui && cov && T('<i>Settings › PHP › Test Frameworks</i>, <i>+ › PHPUnit by Remote Interpreter</i>: <code>app</code>, autoloader <code>/var/www/html/vendor/autoload.php</code>.',
+        '<i>Settings › PHP › Test Frameworks</i>, <i>+ › PHPUnit by Remote Interpreter</i> : <code>app</code>, autoloader <code>/var/www/html/vendor/autoload.php</code>.'),
+      ui && cov && T(`<i>Run › Edit Configurations</i>, <i>+ › PHPUnit</i>, named <code>Tests</code>: <i>Defined in the configuration file</i>, and in the environment variables <code>${covEnv(cov).map(([k, v]) => k + '=' + v).join(';')}</code>.`,
+        `<i>Run › Edit Configurations</i>, <i>+ › PHPUnit</i>, nommée <code>Tests</code> : <i>Defined in the configuration file</i>, et dans les variables d'environnement <code>${covEnv(cov).map(([k, v]) => k + '=' + v).join(';')}</code>.`),
+      fw, start,
+      x && T('Click <i>Start Listening for PHP Debug Connections</i> in the toolbar.', 'Cliquez sur <i>Start Listening for PHP Debug Connections</i> dans la barre d\'outils.'),
+      x && trig,
+      cov && ui && T('<i>Run › Tests</i> with coverage: the covered lines show in the editor.', '<i>Run › Tests</i> avec couverture : les lignes couvertes s\'affichent dans l\'éditeur.'),
+      cov && !ui && T('<i>Settings › PHP</i>: choose the CLI interpreter <code>app</code> (a setting of each developer). Then <i>Run › Tests</i> with coverage: the covered lines show in the editor.',
+        '<i>Settings › PHP</i> : choisissez l\'interpréteur CLI <code>app</code> (un réglage propre à chaque développeur). Puis <i>Run › Tests</i> avec couverture : les lignes couvertes s\'affichent dans l\'éditeur.')]));
+  } else if (ctx.ide === 'vscode' || ctx.ide === 'devcontainer') {
+    const inside = ctx.ide === 'devcontainer';
+    if (!ui) files.push(...vscodeFiles(inside));
+    if (x || cov) steps.push(howBox(T('In VS Code', 'Dans VS Code'), [
+      inside && T('Install the <i>Dev Containers</i> extension.', 'Installez l\'extension <i>Dev Containers</i>.'),
+      ui && inside && T('Command palette: <i>Dev Containers: Add Dev Container Configuration Files…</i>, <i>From compose.yaml</i>, service <code>app</code>, folder <code>/var/www/html</code>.',
+        'Palette de commandes : <i>Dev Containers: Add Dev Container Configuration Files…</i>, <i>From compose.yaml</i>, service <code>app</code>, dossier <code>/var/www/html</code>.'),
+      inside && T('<i>Dev Containers: Reopen in Container</i>.', '<i>Dev Containers: Reopen in Container</i>.'),
+      !ui && !inside && T('Install the recommended extensions (VS Code offers them when it opens the project).', 'Installez les extensions recommandées (VS Code les propose à l\'ouverture du projet).'),
+      ui && T(`Extensions view: install ${[x && '<i>PHP Debug</i> (Xdebug)', cov && '<i>Coverage Gutters</i>'].filter(Boolean).join(' and ')}${inside ? ', then right-click › <i>Add to devcontainer.json</i>' : ''}.`,
+        `Vue Extensions : installez ${[x && '<i>PHP Debug</i> (Xdebug)', cov && '<i>Coverage Gutters</i>'].filter(Boolean).join(' et ')}${inside ? ', puis clic droit › <i>Add to devcontainer.json</i>' : ''}.`),
+      ui && x && (inside ? T('<i>Run and Debug › create a launch.json file › PHP</i>: keep <i>Listen for Xdebug</i>.', '<i>Run and Debug › create a launch.json file › PHP</i> : gardez <i>Listen for Xdebug</i>.')
+        : T(`<i>Run and Debug › create a launch.json file › PHP</i>. VS Code has no menu for the path mappings: in <i>Listen for Xdebug</i>, add <code>"pathMappings": { "/var/www/html": "\${workspaceFolder}${sub()}" }</code>.`,
+          `<i>Run and Debug › create a launch.json file › PHP</i>. VS Code n'a pas de menu pour l'association des chemins : dans <i>Listen for Xdebug</i>, ajoutez <code>"pathMappings": { "/var/www/html": "\${workspaceFolder}${sub()}" }</code>.`)),
+      ui && cov && !inside && T(`<i>Settings › Extensions › Coverage Gutters › Remote Path Resolve</i>: <code>["/var/www/html", "${ctx.dir}"]</code>.`, `<i>Settings › Extensions › Coverage Gutters › Remote Path Resolve</i> : <code>["/var/www/html", "${ctx.dir}"]</code>.`),
+      fw, start,
+      x && T('<i>Run and Debug › Listen for Xdebug</i> (F5).', '<i>Run and Debug › Listen for Xdebug</i> (F5).'), x && trig,
+      cov && (inside
+        ? T('Coverage, in the terminal of VS Code: <code>PHP_EXTENSION_' + (cov.tool === 'PCOV' ? 'PCOV=1' : 'XDEBUG=1 XDEBUG_MODE=coverage') + ' vendor/bin/phpunit --coverage-clover coverage.xml</code>, then <i>Coverage Gutters: Display Coverage</i>.',
+          'Couverture, dans le terminal de VS Code : <code>PHP_EXTENSION_' + (cov.tool === 'PCOV' ? 'PCOV=1' : 'XDEBUG=1 XDEBUG_MODE=coverage') + ' vendor/bin/phpunit --coverage-clover coverage.xml</code>, puis <i>Coverage Gutters: Display Coverage</i>.')
+        : T(`Coverage: <code>docker compose run --rm ${covFlags(cov)} app vendor/bin/phpunit --coverage-clover coverage.xml</code>, then <i>Coverage Gutters: Display Coverage</i>.`,
+          `Couverture : <code>docker compose run --rm ${covFlags(cov)} app vendor/bin/phpunit --coverage-clover coverage.xml</code>, puis <i>Coverage Gutters: Display Coverage</i>.`))]));
+  } else if (x) {
+    steps.push(howBox(T('In your IDE', 'Dans votre IDE'), [
+      T(`Listen for Xdebug on port <code>9003</code>, and map <code>${esc(hostDir())}</code> to <code>/var/www/html</code>.`, `Écoutez Xdebug sur le port <code>9003</code>, et associez <code>${esc(hostDir())}</code> à <code>/var/www/html</code>.`),
+      fw, start, trig]));
+  }
+  $('ide-files').innerHTML = files.join('') + steps.join('') ||
+    `<p class="hint">${L(T('No step debugging nor coverage in development: nothing to configure in the IDE.', "Ni pas à pas ni couverture en développement : rien à configurer dans l'IDE."))}</p>`;
+}
+
+// ---------------------------------------------------------------- 5. Your AI agent
+const PROMPTS = {
+  step: T('Set a breakpoint in CartController::add, load /cart/add and tell me the value of $cart.', 'Pose un point d\'arrêt dans CartController::add, charge /cart/add et donne-moi la valeur de $cart.'),
+  time: T('/checkout is slow: profile it and give me the three most expensive functions, with a lead for each.', '/checkout est lente : profile-la et donne-moi les trois fonctions les plus coûteuses, avec une piste pour chacune.'),
+  mem: T('Compare the memory and the call counts of app:import before and after your change.', 'Compare la mémoire et le nombre d\'appels de app:import avant et après ta modification.'),
+  cov: T('Measure the coverage of src/Cart and write the tests of the lines that are not covered.', 'Mesure la couverture de src/Cart et écris les tests des lignes non couvertes.'),
+  traces: T('Find the slowest SQL query of /checkout in the traces.', 'Trouve la requête SQL la plus lente de /checkout dans les traces.'),
+};
+function renderAgent() {
+  $('agent-chips').innerHTML = chips('agent');
+  const out = [];
+  if (!plans.dev.length) out.push(`<p class="hint">${L(T('No tool in development: nothing to give to an agent.', 'Aucun outil en développement : rien à donner à un agent.'))}</p>`);
+  else if (ctx.agent === 'none') out.push(`<p class="hint">${L(T('Without an agent, nothing to add. With one, the same tools serve it: it reads the text profiles and the coverage, and drives the debugger through the IDE.',
+    "Sans agent, rien à ajouter. Avec un agent, les mêmes outils lui servent : il lit les profils texte et la couverture, et pilote le débogueur à travers l'IDE."))}</p>`);
+  else {
+    const x = toolFor('dev', 'step'), mcp = x && ctx.ide === 'phpstorm';
+    if (ctx.agent === 'claude') out.push(block('.claude/skills/php-debugging/SKILL.md', T('skill of Claude Code', 'skill de Claude Code'), esc(agentText(true))));
+    if (ctx.agent === 'codex') out.push(block('.agents/skills/php-debugging/SKILL.md', T('skill of Codex', 'skill de Codex'), esc(agentText(true))));
+    if (ctx.agent === 'other') out.push(block('AGENTS.md', T('section to add', 'section à ajouter'), esc(agentText(false))));
+    out.push(howBox(T(`Set up ${AGENT_NAME()}`, `Préparer ${AGENT_NAME()}`), [
+      ctx.agent === 'other' ? T('Add this section to <code>AGENTS.md</code> at the root of the repository: most agents read it (Cursor, Copilot, Gemini…).', 'Ajoutez cette section à <code>AGENTS.md</code> à la racine du dépôt : la plupart des agents le lisent (Cursor, Copilot, Gemini…).')
+        : T(`Copy the skill to the path above: ${AGENT_NAME()} loads it when you ask to debug, profile or measure the coverage.`, `Copiez le skill au chemin ci-dessus : ${AGENT_NAME()} le charge quand vous demandez de déboguer, profiler ou mesurer la couverture.`),
+      mcp && (ctx.agent === 'claude'
+        ? T('Step debugging: in PhpStorm, <i>Settings › Tools › MCP Server</i>, enable it, then <i>Auto-Configure</i> for Claude Code. The agent then sets breakpoints and reads the variables.', 'Pas à pas : dans PhpStorm, <i>Settings › Tools › MCP Server</i>, activez-le, puis <i>Auto-Configure</i> pour Claude Code. L\'agent pose alors des points d\'arrêt et lit les variables.')
+        : T('Step debugging: in PhpStorm, <i>Settings › Tools › MCP Server</i>, enable it and copy its configuration into your agent. The agent then sets breakpoints and reads the variables.', 'Pas à pas : dans PhpStorm, <i>Settings › Tools › MCP Server</i>, activez-le et copiez sa configuration dans votre agent. L\'agent pose alors des points d\'arrêt et lit les variables.')),
+      writesProfiles('dev') && T(`Add <code>${esc(prefix())}var/profiles/</code> to <code>.gitignore</code>.`, `Ajoutez <code>${esc(prefix())}var/profiles/</code> au <code>.gitignore</code>.`)]));
+    const asks = NEEDS.filter(n => toolFor('dev', n.id) && (n.id !== 'step' || mcp)).map(n => PROMPTS[n.id]);
+    if (asks.length) out.push(`<div class="how prompts"><h3>${L(T('What you can ask', 'Ce que vous pouvez demander'))}</h3><ul>${asks.map(a => `<li>${esc(L(a))}</li>`).join('')}</ul></div>`);
+  }
+  $('agent-files').innerHTML = out.join('');
+}
+
+// ---------------------------------------------------------------- 6. Local development
+function devCompose() {
+  const env = [], vol = [`      - ${hostDir()}:/var/www/html`], extra = [];
+  const x = toolFor('dev', 'step');
+  if (x) {
+    if (x.level === 's') env.push(c(T('Step debugging: XDEBUG=1 docker compose up -d to debug, docker compose up -d to stop', 'Pas à pas : XDEBUG=1 docker compose up -d pour déboguer, docker compose up -d pour arrêter')), 'PHP_EXTENSION_XDEBUG: ${XDEBUG:-0}');
+    else env.push(c(T('Step debugging, always loaded: set 0 before measuring performance', 'Pas à pas, toujours chargé : mettez 0 avant de mesurer les performances')), 'PHP_EXTENSION_XDEBUG: 1');
+    if (ctx.ide === 'phpstorm') env.push(c(T('PhpStorm: the server app of Settings › PHP › Servers', 'PhpStorm : le serveur app de Settings › PHP › Servers')), 'PHP_IDE_CONFIG: serverName=app');
+    if (ctx.ide === 'devcontainer') env.push(c(T('The IDE runs in the container', "L'IDE tourne dans le conteneur")), 'XDEBUG_CLIENT_HOST: 127.0.0.1');
+  }
+  const p = profilerOf('dev');
+  if (p) {
+    if (p.tool === 'Blackfire') {
+      if (p.level === 's') env.push(c(T('Profiling: BLACKFIRE=1 docker compose up -d, never with XDEBUG=1', 'Profilage : BLACKFIRE=1 docker compose up -d, jamais avec XDEBUG=1')), 'PHP_EXTENSION_BLACKFIRE: ${BLACKFIRE:-0}');
+      else env.push(c(T('Profiling with Blackfire', 'Profilage avec Blackfire')), 'PHP_EXTENSION_BLACKFIRE: 1');
+      extra.push('  blackfire:', '    image: blackfire/blackfire:2', '    environment:', '      ' + c(T('From the environment of your machine', 'Depuis l\'environnement de votre machine')), '      - BLACKFIRE_SERVER_ID', '      - BLACKFIRE_SERVER_TOKEN');
+    } else {
+      env.push(c(T(`Profiling with ${p.tool}: only the requests and commands carrying the trigger`, `Profilage avec ${p.tool} : seulement les requêtes et commandes qui portent le déclencheur`)), `PHP_PROFILER: ${p.tool.toLowerCase()}`);
+      if (p.level === 'a' && p.tool !== 'SPX') env.push(c(T('Profile everything: remove to profile on demand only', 'Tout profiler : supprimez pour profiler à la demande seulement')), 'PHP_PROFILER_TRIGGER: always');
+      if (p.tool === 'SPX') env.push(c(T('Key of the web UI: http://localhost/?SPX_KEY=dev&SPX_UI_URI=/', "Clé de l'interface web : http://localhost/?SPX_KEY=dev&SPX_UI_URI=/")), 'PHP_PROFILER_SPX_KEY: dev');
+      if (p.tool !== 'SPX') vol.push('      ' + c(T('Profiles readable from your machine and your agent', 'Profils lisibles depuis votre machine et votre agent')), `      - ${hostDir()}/var/profiles:/tmp/php-profiles`);
+    }
+  }
+  const o = toolFor('dev', 'traces');
+  if (o) {
+    if (o.level === 's') env.push(c(T('Traces: OTEL=1 docker compose up -d while you investigate', 'Traces : OTEL=1 docker compose up -d le temps de l\'enquête')), 'PHP_EXTENSION_OPENTELEMETRY: ${OTEL:-0}');
+    else env.push(c(T('Traces, to the jaeger service', 'Traces, vers le service jaeger')), 'PHP_EXTENSION_OPENTELEMETRY: 1');
+    env.push('OTEL_PHP_AUTOLOAD_ENABLED: "true"', 'OTEL_SERVICE_NAME: app', 'OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318', 'OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf');
+    extra.push('  jaeger:', '    image: jaegertracing/all-in-one', '    ports:', '      ' + c(T('Web UI', 'Interface web')), '      - "16686:16686"');
+  }
+  const cov = toolFor('dev', 'cov');
+  let y = 'services:\n  app:\n    image: ' + IMAGE(ctx.variant) + '\n';
+  if (cov) y += '    ' + c(T(`Coverage, in a throwaway container: docker compose run --rm ${covFlags(cov)} app vendor/bin/phpunit --coverage-text`, `Couverture, dans un conteneur jetable : docker compose run --rm ${covFlags(cov)} app vendor/bin/phpunit --coverage-text`)) + '\n';
+  if (web()) y += '    ports:\n      - "80:80"\n';
+  const root = c(T('Web root, when it is a subfolder: public/ for Symfony or Laravel', 'Racine web, quand c\'est un sous-dossier : public/ pour Symfony ou Laravel'));
+  if (env.length) y += '    environment:\n' + (web() ? ['      ' + root, '      ' + c('APACHE_DOCUMENT_ROOT: public/', '# ')] : []).concat(env.map(l => '      ' + l)).join('\n') + '\n';
+  else if (web()) y += '    ' + root + '\n    ' + c('environment:', '# ') + '\n    ' + c('  APACHE_DOCUMENT_ROOT: public/', '# ') + '\n';
+  y += '    volumes:\n' + vol.join('\n') + '\n';
+  if (extra.length) y += '\n' + extra.join('\n') + '\n';
+  return y;
+}
+function renderDev() {
+  let h = block('compose.yaml', T('at the root of the repository', 'à la racine du dépôt'), devCompose());
+  if (toolFor('dev', 'traces')) h += howBox(T('Traces', 'Traces'), [
+    T('Install the auto-instrumentation in the project: <code>composer require open-telemetry/sdk open-telemetry/exporter-otlp</code>, plus the package of your framework (e.g. <code>open-telemetry/opentelemetry-auto-symfony</code>).',
+      'Installez l\'auto-instrumentation dans le projet : <code>composer require open-telemetry/sdk open-telemetry/exporter-otlp</code>, plus le paquet de votre framework (ex. <code>open-telemetry/opentelemetry-auto-symfony</code>).'),
+    T('Open Jaeger on <code>http://localhost:16686</code>.', 'Ouvrez Jaeger sur <code>http://localhost:16686</code>.')]);
+  $('dev-files').innerHTML = h;
+}
+
+// ---------------------------------------------------------------- 7. CI
+function renderCi() {
+  const has = plans.ci.length > 0;
+  $('ci-chips').style.display = has ? '' : 'none';
+  $('ci-chips').innerHTML = chips('ci');
+  $('ci-files').innerHTML = has ? block(ctx.ci === 'github' ? '.github/workflows/tests.yml' : '.gitlab-ci.yml', T('CI', 'CI'), ciFile())
+    : `<p class="hint">${L(T('No tool in the CI.', 'Aucun outil en CI.'))}</p>`;
+}
+
+// ---------------------------------------------------------------- 8. Pre-production and production
+function renderLive() {
+  $('live-files').innerHTML = block('Dockerfile', T('production and pre-production', 'production et préproduction'), prodDockerfile());
+}
+
+function renderDiagram() {
+  const p = plans.dev, W = 980;
+  let bottom = 84, s = '';
+  const box = (x, y, w, title, sub, color) => {
+    bottom = Math.max(bottom, y + 44);
+    return `<rect x="${x}" y="${y}" width="${w}" height="44" rx="8" fill="var(--soft)" stroke="${color || 'var(--line)'}" stroke-width="${color ? 2 : 1}"/>` +
+      `<text x="${x + 10}" y="${y + 18}" font-weight="700">${esc(title)}</text>` + (sub ? `<text x="${x + 10}" y="${y + 35}" class="sub">${esc(sub)}</text>` : '');
+  };
+  const arrow = (x1, y1, x2, y2, label, color) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2" marker-end="url(#ah)"/>` +
+    (label ? `<text x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2 - 6}" class="mono" text-anchor="middle">${esc(label)}</text>` : '');
+  const exts = p.map(o => o.tool);
+  s += box(620, 36, 330, 'PHP · ' + IMAGE(ctx.variant).split(':')[1], exts.length ? exts.join(', ') : L(T('no tool loaded', 'aucun outil chargé')), 'var(--accent)');
+  const ideName = { phpstorm: 'PhpStorm', vscode: 'VS Code', devcontainer: 'VS Code', other: 'IDE' }[ctx.ide];
+  if (toolFor('dev', 'step')) {
+    if (ctx.ide === 'devcontainer') {
+      s += box(620, 88, 330, L(T('VS Code server', 'Serveur VS Code')), L(T('listens on 127.0.0.1:9003', 'écoute sur 127.0.0.1:9003')));
+      s += arrow(785, 80, 785, 88, '', 'var(--accent)');
+    } else {
+      s += box(30, 36, 220, ideName, L(T('listens on port 9003', 'écoute sur le port 9003')));
+      s += arrow(620, 58, 252, 58, clientHost() + ':9003', 'var(--accent)');
+    }
+  }
+  if (writesProfiles('dev')) {
+    s += box(30, 88, 220, hostDir() + '/var/profiles', '.summary.txt, .collapsed…');
+    s += arrow(620, 74, 252, 106, '/tmp/php-profiles', 'var(--muted)');
+  }
+  if (profilerOf('dev') && profilerOf('dev').tool === 'Blackfire') {
+    s += box(390, 88, 190, 'blackfire', L(T('agent → blackfire.io', 'agent → blackfire.io')));
+    s += arrow(620, 70, 582, 100, '', 'var(--muted)');
+  }
+  const browser = [];
+  if (toolFor('dev', 'time') && profilerOf('dev').tool === 'SPX') browser.push('SPX');
+  if (toolFor('dev', 'traces')) browser.push('Jaeger :16686');
+  if (browser.length) s += box(390, 140, 190, L(T('Browser', 'Navigateur')), browser.join(', '));
+  if (ctx.agent !== 'none') {
+    s += box(30, 140, 220, L(T('AI agent', 'Agent IA')), AGENT_NAME());
+    if (writesProfiles('dev')) s += arrow(140, 140, 140, 134, '', 'var(--muted)');
+    if (toolFor('dev', 'step') && ctx.ide === 'phpstorm') s += '<path d="M30,162 H20 V58 H28" fill="none" stroke="var(--muted)" stroke-width="2" marker-end="url(#ah)"/><text x="14" y="112" class="mono" text-anchor="middle" transform="rotate(-90 14 112)">MCP</text>';
+  }
+  const H = bottom + 12;
+  $('diagram').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(L(T('Connections in development', 'Connexions en développement')))}">` +
+    '<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>' +
+    `<rect x="10" y="6" width="360" height="${H - 12}" rx="10" fill="none" stroke="var(--line)" stroke-dasharray="4 4"/><text x="22" y="26" class="sub">${esc(L(T('Your machine', 'Votre machine')))}</text>` +
+    `<rect x="600" y="6" width="370" height="${H - 12}" rx="10" fill="none" stroke="var(--line)" stroke-dasharray="4 4"/><text x="612" y="26" class="sub">${esc(L(T('Container app', 'Conteneur app')))}</text>` +
+    s + '</svg>';
+}
+
+
+function ciFile() {
+  const cov = toolFor('ci', 'cov'), mem = toolFor('ci', 'mem');
+  const gh = ctx.ci === 'github';
+  const img = IMAGE('cli');
+  const covEnv = cov && (cov.tool === 'PCOV' ? ['PHP_EXTENSION_PCOV: 1'] : ['PHP_EXTENSION_XDEBUG: 1', 'XDEBUG_MODE: coverage']);
+  const covCmd = cov && 'vendor/bin/phpunit --coverage-clover coverage.xml' + (cov.tool === 'Xdebug' ? ' --path-coverage' : '');
+  const memEnv = mem && (mem.tool === 'Blackfire' ? ['BLACKFIRE_CLIENT_ID: ${{ secrets.BLACKFIRE_CLIENT_ID }}', 'BLACKFIRE_CLIENT_TOKEN: ${{ secrets.BLACKFIRE_CLIENT_TOKEN }}'] : ['PHP_PROFILER: xhprof', 'PHP_PROFILER_OUTPUT_DIR: var/profiles']);
+  const memCmd = mem && (mem.tool === 'Blackfire' ? 'blackfire run php bin/console app:benchmark' : 'php-profile bin/console app:benchmark');
+  const P = prefix();
+  const wd = ctx.dir === '.' ? '' : `    defaults:\n      run:\n        working-directory: ${ctx.dir}\n`;
+  let y = '';
+  if (gh) {
+    y = 'on: [push, pull_request]\njobs:\n';
+    if (cov) {
+      y += '  tests:\n    runs-on: ubuntu-latest\n' + wd + '    container:\n      image: ' + img + '\n      env:\n' + covEnv.map(l => '        ' + l).join('\n') +
+        '\n    steps:\n      - uses: actions/checkout@v4\n      - run: composer install\n      - run: ' + covCmd + '\n' +
+        '      ' + c(T('Track the coverage between branches: send coverage.xml to Codecov or Coveralls', 'Suivre la couverture entre les branches : envoyez coverage.xml à Codecov ou Coveralls')) + '\n' +
+        '      - uses: actions/upload-artifact@v4\n        with:\n          name: coverage\n          path: ' + P + 'coverage.xml\n';
+    }
+    if (mem) {
+      y += (cov ? '\n' : '') + '  benchmark:\n    runs-on: ubuntu-latest\n' + wd + '    container:\n      image: ' + img + '\n      env:\n' + memEnv.map(l => '        ' + l).join('\n') +
+        '\n    steps:\n      - uses: actions/checkout@v4\n      - run: composer install\n' +
+        '      ' + c(mem.tool === 'Blackfire' ? T('The assertions of .blackfire.yaml fail the job on a regression', 'Les assertions de .blackfire.yaml font échouer le job en cas de régression')
+          : T('Replace app:benchmark with the command or the page that matters for you', 'Remplacez app:benchmark par la commande ou la page qui compte pour vous')) + '\n' +
+        '      - run: ' + memCmd + '\n' +
+        (mem.tool === 'Blackfire' ? '' : '      ' + c(T('Compare var/profiles/*.summary.txt with the artifact of the main branch', "Comparez var/profiles/*.summary.txt avec l'artefact de la branche principale")) + '\n' +
+          '      - uses: actions/upload-artifact@v4\n        with:\n          name: profile\n          path: ' + P + 'var/profiles/\n');
+    }
+  } else {
+    if (cov) {
+      y += 'tests:\n  image: ' + img + '\n  variables:\n' + covEnv.map(l => '    ' + l).join('\n') +
+        '\n  script:\n' + (P ? '    - cd ' + ctx.dir + '\n' : '') + '    - composer install\n    - ' + covCmd.replace('--coverage-clover coverage.xml', '--coverage-text --colors=never --coverage-cobertura coverage.xml') + '\n' +
+        '  ' + c(T('Shows the coverage in the merge requests, and its evolution between branches', "Affiche la couverture dans les merge requests, et son évolution entre les branches")) + '\n' +
+        "  coverage: '/^\\s*Lines:\\s*\\d+.\\d+\\%/'\n  artifacts:\n    reports:\n      coverage_report:\n        coverage_format: cobertura\n        path: " + P + "coverage.xml\n";
+    }
+    if (mem) {
+      y += (cov ? '\n' : '') + 'benchmark:\n  image: ' + img + '\n  variables:\n' + memEnv.map(l => '    ' + l.replace(/\$\{\{ secrets\.(\w+) \}\}/, '$$$1')).join('\n') +
+        '\n  script:\n' + (P ? '    - cd ' + ctx.dir + '\n' : '') + '    - composer install\n    - ' + memCmd + '\n' +
+        (mem.tool === 'Blackfire' ? '' : '  ' + c(T('Compare var/profiles/*.summary.txt with the artifact of the main branch', "Comparez var/profiles/*.summary.txt avec l'artefact de la branche principale")) + '\n  artifacts:\n    paths:\n      - ' + P + 'var/profiles/\n');
+    }
+  }
+  return y;
+}
+
+function prodDockerfile() {
+  const p = plans.live;
+  let y = 'FROM ' + IMAGE(ctx.variant === 'cli' ? 'apache' : ctx.variant) + '\n\n';
+  if (web()) y += c(T('Web root, when it is a subfolder (Symfony, Laravel)', 'Racine web, quand c\'est un sous-dossier (Symfony, Laravel)')) + '\n' + c(T('ENV APACHE_DOCUMENT_ROOT=public/', 'ENV APACHE_DOCUMENT_ROOT=public/'), '# ') + '\n\n';
+  if (!p.length) y += c(T('No debugging or profiling tool: nothing loaded, nothing slowed down', 'Aucun outil de débogage ni de profilage : rien de chargé, rien de ralenti')) + '\n';
+  const prof = profilerOf('live');
+  const second = p.filter(o => o !== prof && (o.covers.includes('time') || o.covers.includes('mem')))[0];
+  if (prof && prof.tool === 'Blackfire') {
+    y += c(T('Blackfire probe; the agent runs next to the application', "Sonde Blackfire ; l'agent tourne à côté de l'application")) + '\nENV PHP_EXTENSION_BLACKFIRE=1\n';
+    y += c(T('BLACKFIRE_AGENT: host name of the agent, at runtime', "BLACKFIRE_AGENT : nom d'hôte de l'agent, à l'exécution")) + '\n\n';
+  } else if (prof) {
+    y += c(T(`Profiling with ${prof.tool}`, `Profilage avec ${prof.tool}`)) + `\nENV PHP_PROFILER=${prof.tool.toLowerCase()}\n`;
+    if (prof.level === 'a') {
+      y += c(T('Continuous profiling: 1% of the requests; raise it during an investigation', "Profilage continu : 1 % des requêtes ; augmentez-le le temps d'une enquête")) + '\nENV PHP_PROFILER_TRIGGER=sample\nENV PHP_PROFILER_SAMPLE_RATE=0.01\n';
+    } else {
+      y += c(T('Only the requests carrying the secret trigger; the secret is set at runtime, never in the image', "Seulement les requêtes qui portent le déclencheur secret ; le secret est fourni à l'exécution, jamais dans l'image")) + '\n' +
+        c(T('PHP_PROFILER_TRIGGER_VALUE=<secret>', 'PHP_PROFILER_TRIGGER_VALUE=<secret>')) + '\n';
+    }
+    if (second) y += c(T(`Memory and calls: during an investigation, redeploy with PHP_PROFILER=${second.tool.toLowerCase()}`, `Mémoire et appels : le temps d'une enquête, redéployez avec PHP_PROFILER=${second.tool.toLowerCase()}`)) + '\n';
+    y += c(T('Where the profiles go: mount a volume on /tmp/php-profiles, or set PHP_PROFILER_OUTPUT_DIR', 'Où vont les profils : montez un volume sur /tmp/php-profiles, ou réglez PHP_PROFILER_OUTPUT_DIR')) + '\n\n';
+  }
+  const o = toolFor('live', 'traces');
+  if (o) {
+    y += c(o.level === 'a' ? T('Traces, sent all the time', 'Traces, envoyées en permanence') : T('Traces: set to 1 during an investigation', "Traces : passez à 1 le temps d'une enquête")) + `\nENV PHP_EXTENSION_OPENTELEMETRY=${o.level === 'a' ? 1 : 0}\nENV OTEL_PHP_AUTOLOAD_ENABLED=true\nENV OTEL_SERVICE_NAME=app\n`;
+    y += c(T('OTEL_EXPORTER_OTLP_ENDPOINT: address of your collector, at runtime', "OTEL_EXPORTER_OTLP_ENDPOINT : adresse de votre collecteur, à l'exécution")) + '\n\n';
+  }
+  if (!p.length) y += '\n';
+  y += `COPY --chown=docker:docker ${ctx.dir} /var/www/html\n`;
+  return y;
+}
+
+function agentText(skill) {
+  const l = [];
+  if (skill) l.push('---', 'name: php-debugging', 'description: ' + L(T('Debug, profile or measure the test coverage of this PHP application, which runs in the app service of compose.yaml. Use it when a page or a command is slow, memory grows, a bug needs step debugging, or the coverage is asked.',
+    "Déboguer, profiler ou mesurer la couverture des tests de cette application PHP, qui tourne dans le service app de compose.yaml. À utiliser quand une page ou une commande est lente, que la mémoire grossit, qu'un bug demande du pas à pas, ou que la couverture est demandée.")), '---', '');
+  l.push(skill ? '# ' + L(T('Debugging and profiling', 'Débogage et profilage')) : '## ' + L(T('Debugging and profiling', 'Débogage et profilage')), '');
+  const p = profilerOf('dev');
+  if (p && ['Excimer', 'XHProf', 'Xdebug'].includes(p.tool)) {
+    l.push(L(T(`Profiler: ${p.tool}.`, `Profileur : ${p.tool}.`)),
+      '- ' + L(T('Profile a page: `curl -H "X-PHP-Profile: 1" http://localhost/<path>`', 'Profiler une page : `curl -H "X-PHP-Profile: 1" http://localhost/<chemin>`')),
+      '- ' + L(T('Profile a command: `docker compose exec app php-profile <command>`', 'Profiler une commande : `docker compose exec app php-profile <commande>`')),
+      '- ' + L(T('Read `' + prefix() + 'var/profiles/<profile>.summary.txt` first; grep the `.collapsed` file of the same profile for the full call stacks.', 'Lire d\'abord `' + prefix() + 'var/profiles/<profil>.summary.txt` ; chercher dans le fichier `.collapsed` du même profil pour les piles d\'appels complètes.')), '');
+  }
+  if (p && p.tool === 'SPX') l.push('- ' + L(T('Profile a command: `docker compose exec app php-profile <command>` prints the flat profile of SPX.', 'Profiler une commande : `docker compose exec app php-profile <commande>` affiche le profil à plat de SPX.')), '');
+  if (p && p.tool === 'Blackfire') l.push('- ' + L(T('Profile a command: `docker compose exec app blackfire run php <command>`', 'Profiler une commande : `docker compose exec app blackfire run php <commande>`')), '');
+  const cov = toolFor('dev', 'cov');
+  if (cov) l.push('- ' + L(T('Coverage', 'Couverture')) + ': `docker compose run --rm ' + (cov.tool === 'PCOV' ? '-e PHP_EXTENSION_PCOV=1' : '-e PHP_EXTENSION_XDEBUG=1 -e XDEBUG_MODE=coverage') + ' app vendor/bin/phpunit --coverage-text`');
+  if (toolFor('dev', 'traces')) l.push('- ' + L(T('Traces: `curl "http://localhost:16686/api/traces?service=app&limit=20"`', 'Traces : `curl "http://localhost:16686/api/traces?service=app&limit=20"`')));
+  if (toolFor('dev', 'step')) l.push('- ' + L(ctx.ide === 'phpstorm'
+    ? T('Step debugging: use the Xdebug tools of the PhpStorm MCP server; a session starts with `XDEBUG_TRIGGER=1` (cookie, or `-e XDEBUG_TRIGGER=1` on `docker compose exec`). Ask the user to start listening in PhpStorm first.',
+      "Pas à pas : utiliser les outils Xdebug du serveur MCP de PhpStorm ; une session démarre avec `XDEBUG_TRIGGER=1` (cookie, ou `-e XDEBUG_TRIGGER=1` sur `docker compose exec`). Demander d'abord à l'utilisateur de lancer l'écoute dans PhpStorm.")
+    : T('Step debugging: ask the user to start listening in the IDE, then trigger the session with `XDEBUG_TRIGGER=1`.', "Pas à pas : demander à l'utilisateur de lancer l'écoute dans l'IDE, puis déclencher la session avec `XDEBUG_TRIGGER=1`.")));
+  return l.join('\n') + '\n';
+}
+
+// ---------------------------------------------------------------- 9. Use it
+function renderUsage() {
+  let readHow = '';
+  const prof = profilerOf('dev');
+  if (prof) {
+    const read = {
+      Excimer: T('Open a <code>.speedscope.json</code> file of <code>var/profiles</code> on <a href="https://www.speedscope.app">speedscope.app</a> for a flame graph, or read its <code>.summary.txt</code>.',
+        'Ouvrez un fichier <code>.speedscope.json</code> de <code>var/profiles</code> sur <a href="https://www.speedscope.app">speedscope.app</a> pour un flame graph, ou lisez son <code>.summary.txt</code>.'),
+      XHProf: T('Read the <code>.summary.txt</code> files of <code>var/profiles</code> in the IDE; the <code>.xhprof.json</code> files open in XHGui.', 'Lisez les fichiers <code>.summary.txt</code> de <code>var/profiles</code> dans l\'IDE ; les fichiers <code>.xhprof.json</code> s\'ouvrent dans XHGui.'),
+      SPX: T('Open <code>http://localhost/?SPX_KEY=dev&amp;SPX_UI_URI=/</code>, check <i>Enabled</i>, browse the application, then open a report.', 'Ouvrez <code>http://localhost/?SPX_KEY=dev&amp;SPX_UI_URI=/</code>, cochez <i>Enabled</i>, naviguez dans l\'application, puis ouvrez un rapport.'),
+      Xdebug: T(ctx.ide === 'phpstorm' ? '<i>Tools › Analyze Xdebug Profiler Snapshot</i>, on a <code>cachegrind.out.*</code> file of <code>var/profiles</code>.' : 'Open the <code>cachegrind.out.*</code> files of <code>var/profiles</code> with KCachegrind or QCachegrind.',
+        ctx.ide === 'phpstorm' ? '<i>Tools › Analyze Xdebug Profiler Snapshot</i>, sur un fichier <code>cachegrind.out.*</code> de <code>var/profiles</code>.' : 'Ouvrez les fichiers <code>cachegrind.out.*</code> de <code>var/profiles</code> avec KCachegrind ou QCachegrind.'),
+      Blackfire: T('Export <code>BLACKFIRE_SERVER_ID</code>, <code>BLACKFIRE_SERVER_TOKEN</code> on your machine, then profile with the Blackfire browser extension.', 'Exportez <code>BLACKFIRE_SERVER_ID</code>, <code>BLACKFIRE_SERVER_TOKEN</code> sur votre machine, puis profilez avec l\'extension navigateur Blackfire.'),
+    }[prof.tool];
+    readHow = howBox(T(`Read the profiles of ${prof.tool}`, `Lire les profils de ${prof.tool}`), [read], 'ul');
+  }
+  const groups = [];
+  const ex = 'docker compose exec';
+  const dev = [];
+  if (toolFor('dev', 'step')) {
+    if (web()) dev.push([T('Debug a page', 'Déboguer une page'), 'curl --cookie XDEBUG_TRIGGER=1 http://localhost/checkout']);
+    dev.push([T('Debug a command', 'Déboguer une commande'), `${ex} -e XDEBUG_TRIGGER=1 app php bin/console app:import`]);
+  }
+  const p = profilerOf('dev');
+  if (p && p.tool !== 'Blackfire') {
+    if (web() && p.tool !== 'SPX') dev.push([T('Profile a page', 'Profiler une page'), p.level === 'a' ? 'curl http://localhost/checkout' : p.tool === 'Xdebug' ? 'curl --cookie XDEBUG_TRIGGER=1 http://localhost/checkout' : "curl -H 'X-PHP-Profile: 1' http://localhost/checkout"]);
+    if (web() && p.tool === 'SPX') dev.push([T('Profile pages', 'Profiler des pages'), 'http://localhost/?SPX_KEY=dev&SPX_UI_URI=/']);
+    dev.push([T('Profile a command', 'Profiler une commande'), `${ex} app php-profile bin/console app:import`]);
+    if (p.tool !== 'SPX' && p.tool !== 'Xdebug') dev.push([T('Read the last profile', 'Lire le dernier profil'), `cat "$(ls -t ${prefix()}var/profiles/*.summary.txt | head -1)"`]);
+  }
+  if (p && p.tool === 'Blackfire') {
+    if (web()) dev.push([T('Profile a page', 'Profiler une page'), `${ex} app blackfire curl http://localhost/checkout`]);
+    dev.push([T('Profile a command', 'Profiler une commande'), `${ex} app blackfire run php bin/console app:import`]);
+  }
+  const cov = toolFor('dev', 'cov');
+  if (cov) dev.push([T('Measure the coverage', 'Mesurer la couverture'), `docker compose run --rm ${cov.tool === 'PCOV' ? '-e PHP_EXTENSION_PCOV=1' : '-e PHP_EXTENSION_XDEBUG=1 -e XDEBUG_MODE=coverage'} app vendor/bin/phpunit --coverage-text`]);
+  if (toolFor('dev', 'traces')) dev.push([T('See the traces', 'Voir les traces'), 'http://localhost:16686']);
+  if (dev.length) groups.push([ENVS[0].name, dev]);
+  const live = [];
+  const lp = profilerOf('live');
+  if (lp && lp.tool !== 'Blackfire') {
+    if (lp.level === 'a') live.push([T('Read the continuous profiles', 'Lire les profils continus'), 'ls -t /tmp/php-profiles/*.summary.txt | head']);
+    else live.push([T('Profile one request', 'Profiler une requête'), "curl -H 'X-PHP-Profile: <secret>' https://example.com/checkout"]);
+  }
+  if (lp && lp.tool === 'Blackfire') live.push([T('Profile one request', 'Profiler une requête'), 'blackfire curl https://example.com/checkout']);
+  if (toolFor('live', 'traces')) live.push([T('See the traces', 'Voir les traces'), L(T('In your observability stack (Grafana, Jaeger, Datadog…)', "Dans votre outil d'observabilité (Grafana, Jaeger, Datadog…)"))]);
+  if (live.length) groups.push([ENVS[2].name, live]);
+  $('usage').innerHTML = groups.map(([name, items]) => `<h3 class="env-title">${esc(L(name))}</h3><div class="usage">` +
+    items.map(([t, cmd]) => `<div class="use"><h3>${esc(L(t))}</h3><pre>${esc(cmd)}</pre></div>`).join('') + '</div>').join('') ||
+    `<p class="hint">${L(T('No tool: nothing to run.', 'Aucun outil : rien à lancer.'))}</p>`;
+  $('usage').innerHTML += readHow;
+}
+
+// ---------------------------------------------------------------- 10. Reference
+const REF = [
+  ['PHP_EXTENSION_XDEBUG', '0', 'Xdebug', T('Loads Xdebug', 'Charge Xdebug')],
+  ['XDEBUG_MODE', 'debug', 'Xdebug', T('off, debug, coverage, profile, develop, trace; comma-separated', 'off, debug, coverage, profile, develop, trace ; séparés par des virgules')],
+  ['XDEBUG_CLIENT_HOST', T('detected', 'détecté'), 'Xdebug', T('Address of the IDE (127.0.0.1 in a devcontainer)', "Adresse de l'IDE (127.0.0.1 dans un devcontainer)")],
+  ['PHP_IDE_CONFIG', '', 'Xdebug', T('serverName=<name>: server of PhpStorm holding the path mappings', 'serverName=<nom> : serveur PhpStorm qui porte la correspondance des chemins')],
+  ['PHP_EXTENSION_PCOV', '0', 'PCOV', T('Loads PCOV', 'Charge PCOV')],
+  ['PHP_INI_PCOV__DIRECTORY', 'src, lib, app', 'PCOV', T('Directory measured by PCOV', 'Répertoire mesuré par PCOV')],
+  ['PHP_PROFILER', '', 'Excimer XHProf SPX Xdebug', T('excimer, xhprof, spx or xdebug: loads the profiler; php-profile <command> profiles a command', "excimer, xhprof, spx ou xdebug : charge le profileur ; php-profile <commande> profile une commande")],
+  ['PHP_PROFILER_TRIGGER', 'request', 'Excimer XHProf Xdebug', T('request: on a trigger (X-PHP-Profile header, PHP_PROFILE cookie or GET parameter, PHP_PROFILE variable of a command; XDEBUG_TRIGGER with Xdebug); always: everything; sample: a share of the requests (Excimer, XHProf)', 'request : sur déclencheur (en-tête X-PHP-Profile, cookie ou paramètre GET PHP_PROFILE, variable PHP_PROFILE d\'une commande ; XDEBUG_TRIGGER avec Xdebug) ; always : tout ; sample : une part des requêtes (Excimer, XHProf)')],
+  ['PHP_PROFILER_TRIGGER_VALUE', '', 'Excimer XHProf Xdebug', T('Secret value expected in the trigger', 'Valeur secrète attendue dans le déclencheur')],
+  ['PHP_PROFILER_SAMPLE_RATE', '0.01', 'Excimer XHProf', T('Share of the requests profiled with sample', 'Part des requêtes profilées avec sample')],
+  ['PHP_PROFILER_OUTPUT_DIR', '/tmp/php-profiles', 'Excimer XHProf Xdebug', T('Where the profiles are written', 'Où les profils sont écrits')],
+  ['PHP_PROFILER_EXCIMER_PERIOD', '0.001', 'Excimer', T('Sampling interval of Excimer, in seconds', "Intervalle d'échantillonnage d'Excimer, en secondes")],
+  ['PHP_PROFILER_SPX_KEY', 'dev', 'SPX', T('Key of the SPX web UI', "Clé de l'interface web de SPX")],
+  ['PHP_EXTENSION_BLACKFIRE', '0', 'Blackfire', T('Loads the Blackfire probe', 'Charge la sonde Blackfire')],
+  ['BLACKFIRE_AGENT', 'blackfire', 'Blackfire', T('Host name of the Blackfire agent', "Nom d'hôte de l'agent Blackfire")],
+  ['PHP_EXTENSION_OPENTELEMETRY', '0', 'OpenTelemetry', T('Loads the OpenTelemetry extension', "Charge l'extension OpenTelemetry")],
+  ['OTEL_*', '', 'OpenTelemetry', T('Standard variables of the OpenTelemetry SDK: service name, exporter, endpoint', 'Variables standard du SDK OpenTelemetry : nom du service, exportateur, adresse')],
+];
+function renderRef() {
+  const u = used();
+  $('ref').innerHTML = `<tr><th>${L(T('Variable', 'Variable'))}</th><th>${L(T('Default', 'Défaut'))}</th><th>${L(T('Tool', 'Outil'))}</th><th>${L(T('Effect', 'Effet'))}</th></tr>` +
+    REF.map(([v, d, tools, t]) => `<tr class="${tools.split(' ').some(x => u.has(x)) ? 'sel' : 'dim'}"><td><code>${v}</code></td><td>${L(d) ? `<code>${esc(L(d))}</code>` : ''}</td><td>${esc(tools.split(' ').join(', '))}</td><td>${esc(L(t))}</td></tr>`).join('');
+}
+
+// ---------------------------------------------------------------- 11. The tools in detail
+// Rows of a flame graph or a timeline: [label, left %, width %, colour index]
+const bars = (rows, cls = 'flame') => `<div class="${cls}">${rows.map(r => `<div class="row">${r.map(([t, l, w, k]) =>
+  `<span class="k${k || 0}" style="left:${l}%;width:${w}%" title="${esc(t)}">${esc(t)}</span>`).join('')}</div>`).join('')}</div>`;
+const SHOTS = {
+  Xdebug: () => `<div class="ide-shot"><pre class="src"><span class="ln">41</span>public function add(Request $request): Response
+<span class="ln">42</span>{
+<span class="hit"><span class="ln bp">43</span>    $cart = $this-&gt;carts-&gt;current();</span>
+<span class="ln">44</span>    $cart-&gt;add($request-&gt;get('sku'), 2);</pre>` +
+    `<pre class="vars"><b>${L(T('Variables', 'Variables'))}</b>
+$request = Request {method: "POST", …}
+$this-&gt;carts = CartRepository {…}
+<b>${L(T('Call stack', "Pile d'appels"))}</b>
+CartController-&gt;add()  CartController.php:43
+HttpKernel-&gt;handle()   HttpKernel.php:181</pre></div>`,
+  PCOV: () => `<pre class="term">$ vendor/bin/phpunit --coverage-text
+Code Coverage Report:
+  Classes: 62.50% (5/8)
+  Methods: 78.26% (18/23)
+  Lines:   <span class="ok">84.13% (106/126)</span>
+
+App\\Cart\\Cart
+  Methods: 100.00% ( 6/ 6)   Lines: <span class="ok">100.00% ( 31/ 31)</span>
+App\\Cart\\PriceCalculator
+  Methods:  50.00% ( 2/ 4)   Lines: <span class="warn"> 61.54% ( 16/ 26)</span></pre>`,
+  Excimer: () => bars([
+    [['index.php', 0, 100, 0]],
+    [['HttpKernel::handle', 0, 97, 1]],
+    [['CheckoutController::show', 0, 72, 2], ['Router::match', 74, 18, 2]],
+    [['PDOStatement::execute', 0, 44, 3], ['Twig render', 46, 24, 3], ['preg_match', 74, 12, 3]],
+    [['PriceCalculator::total', 47, 14, 4]],
+  ]) + `<p class="cap">${L(T('Flame graph in speedscope: the wider a function, the more time it takes.', "Flame graph dans speedscope : plus une fonction est large, plus elle prend de temps."))}</p>`,
+  XHProf: () => `<pre class="term">GET /checkout
+182 ms, peak memory 6.2 MB, XHProf
+
+   calls   incl. ms   excl. ms    mem. KB  function
+      12      64.10      64.10       1120  PDOStatement::execute
+     240      21.50      18.20         42  App\\Cart\\PriceCalculator::total
+      31      40.30       8.70        860  Twig\\Template::render</pre>` +
+    `<p class="cap">${L(T('Text summary written next to each profile.', 'Résumé texte écrit à côté de chaque profil.'))}</p>`,
+  SPX: () => `<div class="spx"><div class="bar">SPX · GET /checkout · 182 ms · 6.2 MB</div>` + bars([
+    [['index.php', 0, 100, 0]],
+    [['handle', 0, 97, 1]],
+    [['controller', 0, 72, 2], ['router', 74, 18, 2]],
+    [['SQL', 0, 20, 3], ['SQL', 22, 24, 3], ['Twig', 48, 24, 4], ['regex', 74, 12, 4]],
+  ], 'flame timeline') + `<pre class="term">${L(T('Function', 'Fonction'))}              ${L(T('Calls', 'Appels'))}  ${L(T('Excl.', 'Excl.'))}   ${L(T('Memory', 'Mémoire'))}
+PDOStatement::execute     12  64.1ms  1.1MB
+Twig\\Template::render     31   8.7ms  0.8MB</pre></div>` +
+    `<p class="cap">${L(T('Its web UI, served by the container: timeline, flame graph, flat profile.', 'Son interface web, servie par le conteneur : timeline, flame graph, profil à plat.'))}</p>`,
+  Blackfire: () => `<pre class="term">$ blackfire curl http://localhost/checkout
+Wall Time     182ms
+I/O Wait       96ms
+CPU Time       86ms
+Memory        6.2MB
+SQL           12 ${L(T('queries', 'requêtes'))}   64ms
+https://blackfire.io/profiles/…/graph</pre>` +
+    `<p class="cap">${L(T('Call graph, comparisons and history on blackfire.io.', "Graphe d'appels, comparaisons et historique sur blackfire.io."))}</p>`,
+  OpenTelemetry: () => `<div class="wf">${[['GET /checkout', 0, 182, 0], ['SELECT cart_item', 8, 12, 3], ['SELECT product', 22, 18, 3], ['POST payment-api', 44, 63, 2], ['render checkout.html.twig', 112, 22, 4]].map(([t, l, w, k]) =>
+    `<div class="row"><span class="lbl">${esc(t)}</span><span class="track"><i class="k${k}" style="left:${l / 1.82}%;width:${w / 1.82}%"></i></span><span class="ms">${w} ms</span></div>`).join('')}</div>` + `<p class="cap">${L(T('A trace in Jaeger: each span is a request, a query or a call to another service.', "Une trace dans Jaeger : chaque span est une requête, une requête SQL ou un appel à un autre service."))}</p>`,
+};
+const shot = (tool) => `<div class="shot">${SHOTS[tool]()}</div>`;
+
+const INFO = {
+  Xdebug: { what: T('Step debugger: stops on a breakpoint and shows the variables and the call stack in the IDE. Also measures the coverage of the branches.', "Débogueur pas à pas : s'arrête sur un point d'arrêt et montre les variables et la pile d'appels dans l'IDE. Mesure aussi la couverture des branches."),
+    speed: T('Slows every request as soon as it is loaded, even without a session: load it only while you debug.', "Ralentit chaque requête dès qu'il est chargé, même sans session : ne le chargez que le temps de déboguer.") },
+  PCOV: { what: T('Coverage of the lines run by the tests, for PHPUnit reports.', 'Couverture des lignes exécutées par les tests, pour les rapports PHPUnit.'),
+    speed: T('Light: the tests run several times faster than with Xdebug coverage.', 'Léger : les tests tournent plusieurs fois plus vite qu\'avec la couverture de Xdebug.') },
+  Excimer: { what: T('Sampling profiler: looks at the stack every millisecond, which gives where the time goes.', 'Profileur par échantillonnage : regarde la pile toutes les millisecondes, ce qui donne où part le temps.'),
+    speed: T('Barely measurable: can stay on in production.', 'À peine mesurable : peut rester actif en production.') },
+  XHProf: { what: T('Records every function call: exact call counts, time and memory.', "Enregistre chaque appel de fonction : nombre d'appels, temps et mémoire exacts."),
+    speed: T('Clearly slower while it records, nothing otherwise: profile on a trigger.', "Nettement plus lent pendant l'enregistrement, rien sinon : profilez sur déclencheur.") },
+  SPX: { what: T('Records every function call and shows it in its own web UI, with a timeline.', "Enregistre chaque appel de fonction et l'affiche dans sa propre interface web, avec une timeline."),
+    speed: T('Clearly slower while it records, nothing otherwise.', "Nettement plus lent pendant l'enregistrement, rien sinon.") },
+  Blackfire: { what: T('Hosted profiling service: call graph, comparison of two profiles, performance assertions in the CI, monitoring.', "Service de profilage hébergé : graphe d'appels, comparaison de deux profils, assertions de performance en CI, monitoring."),
+    speed: T('Low while it records, nothing otherwise.', "Faible pendant l'enregistrement, rien sinon."), proprietary: true },
+  OpenTelemetry: { what: T('Traces the requests across your services: duration, SQL queries, HTTP calls. No detail per PHP function.', 'Trace les requêtes à travers vos services : durée, requêtes SQL, appels HTTP. Aucun détail par fonction PHP.'),
+    speed: T('Low: made to stay on in production.', 'Faible : fait pour rester actif en production.') },
+};
+let peek = null;
+function renderGallery() {
+  const u = used();
+  if (!peek) peek = Object.keys(CAN).find(x => u.has(x)) || 'Xdebug';
+  const i = INFO[peek];
+  const where = CAN[peek].envs.map(e => L(ENVS.find(x => x.id === e).name)).join(', ');
+  $('gallery-chips').innerHTML = '<div class="chips">' + Object.keys(CAN).map(x =>
+    `<button data-peek-tool="${x}" class="${x === peek ? 'on' : ''}">${esc(x)}</button>`).join('') + '</div>';
+  const row = (k, v) => `<dt>${L(k)}</dt><dd>${v}</dd>`;
+  $('gallery').innerHTML = `<dl class="facts">` +
+    row(T('What it does', 'Ce qu\'il fait'), esc(L(i.what))) +
+    row(T('Strengths', 'Atouts'), esc(L(PROS[peek][0]))) +
+    row(T('Limits', 'Limites'), esc(L(PROS[peek][1]))) +
+    row(T('Effect on the speed of the application', "Effet sur la vitesse de l'application"), esc(L(i.speed))) +
+    row(T('Where', 'Où'), esc(where)) +
+    (i.proprietary ? row(T('Licence', 'Licence'), `<b class="prop">${L(T('Proprietary, paid', 'Propriétaire, payant'))}</b>`) : '') +
+    (u.has(peek) ? row(T('In your plan', 'Dans votre plan'), esc(ENVS.filter(e => plans[e.id].some(o => o.tool === peek)).map(e => L(e.name)).join(', '))) : '') +
+    `</dl>${shot(peek)}`;
+}
+
+// ---------------------------------------------------------------- State in the URL
+function readHash() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  lang = h.get('lang') || ((navigator.language || '').startsWith('fr') ? 'fr' : 'en');
+  if (!['en', 'fr'].includes(lang)) lang = 'en';
+  Object.assign(ctx, DEFAULTS);
+  for (const k of Object.keys(CHOICES)) {
+    const v = h.get(k);
+    if (v !== null && values(k).some(([x]) => x === v)) ctx[k] = v;
+    else if (k === 'docker') ctx.docker = values('docker')[0][0];
+  }
+  if (h.get('dir')) ctx.dir = cleanDir(h.get('dir'));
+  NEEDS.forEach(n => ENVS.forEach(e => { if (n[e.id]) freq[n.id + '.' + e.id] = n[e.id].def; }));
+  for (const [k, v] of h) if (k in freq && 'nsa'.includes(v)) freq[k] = v;
+  for (const k of Object.keys(opts)) opts[k] = h.get(k) === '1';
+  for (const k of Object.keys(pins)) pins[k] = (h.get('use.' + k) || '').split(',').filter(x => CAN[x]);
+}
+function writeHash() {
+  const h = new URLSearchParams();
+  h.set('lang', lang);
+  NEEDS.forEach(n => ENVS.forEach(e => { const k = n.id + '.' + e.id; if (n[e.id] && freq[k] !== n[e.id].def) h.set(k, freq[k]); }));
+  for (const k of Object.keys(opts)) if (opts[k]) h.set(k, '1');
+  for (const k of Object.keys(pins)) if (pins[k].length) h.set('use.' + k, pins[k].join(','));
+  for (const k of Object.keys(ctx)) if (ctx[k] !== DEFAULTS[k] && !(k === 'docker' && ctx.docker === values('docker')[0][0])) h.set(k, ctx[k]);
+  history.replaceState(null, '', '#' + h.toString());
+}
+
+function render() {
+  document.body.dataset.lang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('#lang button').forEach(b => b.classList.toggle('on', b.dataset.v === lang));
+  // The plans of the CI and the live environments first: development reuses their tools when it can
+  reuse = new Set();
+  const ci = plan('ci'), live = plan('live');
+  reuse = new Set([...ci, ...live].map(o => o.tool));
+  plans = { dev: plan('dev'), ci, live };
+  renderPresets();
+  renderNeeds();
+  renderTools();
+  renderMachine();
+  renderIde();
+  renderDiagram();
+  renderAgent();
+  $('env-tabs').innerHTML = chips('tab').replace('class="chips"', 'class="chips tabs"');
+  document.querySelectorAll('#envconf .tab').forEach(d => { d.hidden = d.dataset.tab !== ctx.tab; });
+  renderDev();
+  renderCi();
+  renderLive();
+  renderUsage();
+  renderRef();
+  renderGallery();
+  writeHash();
+}
+
+// Re-render without moving what was clicked: the element found after the render goes back where the clicked one was
+function keepPlace(el, find) {
+  const top = el ? el.getBoundingClientRect().top : null;
+  render();
+  const n = top === null ? null : find();
+  if (n) window.scrollBy(0, n.getBoundingClientRect().top - top);
+}
+$('lang').onclick = (e) => { const v = e.target.dataset.v; if (v) { lang = v; render(); } };
+$('needs').onclick = (e) => {
+  const v = e.target.dataset.f, seg = e.target.closest('.seg');
+  if (v && seg && !e.target.getAttribute('aria-disabled')) { freq[seg.dataset.k] = v; keepPlace(seg, () => document.querySelector(`.seg[data-k="${seg.dataset.k}"]`)); }
+};
+$('needs').onchange = (e) => { if (e.target.id === 'opt-branch') { opts.branch = e.target.checked; keepPlace(e.target, () => $('opt-branch')); } };
+$('presets').onclick = (e) => { const b = e.target.closest('[data-preset]'); if (b) { applyPreset(PRESETS.find(p => p.id === b.dataset.preset)); keepPlace($('presets'), () => $('presets')); } };
+$('envs').onclick = (e) => {
+  const d = e.target.dataset, card = e.target.closest('.tool');
+  if (!d.pick && !d.unpin) return;
+  if (d.pick) { const p = pins[d.env].filter(x => x !== d.pick); p.push(d.pick); pins[d.env] = p; }
+  else pins[d.env] = pins[d.env].filter(x => x !== d.unpin);
+  picked = true;
+  const cells = card.dataset.cells.split(' ');
+  keepPlace(card, () => {
+    const col = document.querySelector(`#envs .envc[data-env="${d.env}"]`);
+    return (d.pick && col.querySelector(`.tool[data-tool="${d.pick}"]`)) ||
+      [...col.querySelectorAll('.tool')].find(t => t.dataset.cells.split(' ').some(x => cells.includes(x))) || col;
+  });
+};
+$('envs').addEventListener('toggle', (e) => { const k = e.target.dataset && e.target.dataset.peek; if (k) (e.target.open ? peekOpen.add(k) : peekOpen.delete(k)); }, true);
+const highlight = (cells) => document.querySelectorAll('#needs td[data-cell]').forEach(td => td.classList.toggle('hl', cells.includes(td.dataset.cell)));
+$('envs').onmouseover = (e) => { const card = e.target.closest('[data-cells]'); highlight(card ? card.dataset.cells.split(' ') : []); };
+$('envs').onmouseleave = () => highlight([]);
+document.addEventListener('click', (e) => {
+  const g = e.target.closest('[data-ctx]');
+  if (g && e.target.dataset.v !== undefined && e.target.tagName === 'BUTTON') {
+    ctx[g.dataset.ctx] = e.target.dataset.v;
+    if (g.dataset.ctx === 'os') ctx.docker = values('docker')[0][0];
+    keepPlace(g, () => document.querySelector(`[data-ctx="${g.dataset.ctx}"]`));
+    return;
+  }
+  if (e.target.dataset.peekTool) { peek = e.target.dataset.peekTool; renderGallery(); return; }
+  if (e.target.classList.contains('copy')) {
+    navigator.clipboard.writeText(e.target.closest('.file').querySelector('pre').textContent).then(() => {
+      e.target.textContent = L(T('Copied', 'Copié'));
+      setTimeout(() => { e.target.textContent = L(T('Copy', 'Copier')); }, 1500);
+    });
+  }
+});
+document.addEventListener('change', (e) => { if (e.target.dataset.ctxIn === 'dir') { ctx.dir = cleanDir(e.target.value); keepPlace(e.target, () => document.querySelector('[data-ctx-in=dir]')); } });
+window.addEventListener('hashchange', () => { readHash(); render(); });
+readHash();
+render();
+</script>
+{% endraw %}

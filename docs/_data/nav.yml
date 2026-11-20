@@ -20,8 +20,8 @@
       url: /php-configuration.html
     - title: Processes, cron, daemons
       url: /processes.html
-    - title: Debugging and profiling
-      url: /debugging.html
+    - title: Debugging, profiling, coverage
+      url: /debugging/
     - title: Advanced features
       url: /advanced.html
 - title: Project
