@@ -29,6 +29,10 @@ concurrency:
   group: ${{ inputs.php_version && format('build-{0}', inputs.php_version) || github.run_id }}
   cancel-in-progress: ${{ inputs.php_version && true || false }}
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   purge-cache:
     if: ${{ github.event_name == 'schedule' && vars.SECURITY_RELEASE != '1' }}
@@ -48,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && (contains(fromJSON('["8.5", "8.4", "8.3", "8.2"]'), inputs.php_version) && format('["{0}"]', inputs.php_version) || '[]') || '["8.5", "8.4", "8.3", "8.2"]') }}
         builder: [ {arch: "amd64", os: "ubuntu-24.04"}, {arch: "arm64", os: "ubuntu-24.04-arm"}]
     runs-on: ${{ matrix.builder.os }}
     env:
@@ -162,7 +166,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php_version: ${{ fromJSON(inputs.php_version && format('["{0}"]', inputs.php_version) || '["8.5", "8.4", "8.3", "8.2"]') }}
+        php_version: ${{ fromJSON(inputs.php_version && (contains(fromJSON('["8.5", "8.4", "8.3", "8.2"]'), inputs.php_version) && format('["{0}"]', inputs.php_version) || '[]') || '["8.5", "8.4", "8.3", "8.2"]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7

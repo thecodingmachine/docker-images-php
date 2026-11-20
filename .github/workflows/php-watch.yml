@@ -50,6 +50,9 @@ jobs:
       FIXED: ${{ inputs.fixed }}
       PHP_VERSIONS: ${{ inputs.php_versions }}
       SURY_URL: ${{ inputs.sury_url }}
+      START_AT: ${{ inputs.start_at }}
+      UNTIL: ${{ inputs.until }}
+      RELAUNCH_AFTER: ${{ inputs.relaunch_after }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -61,7 +64,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Watch
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
             # The watch of a security release does the passes
             if [ -n "$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow php-watch.yml --event workflow_dispatch --status in_progress --json databaseId --jq '.[]')" ]; then
               echo "Watch of a security release in progress"
@@ -71,17 +74,16 @@ jobs:
             exit 0
           fi
 
-          STOP=$(date -u -d "${{ inputs.until }}" +%s)
-          RELAUNCH=$(( $(date -u +%s) + ${{ inputs.relaunch_after }} * 60 ))
-          if [ -n "${{ inputs.start_at }}" ]; then
-            START=$(date -u -d "${{ inputs.start_at }}" +%s)
-            while [ "$(date -u +%s)" -lt "${START}" ]; do
-              if [ "$(date -u +%s)" -ge "${RELAUNCH}" ]; then break; fi
-              sleep 60
-            done
-          fi
+          NOW=$(date -u +%s)
+          STOP=$(date -u -d "${UNTIL}" +%s)
+          START=$(date -u -d "${START_AT:-now}" +%s)
+          [[ "${RELAUNCH_AFTER}" =~ ^[0-9]+$ ]] && [ "${RELAUNCH_AFTER}" -ge 10 ] && [ "${RELAUNCH_AFTER}" -le 340 ] \
+            || { echo "::error::relaunch_after: 10 to 340 minutes"; exit 1; }
+          [ "${STOP}" -le $((NOW + 7 * 86400)) ] || { echo "::error::until: 7 days from now at most"; exit 1; }
+          RELAUNCH=$((NOW + RELAUNCH_AFTER * 60))
+          while [ "$(date -u +%s)" -lt "${START}" ] && [ "$(date -u +%s)" -lt "${RELAUNCH}" ]; do sleep 60; done
           while [ "$(date -u +%s)" -lt "${STOP}" ] && [ "$(date -u +%s)" -lt "${RELAUNCH}" ]; do
-            if [ -z "${{ inputs.start_at }}" ] || [ "$(date -u +%s)" -ge "${START}" ]; then
+            if [ "$(date -u +%s)" -ge "${START}" ]; then
               echo "Pass of $(date -u '+%H:%M') UTC"
               RC=0; .github/php-watch.sh || RC=$?
               # All the images are up to date (and fixed)
@@ -92,7 +94,6 @@ jobs:
           if [ "$(date -u +%s)" -lt "${STOP}" ]; then
             echo "Start of a new run of the watch"
             gh workflow run php-watch.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}" \
-              -f issue="${{ inputs.issue }}" -f fixed="${{ inputs.fixed }}" -f start_at="${{ inputs.start_at }}" \
-              -f until="${{ inputs.until }}" -f php_versions="${{ inputs.php_versions }}" \
-              -f sury_url="${{ inputs.sury_url }}" -f relaunch_after="${{ inputs.relaunch_after }}"
+              -f issue="${ISSUE}" -f fixed="${FIXED}" -f start_at="${START_AT}" -f until="${UNTIL}" \
+              -f php_versions="${PHP_VERSIONS}" -f sury_url="${SURY_URL}" -f relaunch_after="${RELAUNCH_AFTER}"
           fi
