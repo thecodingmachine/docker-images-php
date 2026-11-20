@@ -1,4 +1,6 @@
 name: Direct build v5 of legacy php
+# Title of the rebuilds of php-watch.sh
+run-name: ${{ inputs.php_version && format('Rebuild PHP {0} (amd64 {1}, arm64 {2})', inputs.php_version, inputs.package_amd64, inputs.package_arm64) || '' }}
 
 on:
   workflow_dispatch:
@@ -100,6 +102,9 @@ jobs:
       # Non-maintained PHP versions: all the images. Maintained PHP versions: only the non-maintained NodeJS versions
       BAKE_GROUP: php${{ matrix.php_version }}-${{ matrix.variant }}-${{ contains(fromJSON('["8.1", "8.0", "7.4"]'), matrix.php_version) && 'all' || 'legacy-node' }}
     name: Merge and publish ${{ matrix.php_version }}-${{ matrix.variant }}
+    # One publication of a group of images at a time
+    concurrency:
+      group: publish-legacy-${{ matrix.php_version }}-${{ matrix.variant }}
     strategy:
       fail-fast: false
       matrix:

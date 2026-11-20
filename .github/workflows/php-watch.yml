@@ -1,0 +1,98 @@
+name: Watch the PHP packages
+
+# Rebuilds each PHP version when sury publishes new packages (see .github/php-watch.sh).
+# - schedule: one pass every hour (GitHub may start it hours late).
+# - workflow_dispatch (security release): a pass every 5 minutes from start_at to until, with the table of the images
+#   in the issue. A job lasts 6 hours at most: the watch starts a new run of itself before, and stops.
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 'Issue of the security release: table of the images, digest every 30 minutes when it changes'
+        default: ''
+      fixed:
+        description: 'Fixed versions, e.g. "8.4=8.4.28 8.1=8.1.34-13"'
+        default: ''
+      start_at:
+        description: 'Start of the watch (UTC, e.g. 2026-12-17 13:45), now if empty'
+        default: ''
+      until:
+        description: 'End of the watch (UTC, e.g. 2026-12-19 14:00)'
+        required: true
+      php_versions:
+        description: 'PHP versions to watch, all if empty'
+        default: ''
+      sury_url:
+        description: 'sury repository (tests), https://packages.sury.org/php if empty'
+        default: ''
+      relaunch_after:
+        description: 'Minutes before the watch starts a new run of itself'
+        default: '340'
+
+concurrency:
+  group: php-watch-${{ github.event_name }}
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+  packages: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE: ${{ inputs.issue }}
+      FIXED: ${{ inputs.fixed }}
+      PHP_VERSIONS: ${{ inputs.php_versions }}
+      SURY_URL: ${{ inputs.sury_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Watch
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            # The watch of a security release does the passes
+            if [ -n "$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow php-watch.yml --event workflow_dispatch --status in_progress --json databaseId --jq '.[]')" ]; then
+              echo "Watch of a security release in progress"
+              exit 0
+            fi
+            .github/php-watch.sh || [ $? = 3 ]
+            exit 0
+          fi
+
+          STOP=$(date -u -d "${{ inputs.until }}" +%s)
+          RELAUNCH=$(( $(date -u +%s) + ${{ inputs.relaunch_after }} * 60 ))
+          if [ -n "${{ inputs.start_at }}" ]; then
+            START=$(date -u -d "${{ inputs.start_at }}" +%s)
+            while [ "$(date -u +%s)" -lt "${START}" ]; do
+              if [ "$(date -u +%s)" -ge "${RELAUNCH}" ]; then break; fi
+              sleep 60
+            done
+          fi
+          while [ "$(date -u +%s)" -lt "${STOP}" ] && [ "$(date -u +%s)" -lt "${RELAUNCH}" ]; do
+            if [ -z "${{ inputs.start_at }}" ] || [ "$(date -u +%s)" -ge "${START}" ]; then
+              echo "Pass of $(date -u '+%H:%M') UTC"
+              RC=0; .github/php-watch.sh || RC=$?
+              # All the images are up to date (and fixed)
+              [ "${RC}" = 0 ] && exit 0
+            fi
+            sleep 300
+          done
+          if [ "$(date -u +%s)" -lt "${STOP}" ]; then
+            echo "Start of a new run of the watch"
+            gh workflow run php-watch.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}" \
+              -f issue="${{ inputs.issue }}" -f fixed="${{ inputs.fixed }}" -f start_at="${{ inputs.start_at }}" \
+              -f until="${{ inputs.until }}" -f php_versions="${{ inputs.php_versions }}" \
+              -f sury_url="${{ inputs.sury_url }}" -f relaunch_after="${{ inputs.relaunch_after }}"
+          fi
