@@ -1,0 +1,58 @@
+#!/bin/bash
+# Profiles one PHP command with the profiler of PHP_PROFILER, then prints the summary on stderr
+# Usage: php-profile <command> [arguments], e.g. php-profile bin/console app:import or php-profile script.php
+set -e
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: php-profile <command> [arguments], e.g. php-profile bin/console app:import" >&2
+    exit 1
+fi
+# A PHP file that is not executable runs with php
+if [[ "$1" == *.php ]] || { [[ -f "$1" ]] && [[ ! -x "$1" ]]; }; then
+    set -- php "$@"
+fi
+
+DIR="${PHP_PROFILER_OUTPUT_DIR:-/tmp/php-profiles}"
+case "${PHP_PROFILER}" in
+    spx)
+        # SPX prints its flat profile on stderr when the command ends
+        exec env SPX_ENABLED=1 SPX_REPORT=flat SPX_FP_LIMIT=30 "$@"
+        ;;
+    excimer|xhprof)
+        PATTERN='*.summary.txt'
+        TRIGGER=(env "PHP_PROFILE=${PHP_PROFILER_TRIGGER_VALUE:-1}")
+        ;;
+    xdebug)
+        PATTERN='cachegrind.out.*'
+        TRIGGER=(env "XDEBUG_TRIGGER=${PHP_PROFILER_TRIGGER_VALUE:-1}")
+        ;;
+    "")
+        echo "php-profile: set PHP_PROFILER to excimer, xhprof, spx or xdebug" >&2
+        exit 1
+        ;;
+    *)
+        echo "php-profile: invalid PHP_PROFILER '${PHP_PROFILER}', expected excimer, xhprof, spx or xdebug" >&2
+        exit 1
+        ;;
+esac
+
+MARKER=$(mktemp)
+trap 'rm -f "${MARKER}"' EXIT
+STATUS=0
+"${TRIGGER[@]}" "$@" || STATUS=$?
+
+# The command may run other PHP processes: every new profile is listed, the summary of the last one is printed
+mapfile -t PROFILES < <(find "${DIR}" -maxdepth 1 -name "${PATTERN}" -newer "${MARKER}" -printf '%T@ %p\n' 2> /dev/null | sort -n | cut -d' ' -f2-)
+if [[ ${#PROFILES[@]} -eq 0 ]]; then
+    echo "php-profile: no profile written in ${DIR}" >&2
+else
+    {
+        echo
+        printf 'Profile: %s\n' "${PROFILES[@]}"
+        if [[ "${PHP_PROFILER}" != "xdebug" ]]; then
+            echo
+            cat "${PROFILES[-1]}"
+        fi
+    } >&2
+fi
+exit "${STATUS}"

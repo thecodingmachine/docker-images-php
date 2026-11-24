@@ -44,6 +44,21 @@ if (enableExtension('xdebug') && enableExtension('blackfire')) {
     error_log('WARNING: Both Blackfire and Xdebug are enabled. This is not recommended as the PHP engine may not behave as expected. You should strongly consider disabling Xdebug or Blackfire.');
 }
 
+$profiler = getProfiler();
+if ($profiler !== '' && !in_array($profiler, $availableExtensions, true)) {
+    file_put_contents('php://stderr', "PHP_PROFILER=$profiler needs the $profiler extension, which is not in this image (the slim images do not have it).\n");
+    exit(1);
+}
+if ($profiler !== '' && $profiler !== 'xdebug' && enableExtension('xdebug', false)) {
+    error_log("WARNING: Xdebug is enabled while PHP_PROFILER=$profiler profiles: Xdebug slows PHP down and distorts the profiles. Disable Xdebug while you profile.");
+}
+if ($profiler !== '' && enableExtension('blackfire')) {
+    error_log("WARNING: Blackfire and PHP_PROFILER=$profiler are enabled: two profilers distort each other. Keep only one.");
+}
+if (enableExtension('pcov') && enableExtension('xdebug', false)) {
+    error_log('WARNING: PCOV and Xdebug are enabled: PHPUnit measures the coverage with PCOV, while Xdebug slows the tests down. Disable Xdebug to measure the coverage.');
+}
+
 $toDisable = [];
 $toEnable = [];
 

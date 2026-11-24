@@ -17,7 +17,7 @@ environment variables. The list of images and the quick start are in the
 - [PHP extensions](extensions.md)
 - [PHP configuration (php.ini)](php-configuration.md)
 - [Processes: startup commands, cron jobs and daemons](processes.md)
-- [Debugging and profiling](debugging.md)
+- [Debugging, profiling, coverage](debugging/): from your needs, the tools to load in development, in the CI and in production, and the configuration of your IDE, your AI agent and each environment
 - [Advanced features](advanced.md)
 
 ## Project

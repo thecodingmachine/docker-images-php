@@ -24,8 +24,8 @@ This list can be outdated, you can verify it with: `docker run --rm thecodingmac
 **Available (can be enabled with environment variables):** `amqp` `ast` `bcmath` `blackfire` `bz2` `dba` `decimal`
 `ds` `enchant` `exif` `excimer` `ffi` `mailparse` `msgpack` `gd` `gettext` `gmp` `gnupg` `grpc` `igbinary` `imagick`
 `imap` `inotify` `intl` `ldap` `lz4` `mcrypt` `memcached` `mongodb` `odbc` `opentelemetry` `pcov` `pdo_dblib`
-`pdo_odbc` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `rdkafka` `shmop` `snmp` `sockets` `sqlite3` `swoole` `tidy`
-`uploadprogress` `uuid` `xdebug` `xmlrpc` `xsl` `yaml` `zstd`
+`pdo_odbc` `pdo_pgsql` `pdo_sqlite` `pgsql` `pspell` `rdkafka` `shmop` `snmp` `sockets` `spx` `sqlite3` `swoole` `tidy`
+`uploadprogress` `uuid` `xdebug` `xhprof` `xmlrpc` `xsl` `yaml` `zstd`
 
 This list can be outdated, you can verify it with: `docker run --rm thecodingmachine/php:8.4-v5-cli php -m`
 
@@ -38,7 +38,7 @@ This list can be outdated, you can verify it with: `docker run --rm thecodingmac
 - The extensions required by an enabled extension are enabled with it, even if they are disabled: `igbinary` and
   `msgpack` for *memcached*, `igbinary` for *redis*, `mbstring` for *mailparse*, `curl` and `mysqlnd` for *swoole*,
   `mysqlnd` for *mysqli* and *pdo_mysql*
-- To debug or profile your application with *xdebug* or *blackfire*, see [Debugging and profiling](debugging.md)
+- To debug, profile or measure the coverage (*xdebug*, *pcov*, *excimer*, *xhprof*, *spx*, *blackfire*, *opentelemetry*), see [Debugging, profiling, coverage](debugging/)
 
 ## Enabling/disabling extensions in the fat images
 
