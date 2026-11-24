@@ -8,16 +8,20 @@ Enable the Xdebug extension:
 PHP_EXTENSION_XDEBUG=1
 ```
 
-The image then configures Xdebug to connect back to your Docker host:
+The image then configures Xdebug to connect back to your IDE:
 
 - `xdebug.mode` is set to `debug`
-- on Linux, `xdebug.client_host` is the IP of your Docker gateway
-- on Windows and macOS, `xdebug.client_host` is the IP of
-  [`host.docker.internal`](https://docs.docker.com/desktop/features/networking/#use-cases-and-workarounds)
-  (or `docker.for.mac.localhost` on old Docker versions)
+- `xdebug.client_host` is the address of
+  [`host.docker.internal`](https://docs.docker.com/desktop/features/networking/#use-cases-and-workarounds) when it
+  resolves to a non-loopback address (Docker Desktop, OrbStack, or `extra_hosts: ["host.docker.internal:host-gateway"]`),
+  otherwise [`xdebug://gateway`](https://xdebug.org/docs/step_debug#client_host): the gateway of the container, which
+  is your machine with Docker Engine on Linux
+
+This is computed only when Xdebug is enabled, also when it is enabled for a single command
+(`docker compose exec -e PHP_EXTENSION_XDEBUG=1 app php …`).
 
 To debug from inside the container (for instance with [VSCode devcontainers](https://code.visualstudio.com/docs/remote/containers)),
-set `xdebug.client_host` yourself with the `XDEBUG_CLIENT_HOST` variable:
+or to reach another address, set `xdebug.client_host` yourself with the `XDEBUG_CLIENT_HOST` variable:
 
 ```bash
 XDEBUG_CLIENT_HOST=127.0.0.1
